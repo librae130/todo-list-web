@@ -1,0 +1,10 @@
+{
+  "name": "frontend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "fe": "cd ./frontend && npm run dev",
+    "be": "cd ./backend && dotnet watch"
+  }
+}
