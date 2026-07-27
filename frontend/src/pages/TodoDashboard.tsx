@@ -10,7 +10,9 @@ import { TodoDashboardControls } from "../components/TodoDashboardControls.tsx";
 import { EditTodoModal } from "../components/EditTodoModal.tsx";
 import { CreateTodoModal } from "../components/CreateTodoModal.tsx";
 
+// Translates different error types (Axios, network, custom) into a user-friendly message.
 const buildRequestErrorMessage = (err: any, action: string) => {
+  // Ignore aborted requests, as these are intentional and not true errors.
   if (axios.isCancel(err)) {
     return null;
   }
@@ -35,6 +37,7 @@ const buildRequestErrorMessage = (err: any, action: string) => {
     return `Request failed to send when ${action}.`;
   }
 
+  // Handle custom error messages thrown within the application logic.
   if (err instanceof Error) {
     if (err.message === "ERR_MALFORMED_DATA") {
       return `Unexpected data received from the server when ${action}.`;
@@ -59,6 +62,7 @@ export const TodoDashboard = () => {
   const [editingTodo, setEditingTodo] = useState<TodoDTO | null>(null);
   const [isCreating, setIsCreating] = useState(false);
 
+  // This effect hook is responsible for fetching the to-do list data whenever the search query or filter type changes.
   useEffect(() => {
     const abortController = new AbortController();
 
@@ -77,10 +81,6 @@ export const TodoDashboard = () => {
         setError(null);
         setTableData(todosData);
       } catch (err: any) {
-        if (axios.isCancel(err)) {
-          return;
-        }
-
         setError(buildRequestErrorMessage(err, "fetching to-do table"));
       } finally {
         setLoading(false);
@@ -92,10 +92,13 @@ export const TodoDashboard = () => {
     return () => abortController.abort();
   }, [searchQuery, filterType]);
 
+  // Manages the state for the editing modal.
   const setEditMode = (editMode: boolean, id: string | null) => {
     setIsEditing(editMode);
     setEditingTodoId(id);
 
+    // When entering edit mode, find the corresponding to-do from the table data
+    // to populate the modal. When exiting, clear the editing state.
     if (editMode && id != null) {
       setEditingTodo(tableData.find((todo) => todo.id === id) ?? null);
     } else {
@@ -109,15 +112,9 @@ export const TodoDashboard = () => {
     }
 
     try {
-      if (updatedTodo.name.trim() === "") {
-        const editingTodo = tableData.find((todo) => todo.id === editingTodoId);
-        if (editingTodo != null) {
-          updatedTodo.name = editingTodo.name;
-        }
-      }
-
       const response = await api.put(`/api/todo-list/${editingTodoId}`, updatedTodo);
       if (response.data != null) {
+        // After a successful API call, update the specific item in the local tableData state.
         setTableData(
           tableData.map((todo) => {
             if (todo.id === editingTodoId) {
@@ -131,6 +128,7 @@ export const TodoDashboard = () => {
           }),
         );
       } else {
+        // If the server response is malformed, throw an error to be handled by the catch block.
         throw new Error("ERR_MALFORMED_DATA");
       }
     } catch (err: any) {
@@ -147,8 +145,8 @@ export const TodoDashboard = () => {
   const deleteTodo = async (id: string) => {
     setLoading(true);
     try {
-      await api.delete(`/api/todo-list/${id}`);
       setTableData(tableData.filter((todo) => todo.id !== id));
+      await api.delete(`/api/todo-list/${id}`);
     } catch (err: any) {
       setError(buildRequestErrorMessage(err, "deleting to-do"));
     } finally {
@@ -156,19 +154,16 @@ export const TodoDashboard = () => {
     }
   };
 
+  // Manages the state for the creating modal.
   const setCreateMode = (createMode: boolean) => {
     setIsCreating(createMode);
   };
 
   const createTodo = async (newTodo: CreateTodoDTO) => {
     try {
-      if (newTodo.name.trim() === "") {
-        throw new Error("ERR_INVALID_PARAM");
-      }
-
       const response = await api.post(`/api/todo-list`, newTodo);
       if (response.data != null) {
-        setTableData([...tableData, response.data]);
+        setTableData([response.data, ...tableData]);
       } else {
         throw new Error("ERR_MALFORMED_DATA");
       }
@@ -193,7 +188,11 @@ export const TodoDashboard = () => {
           onFilterChange={setFilterType}
           onCreate={setCreateMode}
         />
-        <TodoTable data={tableData} onEdit={setEditMode} onDelete={deleteTodo} />
+        <TodoTable
+          data={tableData}
+          onEdit={setEditMode}
+          onDelete={deleteTodo}
+        />
       </div>
       {isEditing && editingTodo && (
         <EditTodoModal todo={editingTodo} onSave={editTodo} onClose={setEditMode} />

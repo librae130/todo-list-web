@@ -22,7 +22,6 @@ public static class TodoMapper
         {
             Name = createTodoDTO.Name,
             Description = createTodoDTO.Description,
-            CreatedAt = createTodoDTO.CreatedAt,
         };
     }
 

@@ -24,35 +24,38 @@ public class TodoService
     {
         var query = _context.Todos.AsQueryable();
 
-        if (!string.IsNullOrEmpty(search) && !string.IsNullOrEmpty(filter))
+        // If search or filter are not provided, return the full list as a default behavior.
+        if (string.IsNullOrWhiteSpace(search) || string.IsNullOrWhiteSpace(filter))
         {
-            var normalizedSearch = search.Trim();
+            return await GetList();
+        }
 
-            switch (filter.Trim())
-            {
-                case "name":
-                    var nameSearch = normalizedSearch.ToLowerInvariant();
-                    query = query.Where(todo => todo.Name.ToLower().Contains(nameSearch));
-                    break;
-                case "description":
-                    var descSearch = normalizedSearch.ToLowerInvariant();
-                    query = query.Where(todo => todo.Description.ToLower().Contains(descSearch));
-                    break;
-                case "createdDate":
-                    var dateSearch = normalizedSearch.ToLowerInvariant();
-                    query = query.Where(todo =>
-                        todo.CreatedAt.ToString().ToLower().Contains(dateSearch)
-                    );
-                    break;
-                default:
-                    var anySearch = normalizedSearch.ToLowerInvariant();
-                    query = query.Where(todo =>
-                        todo.Name.ToLower().Contains(anySearch)
-                        || todo.Description.ToLower().Contains(anySearch)
-                        || todo.CreatedAt.ToString().ToLower().Contains(anySearch)
-                    );
-                    break;
-            }
+        var normalizedSearch = search.Trim();
+
+        // Dynamically build the search query based on the specified filter.
+        switch (filter.Trim().ToLowerInvariant())
+        {
+            case "name":
+                query = query.Where(todo => todo.Name.ToLower().Contains(normalizedSearch.ToLower()));
+                break;
+            case "description":
+                query = query.Where(todo => todo.Description.ToLower().Contains(normalizedSearch.ToLower()));
+                break;
+            case "createddate":
+                // For date filtering, parse the search string and compare only the date part, ignoring the time.
+                if (DateTime.TryParse(normalizedSearch, out var searchDate))
+                {
+                    query = query.Where(todo => todo.CreatedAt.Date == searchDate.Date);
+                }
+                break;
+            default:
+                // If the filter is unknown or not provided, default to searching across both name and description.
+                query = query.Where(todo =>
+                    todo.Name.ToLower().Contains(normalizedSearch.ToLower())
+                    || todo.Description.ToLower().Contains(normalizedSearch.ToLower())
+                    || todo.CreatedAt.ToString().ToLower().Contains(normalizedSearch.ToLower())
+                );
+                break;
         }
 
         return await query.ToListAsync();

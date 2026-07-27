@@ -1,38 +1,47 @@
 import { useEffect, useState } from "react";
 import type { TodoDTO } from "../dtos/TodoDTO.tsx";
+import type { UpdateTodoDTO } from "../dtos/UpdateTodoDTO.tsx";
 
-export const EditTodoModal = ({
-  todo,
-  onSave,
-  onClose,
-}: {
+type EditTodoModalProps = {
   todo: TodoDTO;
-  onSave: any;
-  onClose: any;
-}) => {
+  onSave: (updatedTodo: UpdateTodoDTO) => void;
+  onClose: (open: boolean, id: string | null) => void;
+};
+
+export const EditTodoModal = ({ todo, onSave, onClose }: EditTodoModalProps) => {
   const [isSaving, setIsSaving] = useState(false);
   const [name, setName] = useState(todo.name);
   const [description, setDescription] = useState(todo.description);
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{ name?: string; description?: string }>({});
 
   useEffect(() => {
     setName(todo.name);
     setDescription(todo.description);
-    setError(null);
+    setErrors({});
   }, [todo]);
 
   function handleSave(event: any) {
     event.preventDefault();
+    setErrors({});
+    const newErrors: { name?: string; description?: string } = {};
 
     if (name.trim() === "") {
-      setError("Name can not be blank.");
+      newErrors.name = "Name can not be blank.";
+    } else if (name.length > 100) {
+      newErrors.name = "Name cannot be longer than 100 characters.";
+    }
+
+    if (description.length > 500) {
+      newErrors.description = "Description cannot be longer than 500 characters.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
     setIsSaving(true);
-
     onSave({ name: name.trim(), description });
-
     setIsSaving(false);
   }
 
@@ -55,17 +64,34 @@ export const EditTodoModal = ({
             name="name"
             type="text"
             value={name}
+            maxLength={100}
             onChange={(event) => setName(event.target.value)}
           />
+          <div className="modal__input__footer">
+            {errors.name && (
+              <p className="modal__error-message">{errors.name}</p>
+            )}
+            <p className="modal__char-counter">{name.length}/100</p>
+          </div>
           <label className="modal__label">Edit Description:</label>
           <textarea
             className="modal__textarea modal__textarea--description"
             name="description"
             value={description}
+            maxLength={500}
             onChange={(event) => setDescription(event.target.value)}
           />
-          {error && <p className="modal__error-message">{error}</p>}
-          <button className="modal__submit-button" type="submit" disabled={isSaving}>
+          <div className="modal__input__footer">
+            {errors.description && (
+              <p className="modal__error-message">{errors.description}</p>
+            )}
+            <p className="modal__char-counter">{description.length}/500</p>
+          </div>
+          <button
+            className="modal__submit-button"
+            type="submit"
+            disabled={isSaving}
+          >
             {isSaving ? "Saving..." : "Save"}
           </button>
         </form>
