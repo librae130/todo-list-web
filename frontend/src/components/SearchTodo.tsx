@@ -14,7 +14,7 @@ export const SearchTodo = ({ onSearchChange }: SearchTodoProps) => {
       className="todo-dashboard-controls__search-input"
       type="text"
       onChange={onChange}
-      placeholder="Search by name, description, created date..."
+      placeholder="Search by Name, Description, Created date..."
     />
   );
 };

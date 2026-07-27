@@ -1,9 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace backend.Models;
 
 public class Todo
 {
-    public Guid Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; }
+  [Key]
+  public Guid Id { get; set; }
+  public string Name { get; set; } = string.Empty;
+  public string Description { get; set; } = string.Empty;
+  public DateTime CreatedAt { get; set; }
 }

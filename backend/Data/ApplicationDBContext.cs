@@ -9,4 +9,5 @@ public class ApplicationDBContext : DbContext
         : base(options) { }
 
     public DbSet<Todo> Todos { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
 }

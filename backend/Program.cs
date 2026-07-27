@@ -1,5 +1,6 @@
 using backend.Data;
 using backend.Services;
+using Microsoft.AspNetCore.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -19,7 +20,9 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
     )
 );
 
+builder.Services.AddScoped<JWTService>();
 builder.Services.AddScoped<TodoService>();
+builder.Services.AddScoped<UserService>();
 
 var allowedOriginsString = builder.Configuration["ALLOWED_ORIGINS"] ?? "http://localhost:3000";
 var origins = allowedOriginsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
@@ -27,13 +30,29 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy
-            .WithOrigins(origins)
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod();
     });
 });
 
+builder
+    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
+            ),
+        };
+    });
+
+builder.Services.AddAuthorization();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -46,6 +65,8 @@ if (app.Environment.IsDevelopment())
 app.UseRouting();
 app.UseCors();
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

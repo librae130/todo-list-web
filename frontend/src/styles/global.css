@@ -87,7 +87,6 @@ textarea {
   align-items: center;
 }
 
-
 .modal__label {
   margin: 6px 0px;
   font-weight: bold;
@@ -179,6 +178,7 @@ textarea {
   width: 100%;
   border: solid 2px black;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .todo-table__header-cell {
@@ -196,16 +196,16 @@ textarea {
   vertical-align: top;
 }
 
-.todo-table__cell--name {
-  width: 25%;
+.todo-table__header-cell--name {
+  width: 28.57%;
 }
 
-.todo-table__cell--description {
-  width: 45%;
+.todo-table__header-cell--description {
+  width: 42.85%;
 }
 
-.todo-table__cell--date {
-  width: 15%;
+.todo-table__header-cell--date {
+  width: 14.28%;
 }
 
 .todo-table__cell--actions {
