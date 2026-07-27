@@ -1,14 +1,12 @@
 import type { TodoDTO } from "../dtos/TodoDTO.tsx";
 
-export const TodoTable = ({
-  data,
-  onEdit,
-  onDelete,
-}: {
+type TodoTableProps = {
   data: TodoDTO[];
-  onEdit: any;
-  onDelete: any;
-}) => {
+  onEdit: (editMode: boolean, id: string | null) => void;
+  onDelete: (id: string) => void;
+};
+
+export const TodoTable = ({ data, onEdit, onDelete }: TodoTableProps) => {
   const formatDateTime = (dateTime: string) => {
     return dateTime.substring(0, dateTime.lastIndexOf(":")).split("T").join(" ");
   };
@@ -40,10 +38,16 @@ export const TodoTable = ({
               <td className="todo-table__cell todo-table__cell--date">{formatDateTime(todo.createdAt)}</td>
               <td className="todo-table__cell todo-table__cell--actions">
                 <div className="todo-table__actions">
-                  <button className="todo-table__action-button todo-table__action-button--edit" onClick={handleEdit(todo.id)}>
+                  <button
+                    className="todo-table__action-button todo-table__action-button--edit"
+                    onClick={handleEdit(todo.id)}
+                  >
                     Edit
                   </button>
-                  <button className="todo-table__action-button todo-table__action-button--delete" onClick={handleDelete(todo.id)}>
+                  <button
+                    className="todo-table__action-button todo-table__action-button--delete"
+                    onClick={handleDelete(todo.id)}
+                  >
                     Delete
                   </button>
                 </div>

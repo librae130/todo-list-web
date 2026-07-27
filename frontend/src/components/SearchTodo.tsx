@@ -1,5 +1,11 @@
-export const SearchTodo = ({ onSearchChange }: { onSearchChange: any }) => {
-  const onChange = (e: any) => {
+import type { ChangeEvent } from "react";
+
+type SearchTodoProps = {
+  onSearchChange: (query: string) => void;
+};
+
+export const SearchTodo = ({ onSearchChange }: SearchTodoProps) => {
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     onSearchChange(e.target.value);
   };
 

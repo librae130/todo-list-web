@@ -58,11 +58,11 @@ textarea {
 .modal__content {
   position: absolute;
   left: 35%;
-  top: 20%;
+  top: 17%;
   padding: 20px;
   border: solid 2px black;
   width: 30%;
-  height: 60%;
+  height: 66%;
   overflow: scroll;
   display: flex;
   justify-content: center;
@@ -71,8 +71,22 @@ textarea {
 
 .modal__error-message {
   color: red;
-  margin: 6px 0 0;
+  font-size: 15px;
 }
+
+.modal__char-counter {
+  font-size: 15px;
+  color: grey;
+  text-align: right;
+  flex: 1;
+}
+
+.modal__input__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 
 .modal__label {
   margin: 6px 0px;
@@ -89,6 +103,7 @@ textarea {
   background-color: black;
   border: solid 2px black;
   padding: 0px 7px;
+  user-select: none;
 }
 
 .modal__close-button:hover,
@@ -160,18 +175,6 @@ textarea {
   padding: 10px 8px;
 }
 
-.status-message {
-  margin-bottom: 16px;
-}
-
-.status-message--error {
-  color: red;
-}
-
-.status-message--loading {
-  color: grey;
-}
-
 .todo-table {
   width: 100%;
   border: solid 2px black;
@@ -226,14 +229,13 @@ textarea {
 .status-message--error {
   position: fixed;
   top: 0;
-  z-index: 1002;
+  z-index: 1001;
   color: red;
 }
 
 .status-message--loading {
   position: fixed;
   top: 0;
-  z-index: 1001;
+  z-index: 1002;
   color: grey;
 }
-

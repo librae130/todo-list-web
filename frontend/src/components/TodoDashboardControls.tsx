@@ -1,16 +1,18 @@
 import { SearchTodo } from "./SearchTodo.tsx";
-import { TodoFilterSelect } from "./TodoFilterSelect.tsx";
+import { TodoFilterSelect, type TodoFilterOption } from "./TodoFilterSelect.tsx";
 import { CreateTodoButton } from "./CreateTodoButton.tsx";
+
+type TodoDashboardControlsProps = {
+  onSearchChange: (query: string) => void;
+  onFilterChange: (filter: TodoFilterOption) => void;
+  onCreate: (createMode: boolean) => void;
+};
 
 export const TodoDashboardControls = ({
   onSearchChange,
   onFilterChange,
   onCreate,
-}: {
-  onSearchChange: any;
-  onFilterChange: any;
-  onCreate: any;
-}) => {
+}: TodoDashboardControlsProps) => {
   return (
     <div className="todo-dashboard-controls">
       <div className="todo-dashboard-controls__search">

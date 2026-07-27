@@ -47,20 +47,15 @@ public class TodoController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateTodoDTO createTodoDTO)
+    public async Task<IActionResult> Create([FromBody] CreateTodoDTO createTodoDTO)
     {
-        if (string.IsNullOrWhiteSpace(createTodoDTO.Name))
-        {
-            return BadRequest("To-do's name is required");
-        }
-
         var createdTodo = await _todoService.Create(createTodoDTO);
 
         return CreatedAtAction(nameof(GetById), new { id = createdTodo.Id }, createdTodo.ToDTO());
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, UpdateTodoDTO updateTodoDTO)
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateTodoDTO updateTodoDTO)
     {
         var updatedTodo = await _todoService.Update(id, updateTodoDTO);
 
