@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { api } from "../utils/api.tsx";
+import { apiClient } from "../utils/api.tsx";
 import axios from "axios";
 import type { TodoDTO } from "../dtos/TodoDTO.tsx";
 import type { UpdateTodoDTO } from "../dtos/UpdateTodoDTO.tsx";
@@ -69,7 +69,7 @@ export const TodoDashboard = () => {
     const fetchTableData = async () => {
       setLoading(true);
       try {
-        const response = await api.get("/api/todo-list/search", {
+        const response = await apiClient.get("/api/todo-list/search", {
           signal: abortController.signal,
           params: {
             search: searchQuery ?? "",
@@ -112,7 +112,7 @@ export const TodoDashboard = () => {
     }
 
     try {
-      const response = await api.put(`/api/todo-list/${editingTodoId}`, updatedTodo);
+      const response = await apiClient.put(`/api/todo-list/${editingTodoId}`, updatedTodo);
       if (response.data != null) {
         // After a successful API call, update the specific item in the local tableData state.
         setTableData(
@@ -146,7 +146,7 @@ export const TodoDashboard = () => {
     setLoading(true);
     try {
       setTableData(tableData.filter((todo) => todo.id !== id));
-      await api.delete(`/api/todo-list/${id}`);
+      await apiClient.delete(`/api/todo-list/${id}`);
     } catch (err: any) {
       setError(buildRequestErrorMessage(err, "deleting to-do"));
     } finally {
@@ -161,7 +161,7 @@ export const TodoDashboard = () => {
 
   const createTodo = async (newTodo: CreateTodoDTO) => {
     try {
-      const response = await api.post(`/api/todo-list`, newTodo);
+      const response = await apiClient.post(`/api/todo-list`, newTodo);
       if (response.data != null) {
         setTableData([response.data, ...tableData]);
       } else {

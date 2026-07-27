@@ -11,12 +11,12 @@ namespace backend.Controllers;
 [Route("api/users")]
 public class AuthController : ControllerBase
 {
-    private readonly UserService _userService;
+    private readonly AuthService _authService;
     private readonly JWTService _jwtService;
 
-    public AuthController(UserService userService, JWTService jwtService)
+    public AuthController(AuthService authService, JWTService jwtService)
     {
-        _userService = userService;
+        _authService = authService;
         _jwtService = jwtService;
     }
 
@@ -25,7 +25,7 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var user = await _userService.Register(registerUserDTO);
+            var user = await _authService.Register(registerUserDTO);
             return CreatedAtAction(nameof(Register), new { id = user.Id }, user.ToDTO());
         }
         catch (Exception ex)
@@ -37,7 +37,7 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginUserDTO loginUserDTO)
     {
-        var user = await _userService.Login(loginUserDTO);
+        var user = await _authService.Login(loginUserDTO);
 
         if (user == null)
         {
