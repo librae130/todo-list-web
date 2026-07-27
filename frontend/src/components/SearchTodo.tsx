@@ -1,12 +1,14 @@
-import type { ChangeEvent } from "react";
+import { useDebounceFunction } from "../utils/debounce";
 
 type SearchTodoProps = {
   onSearchChange: (query: string) => void;
 };
 
 export const SearchTodo = ({ onSearchChange }: SearchTodoProps) => {
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onSearchChange(e.target.value);
+  const debouncedOnSearchChange = useDebounceFunction(onSearchChange, 500);
+
+  const onChange = (e: any) => {
+    debouncedOnSearchChange(e.target.value);
   };
 
   return (
