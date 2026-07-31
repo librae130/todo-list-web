@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { apiClient } from "../utils/api.tsx";
 import axios from "axios";
 import type { TodoDTO } from "../dtos/TodoDTO.tsx";
@@ -7,8 +7,9 @@ import type { CreateTodoDTO } from "../dtos/CreateTodoDTO.tsx";
 import type { TodoFilterOption } from "../components/TodoFilterSelect.tsx";
 import { TodoTable } from "../components/TodoTable.tsx";
 import { TodoDashboardControls } from "../components/TodoDashboardControls.tsx";
-import { EditTodoModal } from "../components/EditTodoModal.tsx";
-import { CreateTodoModal } from "../components/CreateTodoModal.tsx";
+//import { EditTodoModal } from "../components/EditTodoModal.tsx";
+//import { CreateTodoModal } from "../components/CreateTodoModal.tsx";
+import { formatDateTime } from "../utils/stringUtils.tsx";
 
 // Translates different error types (Axios, network, custom) into a user-friendly message.
 const buildRequestErrorMessage = (err: any, action: string) => {
@@ -57,10 +58,11 @@ export const TodoDashboard = () => {
   const [tableData, setTableData] = useState<TodoDTO[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<TodoFilterOption>("all");
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
-  const [editingTodo, setEditingTodo] = useState<TodoDTO | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
+  //const [isEditing, setIsEditing] = useState(false);
+  //const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
+  //const [editingTodo, setEditingTodo] = useState<TodoDTO | null>(null);
+  const [showCreateRow, setShowCreateRow] = useState(false);
+  const createRowRef = useRef<HTMLTableRowElement | null>(null);
 
   // This effect hook is responsible for fetching the to-do list data whenever the search query or filter type changes.
   useEffect(() => {
@@ -77,7 +79,11 @@ export const TodoDashboard = () => {
           },
         });
 
-        const todosData = response.data ?? [];
+        const todosData =
+          response.data.map((todo: any) => ({
+            ...todo,
+            createdAt: formatDateTime(todo.createdAt),
+          })) ?? [];
         setError(null);
         setTableData(todosData);
       } catch (err: any) {
@@ -92,21 +98,21 @@ export const TodoDashboard = () => {
     return () => abortController.abort();
   }, [searchQuery, filterType]);
 
-  // Manages the state for the editing modal.
-  const setEditMode = (editMode: boolean, id: string | null) => {
-    setIsEditing(editMode);
-    setEditingTodoId(id);
+  // // Manages the state for the editing modal.
+  // const setEditMode = (editMode: boolean, id: string | null) => {
+  //   setIsEditing(editMode);
+  //   setEditingTodoId(id);
 
-    // When entering edit mode, find the corresponding to-do from the table data
-    // to populate the modal. When exiting, clear the editing state.
-    if (editMode && id != null) {
-      setEditingTodo(tableData.find((todo) => todo.id === id) ?? null);
-    } else {
-      setEditingTodo(null);
-    }
-  };
+  //   // When entering edit mode, find the corresponding to-do from the table data
+  //   // to populate the modal. When exiting, clear the editing state.
+  //   if (editMode && id != null) {
+  //     setEditingTodo(tableData.find((todo) => todo.id === id) ?? null);
+  //   } else {
+  //     setEditingTodo(null);
+  //   }
+  // };
 
-  const editTodo = async (updatedTodo: UpdateTodoDTO) => {
+  const editTodo = async (editingTodoId: string, updatedTodo: UpdateTodoDTO) => {
     if (editingTodoId == null) {
       return;
     }
@@ -138,7 +144,7 @@ export const TodoDashboard = () => {
       }
     } finally {
       setLoading(false);
-      setEditMode(false, null);
+      //setEditMode(false, null);
     }
   };
 
@@ -155,15 +161,18 @@ export const TodoDashboard = () => {
   };
 
   // Manages the state for the creating modal.
-  const setCreateMode = (createMode: boolean) => {
-    setIsCreating(createMode);
-  };
+  // const setCreateMode = (createMode: boolean) => {
+  //   setIsCreating(createMode);
+  // };
 
   const createTodo = async (newTodo: CreateTodoDTO) => {
     try {
       const response = await apiClient.post(`/api/todo-list`, newTodo);
       if (response.data != null) {
-        setTableData([response.data, ...tableData]);
+        setTableData([
+          { ...response.data, createdAt: formatDateTime(response.data.createdAt) },
+          ...tableData,
+        ]);
       } else {
         throw new Error("ERR_MALFORMED_DATA");
       }
@@ -174,8 +183,18 @@ export const TodoDashboard = () => {
       }
     } finally {
       setLoading(false);
-      setCreateMode(false);
     }
+  };
+
+  const handleCreateClick = () => {
+    setShowCreateRow(true);
+
+    requestAnimationFrame(() => {
+      createRowRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
   };
 
   return (
@@ -186,18 +205,30 @@ export const TodoDashboard = () => {
         <TodoDashboardControls
           onSearchChange={setSearchQuery}
           onFilterChange={setFilterType}
-          onCreate={setCreateMode}
+          onCreate={handleCreateClick}
         />
+
         <TodoTable
           data={tableData}
-          onEdit={setEditMode}
+          showCreateRow={showCreateRow}
+          onCloseCreateRow={() => setShowCreateRow(false)}
+          onCreate={createTodo}
+          onEdit={editTodo}
           onDelete={deleteTodo}
+          createRowRef={createRowRef}
         />
       </div>
-      {isEditing && editingTodo && (
-        <EditTodoModal todo={editingTodo} onSave={editTodo} onClose={setEditMode} />
-      )}
-      {isCreating && <CreateTodoModal onCreate={createTodo} onClose={setCreateMode} />}
+      {/* {isEditing && editingTodo && (
+        <EditTodoModal
+          todo={editingTodo}
+          onSave={editTodo}
+          onClose={setEditMode}
+        />
+      )} */}
+
+      {/* {isCreating && (
+        <CreateTodoModal onCreate={createTodo} onClose={setCreateMode} />
+      )} */}
     </div>
   );
 };

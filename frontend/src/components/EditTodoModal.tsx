@@ -41,7 +41,7 @@ export const EditTodoModal = ({ todo, onSave, onClose }: EditTodoModalProps) => 
     }
 
     setIsSaving(true);
-    onSave({ name: name.trim(), description });
+    onSave({ name: name, description });
     setIsSaving(false);
   }
 
@@ -67,11 +67,15 @@ export const EditTodoModal = ({ todo, onSave, onClose }: EditTodoModalProps) => 
             maxLength={100}
             onChange={(event) => setName(event.target.value)}
           />
-          <div className="modal__input__footer">
+          <div className="modal__input-footer">
             {errors.name && (
-              <p className="modal__error-message">{errors.name}</p>
+              <p className="modal__input-footer-error-message">
+                {errors.name}
+              </p>
             )}
-            <p className="modal__char-counter">{name.length}/100</p>
+            <p className="modal__input-footer-char-counter">
+              {name.length}/100
+            </p>
           </div>
           <label className="modal__label">Edit Description:</label>
           <textarea
@@ -81,11 +85,15 @@ export const EditTodoModal = ({ todo, onSave, onClose }: EditTodoModalProps) => 
             maxLength={500}
             onChange={(event) => setDescription(event.target.value)}
           />
-          <div className="modal__input__footer">
+          <div className="modal__input-footer">
             {errors.description && (
-              <p className="modal__error-message">{errors.description}</p>
+              <p className="modal__input-footer-error-message">
+                {errors.description}
+              </p>
             )}
-            <p className="modal__char-counter">{description.length}/500</p>
+            <p className="modal__input-footer-char-counter">
+              {description.length}/500
+            </p>
           </div>
           <button
             className="modal__submit-button"

@@ -15,7 +15,7 @@ export const LoginForm = () => {
     setError("");
 
     try {
-      const response = await apiClient.post("/api/users/login", {
+      const response = await apiClient.post("/api/login", {
         username,
         password,
       });
@@ -50,10 +50,10 @@ export const LoginForm = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <div className="modal__input__footer">
-        {error && <p className="modal__error-message">{error}</p>}
+      <div className="form-login__input-footer">
+        {error && <p className="form-login__error-message">{error}</p>}
       </div>
-      <button className="modal__submit-button" type="submit" disabled={isLoggingIn}>
+      <button className="form-login__submit-button" type="submit" disabled={isLoggingIn}>
         {isLoggingIn ? "Logging In..." : "Log In"}
       </button>
       <p className="form-login__register-link">

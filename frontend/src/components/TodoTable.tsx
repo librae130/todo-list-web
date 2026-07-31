@@ -1,60 +1,64 @@
 import type { TodoDTO } from "../dtos/TodoDTO.tsx";
+import type { RefObject } from "react";
+import type { UpdateTodoDTO } from "../dtos/UpdateTodoDTO.tsx";
+import type { CreateTodoDTO } from "../dtos/CreateTodoDTO.tsx";
+import { TodoTableRow } from "./TodoTableRow.tsx";
+import { NewTodoTableRow } from "./NewTodoTableRow.tsx";
 
 type TodoTableProps = {
   data: TodoDTO[];
-  onEdit: (editMode: boolean, id: string | null) => void;
+  showCreateRow: boolean;
+  //onEdit: (editMode: boolean, id: string | null) => void;
+  onCreate: (newTodo: CreateTodoDTO) => void;
+  onCloseCreateRow: () => void;
+  onEdit: (editingTodoId:string,updatedTodo: UpdateTodoDTO) => void;
   onDelete: (id: string) => void;
+  createRowRef: RefObject<HTMLTableRowElement|null>;
 };
 
-export const TodoTable = ({ data, onEdit, onDelete }: TodoTableProps) => {
-  const formatDateTime = (dateTime: string) => {
-    return dateTime.substring(0, dateTime.lastIndexOf(":")).split("T").join(" ");
-  };
-
-  const handleEdit = (id: string) => () => {
-    onEdit(true, id);
-  };
-
-  const handleDelete = (id: string) => () => {
-    onDelete(id);
-  };
-
+export const TodoTable = ({
+  data,
+  showCreateRow,
+  onCloseCreateRow,
+  onCreate,
+  onEdit,
+  onDelete,
+  createRowRef,
+}: TodoTableProps) => {
   return (
     <table className="todo-table">
       <thead className="todo-table__header">
         <tr className="todo-table__header-row">
-          <th className="todo-table__header-cell todo-table__header-cell--name">Name</th>
-          <th className="todo-table__header-cell todo-table__header-cell--description">Description</th>
-          <th className="todo-table__header-cell todo-table__header-cell--date">Created Date</th>
-          <th className="todo-table__header-cell todo-table__header-cell--action">Action</th>
+          <th className="todo-table__header-cell todo-table__header-cell--name">
+            Name
+          </th>
+          <th className="todo-table__header-cell todo-table__header-cell--description">
+            Description
+          </th>
+          <th className="todo-table__header-cell todo-table__header-cell--date">
+            Created Date
+          </th>
+          <th className="todo-table__header-cell todo-table__header-cell--action">
+            Action
+          </th>
         </tr>
       </thead>
       <tbody className="todo-table__body">
-        {data.map((todo: TodoDTO) => {
-          return (
-            <tr key={todo.id} className="todo-table__row">
-              <td className="todo-table__cell todo-table__cell--name">{todo.name}</td>
-              <td className="todo-table__cell todo-table__cell--description">{todo.description}</td>
-              <td className="todo-table__cell todo-table__cell--date">{formatDateTime(todo.createdAt)}</td>
-              <td className="todo-table__cell todo-table__cell--actions">
-                <div className="todo-table__actions">
-                  <button
-                    className="todo-table__action-button todo-table__action-button--edit"
-                    onClick={handleEdit(todo.id)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="todo-table__action-button todo-table__action-button--delete"
-                    onClick={handleDelete(todo.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </td>
-            </tr>
-          );
-        })}
+        {showCreateRow && (
+          <NewTodoTableRow
+            onCreate={onCreate}
+            onCloseCreateRow={onCloseCreateRow}
+            ref={createRowRef}
+          />
+        )}
+        {data.map((todo: TodoDTO) => (
+          <TodoTableRow
+            key={todo.id}
+            todo={todo}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
+        ))}
       </tbody>
     </table>
   );
