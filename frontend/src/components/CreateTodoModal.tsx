@@ -66,9 +66,9 @@ export const CreateTodoModal = ({ onCreate, onClose }: CreateTodoModalProps) => 
             placeholder="Enter Name..."
             onChange={(e) => setNameLength(e.target.value.length)}
           />
-          <div className="modal__input__footer">
-            {errors.name && <p className="modal__error-message">{errors.name}</p>}
-            <p className="modal__char-counter">{nameLength}/100</p>
+          <div className="modal__input-footer">
+            {errors.name && <p className="modal__input-footer-error-message">{errors.name}</p>}
+            <p className="modal__input-footer-char-counter">{nameLength}/100</p>
           </div>
           <label className="modal__label">Description:</label>
           <textarea
@@ -78,9 +78,11 @@ export const CreateTodoModal = ({ onCreate, onClose }: CreateTodoModalProps) => 
             placeholder="Enter Description..."
             onChange={(e) => setDescriptionLength(e.target.value.length)}
           />
-          <div className="modal__input__footer">
-            {errors.description && <p className="modal__error-message">{errors.description}</p>}
-            <p className="modal__char-counter">{descriptionLength}/500</p>
+          <div className="modal__input-footer">
+            {errors.description && (
+              <p className="modal__input-footer-error-message">{errors.description}</p>
+            )}
+            <p className="modal__input-footer-char-counter">{descriptionLength}/500</p>
           </div>
           <button className="modal__submit-button" type="submit" disabled={isCreating}>
             {isCreating ? "Creating..." : "Create"}

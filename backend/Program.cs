@@ -1,7 +1,9 @@
 using backend.Data;
 using backend.Services;
-using Microsoft.AspNetCore.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,7 +24,7 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 
 builder.Services.AddScoped<JWTService>();
 builder.Services.AddScoped<TodoService>();
-builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<AuthService>();
 
 var allowedOriginsString = builder.Configuration["ALLOWED_ORIGINS"] ?? "http://localhost:3000";
 var origins = allowedOriginsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
@@ -47,7 +49,7 @@ builder
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? string.Empty)
             ),
         };
     });

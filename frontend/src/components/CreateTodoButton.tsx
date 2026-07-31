@@ -1,17 +1,13 @@
 type CreateTodoButtonProps = {
-  onClick: (open: boolean) => void;
+  onCreate: () => void;
 };
 
-export const CreateTodoButton = ({ onClick }: CreateTodoButtonProps) => {
-  const handleClick = () => {
-    onClick(true);
-  };
-
+export const CreateTodoButton = ({ onCreate }: CreateTodoButtonProps) => {
   return (
     <button
-      className="todo-dashboard-controls__create-button button button--create-todo"
+      className="todo-dashboard-controls__create-button"
       type="button"
-      onClick={handleClick}
+      onClick={onCreate}
     >
       Create New
     </button>
