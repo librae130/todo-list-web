@@ -5,7 +5,7 @@ import { CreateTodoButton } from "./CreateTodoButton.tsx";
 type TodoDashboardControlsProps = {
   onSearchChange: (query: string) => void;
   onFilterChange: (filter: TodoFilterOption) => void;
-  onCreate: (createMode: boolean) => void;
+  onCreate: () => void;
 };
 
 export const TodoDashboardControls = ({
@@ -22,7 +22,7 @@ export const TodoDashboardControls = ({
         <TodoFilterSelect onFilterChange={onFilterChange} />
       </div>
       <div className="todo-dashboard-controls__actions">
-        <CreateTodoButton onClick={onCreate} />
+        <CreateTodoButton onCreate={onCreate} />
       </div>
     </div>
   );
