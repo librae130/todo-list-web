@@ -9,6 +9,7 @@
 input {
   border: solid 2px black;
   padding: 10px 8px;
+  width:100%;
 }
 
 button {
@@ -41,8 +42,9 @@ button[type="submit"] {
 textarea {
   border: solid 2px black;
   padding: 10px 8px;
-  min-height: 300px;
+  min-height: 200px;
   resize: vertical;  
+  width: 100%;
 }
 
 .modal {
@@ -69,24 +71,70 @@ textarea {
   align-items: center;
 }
 
-.modal__error-message {
+.modal__input-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-login__input-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-login__error-message {
   color: red;
   font-size: 15px;
 }
 
-.modal__char-counter {
+.form-login__submit-button {
+  border: solid 2px black;
+  background-color: black;
+  color: white;
+  padding: 10px 8px;
+}
+
+.form-login__submit-button:hover {
+  background-color: white;
+  color: black;
+}
+
+.modal__input-footer-error-message {
+  color: red;
+  font-size: 15px;
+}
+
+.modal__input-footer-char-counter {
   font-size: 15px;
   color: grey;
   text-align: right;
   flex: 1;
 }
 
-.modal__input__footer {
+.todo-table__footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+.todo-table__footer-error-message {
+  color: red;
+  font-size: 15px;
+}
+
+.todo-table__footer-char-counter {
+  font-size: 15px;
+  color: grey;
+  text-align: right;
+  flex: 1;
+}
+
+.todo-table__textarea {
+  width: 100%;
+  border: solid 2px black;
+  padding: 10px 8px;
+}
 
 .modal__label {
   margin: 6px 0px;
@@ -137,7 +185,6 @@ textarea {
   position: sticky;
   top: 0;
   padding: 30px 0;
-  border-bottom: solid 2px black;
 }
 
 .todo-dashboard-controls__search {
@@ -148,7 +195,7 @@ textarea {
   flex-shrink: 0;
 }
 
-.todo-dashboard-controls__search-input {
+.search-todo__input {
   width: 100%;
   border: solid 2px black;
   padding: 10px 8px;
@@ -157,18 +204,15 @@ textarea {
 .todo-filter-select {
   border: solid 2px black;
   padding: 10px 8px;
-  background-color: white;
-  color: black;
+  background-color: black;
+  color: white;
   font-size: 14px;
   cursor: pointer;
 }
 
 .todo-filter-select:hover {
-  background-color: #f5f5f5;
-}
-
-.todo-dashboard-controls__actions {
-  flex-shrink: 0;
+  background-color: white;
+  color: black;
 }
 
 .todo-dashboard-controls__create-button {
@@ -177,35 +221,38 @@ textarea {
 
 .todo-table {
   width: 100%;
-  border: solid 2px black;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .todo-table__header-cell {
-  border: solid 2px grey;
   background-color: black;
+  border: solid 2px black;
   color: white;
+  position: sticky;
+  top: 105px;
   padding: 10px 8px;
+  z-index: 999;
 }
 
 .todo-table__cell {
   border: solid 2px black;
   padding: 10px 8px;
-  white-space: normal;
   word-break: break-word;
   vertical-align: top;
+  white-space: pre-wrap;
 }
 
-.todo-table__cell--name {
-  width: 25%;
+.todo-table__header-cell--name {
+  width: 28.57%;
 }
 
-.todo-table__cell--description {
-  width: 45%;
+.todo-table__header-cell--description {
+  width: 42.85%;
 }
 
-.todo-table__cell--date {
-  width: 15%;
+.todo-table__header-cell--date {
+  width: 14.28%;
 }
 
 .todo-table__cell--actions {
@@ -219,8 +266,7 @@ textarea {
   gap: 5px;
 }
 
-.todo-table__action-button--edit,
-.todo-table__action-button--delete {
+.todo-table__action-button {
   width: 50%;
   font-size: 12px;
   padding: 10px 0px;

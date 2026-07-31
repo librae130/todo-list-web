@@ -1,9 +1,6 @@
 import { useRef, useEffect, useCallback } from "react";
 
-export function useDebounceFunction(
-  callback: any,
-  delay: number,
-): (...args: any[]) => void {
+export const useDebounceFunction = (callback: any, delay: number) => {
   const timeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -14,13 +11,16 @@ export function useDebounceFunction(
     };
   }, []);
 
-  return useCallback((...args: any[]) => {
-    if (timeoutRef.current !== null) {
-      window.clearTimeout(timeoutRef.current);
-    }
+  return useCallback(
+    (...args: any[]) => {
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current);
+      }
 
-    timeoutRef.current = window.setTimeout(() => {
-      callback(...args);
-    }, delay);
-  }, [callback, delay]);
-}
+      timeoutRef.current = window.setTimeout(() => {
+        callback(...args);
+      }, delay);
+    },
+    [callback, delay],
+  );
+};

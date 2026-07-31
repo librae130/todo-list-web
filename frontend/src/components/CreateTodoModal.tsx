@@ -56,42 +56,35 @@ export const CreateTodoModal = ({ onCreate, onClose }: CreateTodoModalProps) => 
         <span className="modal__close-button" onClick={handleClose}>
           &times;
         </span>
-        <form
-          className="modal__form modal__form--create"
-          onSubmit={handleCreate}
-        >
+        <form className="modal__form modal__form--create" onSubmit={handleCreate}>
           <label className="modal__label">Name:</label>
           <input
             className="modal__input modal__input--name"
             name="name"
             type="text"
             maxLength={100}
+            placeholder="Enter Name..."
             onChange={(e) => setNameLength(e.target.value.length)}
           />
-          <div className="modal__input__footer">
-            {errors.name && (
-              <p className="modal__error-message">{errors.name}</p>
-            )}
-            <p className="modal__char-counter">{nameLength}/100</p>
+          <div className="modal__input-footer">
+            {errors.name && <p className="modal__input-footer-error-message">{errors.name}</p>}
+            <p className="modal__input-footer-char-counter">{nameLength}/100</p>
           </div>
           <label className="modal__label">Description:</label>
           <textarea
             className="modal__textarea modal__textarea--description"
             name="description"
             maxLength={500}
+            placeholder="Enter Description..."
             onChange={(e) => setDescriptionLength(e.target.value.length)}
           />
-          <div className="modal__input__footer">
+          <div className="modal__input-footer">
             {errors.description && (
-              <p className="modal__error-message">{errors.description}</p>
+              <p className="modal__input-footer-error-message">{errors.description}</p>
             )}
-            <p className="modal__char-counter">{descriptionLength}/500</p>
+            <p className="modal__input-footer-char-counter">{descriptionLength}/500</p>
           </div>
-          <button
-            className="modal__submit-button"
-            type="submit"
-            disabled={isCreating}
-          >
+          <button className="modal__submit-button" type="submit" disabled={isCreating}>
             {isCreating ? "Creating..." : "Create"}
           </button>
         </form>
