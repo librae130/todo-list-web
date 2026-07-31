@@ -27,3 +27,5 @@ dist-ssr
 
 /backend/bin/
 /backend/obj/
+/backend.tests/obj/
+/backend.tests/bin/
