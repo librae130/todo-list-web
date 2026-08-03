@@ -21,11 +21,14 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterUserDTO registerUserDTO)
+    public async Task<IActionResult> Register(
+        [FromBody] RegisterUserDTO registerUserDTO,
+        CancellationToken cancellationToken
+    )
     {
         try
         {
-            var user = await _authService.Register(registerUserDTO);
+            var user = await _authService.Register(registerUserDTO, cancellationToken);
             return CreatedAtAction(nameof(Register), new { id = user.Id }, user.ToDTO());
         }
         catch (Exception ex)
@@ -35,9 +38,12 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginUserDTO loginUserDTO)
+    public async Task<IActionResult> Login(
+        [FromBody] LoginUserDTO loginUserDTO,
+        CancellationToken cancellationToken
+    )
     {
-        var user = await _authService.Login(loginUserDTO);
+        var user = await _authService.Login(loginUserDTO, cancellationToken);
 
         if (user == null)
         {

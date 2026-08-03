@@ -14,10 +14,14 @@ public class AuthService
         _context = context;
     }
 
-    public async Task<User> Register(RegisterUserDTO registerUserDTO)
+    public async Task<User> Register(
+        RegisterUserDTO registerUserDTO,
+        CancellationToken cancellationToken
+    )
     {
-        var existingUser = await _context.Users.FirstOrDefaultAsync(u =>
-            u.Username == registerUserDTO.Username
+        var existingUser = await _context.Users.FirstOrDefaultAsync(
+            u => u.Username == registerUserDTO.Username,
+            cancellationToken
         );
         if (existingUser != null)
         {
@@ -33,15 +37,16 @@ public class AuthService
         };
 
         _context.Users.Add(user);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return user;
     }
 
-    public async Task<User?> Login(LoginUserDTO loginUserDTO)
+    public async Task<User?> Login(LoginUserDTO loginUserDTO, CancellationToken cancellationToken)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u =>
-            u.Username == loginUserDTO.Username
+        var user = await _context.Users.FirstOrDefaultAsync(
+            u => u.Username == loginUserDTO.Username,
+            cancellationToken
         );
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(loginUserDTO.Password, user.PasswordHash))
