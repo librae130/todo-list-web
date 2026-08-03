@@ -1,17 +1,20 @@
 using System.Text;
 using backend.Data;
 using backend.Services;
+using backend.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
+// builder.
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseSqlServer(
@@ -49,25 +52,33 @@ builder
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? string.Empty)
+                Encoding.UTF8.GetBytes(
+        builder.Configuration["Jwt:Key"]
+        ?? throw new InvalidOperationException("Jwt:Key not found in configuration.")
+    )
             ),
         };
     });
 
 builder.Services.AddAuthorization();
+
+// app.
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
-    app.UseExceptionHandler("/error");
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler();
+    app.UseHsts();
 }
 
-app.UseRouting();
-app.UseCors();
 app.UseHttpsRedirection();
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
