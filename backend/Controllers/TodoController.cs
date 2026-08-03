@@ -1,25 +1,41 @@
 using backend.DTOs;
 using backend.Mappers;
 using backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace backend.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/todo-list")]
 public class TodoController : ControllerBase
 {
     private readonly TodoService _todoService;
 
-    public TodoController(TodoService todoService)
+  public TodoController(TodoService todoService)
+  {
+    _todoService = todoService;
+  }
+
+  private Guid GetCurrentUserId()
+  {
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+    if (userIdClaim == null)
     {
-        _todoService = todoService;
+      throw new UnauthorizedAccessException("User ID not found in token.");
     }
 
+    return Guid.Parse(userIdClaim.Value);
+  }
+    
     [HttpGet]
     public async Task<IActionResult> GetList()
-    {
-        var todos = await _todoService.GetList();
+  {
+      var userId = GetCurrentUserId();
+        var todos = await _todoService.GetList(userId);
         return Ok(todos.Select(todo => todo.ToDTO()));
     }
 
@@ -28,8 +44,9 @@ public class TodoController : ControllerBase
         [FromQuery] string? search,
         [FromQuery] string? filter
     )
-    {
-        var todos = await _todoService.SearchList(search, filter);
+  {
+      var userId = GetCurrentUserId();
+        var todos = await _todoService.SearchList(userId,search, filter);
         return Ok(todos.Select(todo => todo.ToDTO()));
     }
 
@@ -55,7 +72,10 @@ public class TodoController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateTodoDTO updateTodoDTO)
+    public async Task<IActionResult> Update(
+        [FromRoute] Guid id,
+        [FromBody] UpdateTodoDTO updateTodoDTO
+    )
     {
         var updatedTodo = await _todoService.Update(id, updateTodoDTO);
 

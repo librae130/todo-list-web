@@ -1,5 +1,6 @@
 import { SearchTodo } from "./SearchTodo.tsx";
-import { TodoFilterSelect, type TodoFilterOption } from "./TodoFilterSelect.tsx";
+import { TodoFilterSelect } from "./TodoFilterSelect.tsx";
+import type { TodoFilterOption } from "./TodoFilterSelect.tsx";
 import { CreateTodoButton } from "./CreateTodoButton.tsx";
 
 type TodoDashboardControlsProps = {

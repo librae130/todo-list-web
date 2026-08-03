@@ -1,4 +1,5 @@
-import { useState, type RefObject } from "react";
+import { useState } from "react";
+import type { RefObject } from "react";
 import type { CreateTodoDTO } from "../dtos/CreateTodoDTO.tsx";
 
 type NewTodoTableRowProps = {
@@ -14,9 +15,8 @@ export const NewTodoTableRow = ({ onCreate, onCloseCreateRow, ref }: NewTodoTabl
   const [errors, setErrors] = useState<{ name?: string; description?: string }>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleCreate = () => () => {
+  const handleCreate = async () => {
     setErrors({});
-
     const newErrors: { name?: string; description?: string } = {};
 
     if (newName.trim() === "") {
@@ -35,11 +35,10 @@ export const NewTodoTableRow = ({ onCreate, onCloseCreateRow, ref }: NewTodoTabl
     }
 
     setIsSaving(true);
-    onCreate({
+    await onCreate({
       name: newName,
       description: newDescription,
     });
-
     onCloseCreateRow();
     setIsSaving(false);
   };
@@ -50,7 +49,8 @@ export const NewTodoTableRow = ({ onCreate, onCloseCreateRow, ref }: NewTodoTabl
         <textarea
           className="todo-table__textarea todo-table__textarea--name"
           value={newName}
-          placeholder="Enter Name..."
+          name="name"
+          placeholder="Required"
           maxLength={100}
           onChange={(e) => setNewName(e.target.value)}
         />
@@ -63,7 +63,8 @@ export const NewTodoTableRow = ({ onCreate, onCloseCreateRow, ref }: NewTodoTabl
         <textarea
           className="todo-table__textarea todo-table__textarea--description"
           value={newDescription}
-          placeholder="Enter Description..."
+          name="description"
+          placeholder="Optional"
           maxLength={500}
           onChange={(e) => setNewDescription(e.target.value)}
         />
@@ -80,7 +81,7 @@ export const NewTodoTableRow = ({ onCreate, onCloseCreateRow, ref }: NewTodoTabl
           <button
             className="todo-table__action-button todo-table__action-button--create"
             disabled={isSaving}
-            onClick={handleCreate()}
+            onClick={handleCreate}
           >
             {isSaving ? "Saving..." : "Create"}
           </button>

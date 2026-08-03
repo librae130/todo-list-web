@@ -63,7 +63,7 @@ export const CreateTodoModal = ({ onCreate, onClose }: CreateTodoModalProps) => 
             name="name"
             type="text"
             maxLength={100}
-            placeholder="Enter Name..."
+            placeholder="Required"
             onChange={(e) => setNameLength(e.target.value.length)}
           />
           <div className="modal__input-footer">

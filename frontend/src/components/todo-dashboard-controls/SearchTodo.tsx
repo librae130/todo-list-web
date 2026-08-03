@@ -1,4 +1,4 @@
-import { useDebounceFunction } from "../utils/debounce";
+import { useDebounceFunction } from "../../utils/debounce";
 
 type SearchTodoProps = {
   onSearchChange: (query: string) => void;
