@@ -10,50 +10,10 @@ import { TodoDashboardControls } from "../components/todo-dashboard-controls/Tod
 //import { EditTodoModal } from "../components/EditTodoModal.tsx";
 //import { CreateTodoModal } from "../components/CreateTodoModal.tsx";
 import { formatDateTime } from "../utils/stringUtils.tsx";
-
-// Translates different error types (Axios, network, custom) into a user-friendly message.
-const buildRequestErrorMessage = (err: any, action: string) => {
-  // Ignore aborted requests, as these are intentional and not true errors.
-  if (axios.isCancel(err)) {
-    return null;
-  }
-
-  if (axios.isAxiosError(err)) {
-    if (err.code === "ECONNABORTED" || err.code === "ETIMEDOUT") {
-      return `Request failed to send when ${action}.`;
-    }
-
-    if (err.code === "ERR_NETWORK") {
-      return `Network error: No response from server when ${action}.`;
-    }
-
-    if (err.response) {
-      if (err.response.status === 404) {
-        return `404: ${err.response.data} when ${action}.`;
-      }
-
-      return `Server error: ${err.response.status} when ${action}.`;
-    }
-
-    return `Request failed to send when ${action}.`;
-  }
-
-  // Handle custom error messages thrown within the application logic.
-  if (err instanceof Error) {
-    if (err.message === "ERR_MALFORMED_DATA") {
-      return `Unexpected data received from the server when ${action}.`;
-    }
-
-    if (err.message === "ERR_INVALID_PARAM") {
-      return `Invalid params passed when ${action}.`;
-    }
-  }
-
-  return `Unknown error when ${action}.`;
-};
+import { getErrorMessage } from "../utils/errorHandler.tsx";
 
 export const TodoDashboard = () => {
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [tableData, setTableData] = useState<TodoDTO[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -84,10 +44,10 @@ export const TodoDashboard = () => {
             ...todo,
             createdAt: formatDateTime(todo.createdAt),
           })) ?? [];
-        setError(null);
+        setError("");
         setTableData(todosData);
       } catch (err: any) {
-        setError(buildRequestErrorMessage(err, "fetching to-do table"));
+        setError(getErrorMessage(err));
       } finally {
         setLoading(false);
       }
@@ -134,14 +94,10 @@ export const TodoDashboard = () => {
           }),
         );
       } else {
-        // If the server response is malformed, throw an error to be handled by the catch block.
-        throw new Error("ERR_MALFORMED_DATA");
+        throw new Error("Malformed data.");
       }
     } catch (err: any) {
-      const message = buildRequestErrorMessage(err, "editing to-do");
-      if (message) {
-        setError(message);
-      }
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
       //setEditMode(false, null);
@@ -154,7 +110,7 @@ export const TodoDashboard = () => {
       setTableData(tableData.filter((todo) => todo.id !== id));
       await apiClient.delete(`/api/todo-list/${id}`);
     } catch (err: any) {
-      setError(buildRequestErrorMessage(err, "deleting to-do"));
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -174,13 +130,10 @@ export const TodoDashboard = () => {
           ...tableData,
         ]);
       } else {
-        throw new Error("ERR_MALFORMED_DATA");
+        throw new Error("Malformed data.");
       }
     } catch (err: any) {
-      const message = buildRequestErrorMessage(err, "creating to-do");
-      if (message) {
-        setError(message);
-      }
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -218,7 +171,7 @@ export const TodoDashboard = () => {
           createRowRef={createRowRef}
         />
       </div>
-      {(tableData.length > 0 || showCreateRow) || (
+      {tableData.length > 0 || showCreateRow || (
         <span className="status-message status-message--info">
           No to-do items found. Start by creating a new one!
         </span>
