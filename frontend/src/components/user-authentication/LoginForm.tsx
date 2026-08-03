@@ -1,42 +1,51 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { apiClient } from "../utils/api";
+import { Link } from "react-router-dom";
 
-export const LoginForm = () => {
+type LoginFormProps = {
+  onLogin: (username: string, password: string) => void
+}
+
+export const LoginForm = ({ onLogin }: LoginFormProps) => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const navigate = useNavigate();
 
   const handleLogin = async (e: any) => {
     e.preventDefault();
-    setIsLoggingIn(true);
+
     setError("");
 
-    try {
-      const response = await apiClient.post("/api/login", {
-        username,
-        password,
-      });
-      localStorage.setItem("accessToken", response.data.token);
-      navigate("/");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "An error occurred during login.");
-    } finally {
-      setIsLoggingIn(false);
+    var newError: string = "";
+
+    if (password.trim()==="") {
+      newError = "Password can not be blank.";
     }
+
+    if (username.trim() === "") {
+      newError = "Name can not be blank.";
+    }
+
+    if (newError.length > 0) {
+      setError(newError);
+      return;
+    }
+
+    setIsLoggingIn(true);
+    onLogin(username, password);
+    setIsLoggingIn(false);
   };
 
   return (
     <form className="form-login" onSubmit={handleLogin}>
+      <h1>Login</h1>
       <label className="form-login__label">Username:</label>
       <input
         className="form-login__input form-login__input--name"
         name="name"
         type="text"
         maxLength={50}
-        placeholder="Enter Username..."
+        placeholder="Required"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
@@ -46,14 +55,18 @@ export const LoginForm = () => {
         name="password"
         type="password"
         maxLength={50}
-        placeholder="Enter Password..."
+        placeholder="Required"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
       <div className="form-login__input-footer">
         {error && <p className="form-login__error-message">{error}</p>}
       </div>
-      <button className="form-login__submit-button" type="submit" disabled={isLoggingIn}>
+      <button
+        className="form-login__submit-button"
+        type="submit"
+        disabled={isLoggingIn}
+      >
         {isLoggingIn ? "Logging In..." : "Log In"}
       </button>
       <p className="form-login__register-link">

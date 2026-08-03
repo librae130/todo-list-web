@@ -4,9 +4,9 @@ import axios from "axios";
 import type { TodoDTO } from "../dtos/TodoDTO.tsx";
 import type { UpdateTodoDTO } from "../dtos/UpdateTodoDTO.tsx";
 import type { CreateTodoDTO } from "../dtos/CreateTodoDTO.tsx";
-import type { TodoFilterOption } from "../components/TodoFilterSelect.tsx";
+import type { TodoFilterOption } from "../components/todo-dashboard-controls/TodoFilterSelect.tsx";
 import { TodoTable } from "../components/TodoTable.tsx";
-import { TodoDashboardControls } from "../components/TodoDashboardControls.tsx";
+import { TodoDashboardControls } from "../components/todo-dashboard-controls/TodoDashboardControls.tsx";
 //import { EditTodoModal } from "../components/EditTodoModal.tsx";
 //import { CreateTodoModal } from "../components/CreateTodoModal.tsx";
 import { formatDateTime } from "../utils/stringUtils.tsx";
@@ -218,6 +218,11 @@ export const TodoDashboard = () => {
           createRowRef={createRowRef}
         />
       </div>
+      {(tableData.length > 0 || showCreateRow) || (
+        <span className="status-message status-message--info">
+          No to-do items found. Start by creating a new one!
+        </span>
+      )}
       {/* {isEditing && editingTodo && (
         <EditTodoModal
           todo={editingTodo}

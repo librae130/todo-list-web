@@ -16,9 +16,14 @@ export const TodoTableRow = ({ todo, onEdit, onDelete }: TodoTableRowProps) => {
   const [errors, setErrors] = useState<{ name?: string; description?: string }>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSaveEdit = () => () => {
-    setErrors({});
+  const handleSaveEdit = async () => {
 
+    if (editedName === todo.name && editedDescription === todo.description) {
+      setIsEditing(false);
+      return;
+    }
+
+    setErrors({});
     const newErrors: { name?: string; description?: string } = {};
 
     if (editedName.trim() === "") {
@@ -28,7 +33,8 @@ export const TodoTableRow = ({ todo, onEdit, onDelete }: TodoTableRowProps) => {
     }
 
     if (editedDescription.length > 500) {
-      newErrors.description = "Description cannot be longer than 500 characters.";
+      newErrors.description =
+        "Description cannot be longer than 500 characters.";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -37,25 +43,22 @@ export const TodoTableRow = ({ todo, onEdit, onDelete }: TodoTableRowProps) => {
     }
 
     setIsSaving(true);
-    // Only update to DB if the todo is actually edited.
-    if (editedName !== todo.name || editedDescription !== todo.description) {
-      onEdit(todo.id, { name: editedName, description: editedDescription });
-    }
+    await onEdit(todo.id, { name: editedName, description: editedDescription });
     setIsSaving(false);
     setIsEditing(false);
   };
 
-  const handleCancelEdit = () => () => {
+  const handleCancelEdit = () => {
     setEditedName(todo.name);
     setEditedDescription(todo.description);
     setIsEditing(false);
   };
 
-  const handleDelete = () => () => {
+  const handleDelete = () => {
     onDelete(todo.id);
   };
 
-  const handleEdit = () => () => {
+  const handleEdit = () => {
     setIsEditing(true);
   };
 
@@ -66,7 +69,9 @@ export const TodoTableRow = ({ todo, onEdit, onDelete }: TodoTableRowProps) => {
           <textarea
             className="todo-table__textarea todo-table__textarea--name"
             value={editedName}
+            name="name"
             maxLength={100}
+            placeholder="Required"
             onChange={(e) => setEditedName(e.target.value)}
           />
           <div className="todo-table__footer">
@@ -78,7 +83,8 @@ export const TodoTableRow = ({ todo, onEdit, onDelete }: TodoTableRowProps) => {
           <textarea
             className="todo-table__textarea todo-table__textarea--description"
             value={editedDescription}
-            placeholder="Enter Description..."
+            name="description"
+            placeholder="Optional"
             maxLength={500}
             onChange={(e) => setEditedDescription(e.target.value)}
           />
@@ -95,14 +101,14 @@ export const TodoTableRow = ({ todo, onEdit, onDelete }: TodoTableRowProps) => {
             <button
               className="todo-table__action-button todo-table__action-button--save-edit"
               disabled={isSaving}
-              onClick={handleSaveEdit()}
+              onClick={handleSaveEdit}
             >
               {isSaving ? "Saving..." : "Save Edit"}
             </button>
             <button
               className="todo-table__action-button todo-table__action-button--cancel-edit"
               disabled={isSaving}
-              onClick={handleCancelEdit()}
+              onClick={handleCancelEdit}
             >
               Cancel
             </button>
@@ -120,13 +126,13 @@ export const TodoTableRow = ({ todo, onEdit, onDelete }: TodoTableRowProps) => {
           <div className="todo-table__actions">
             <button
               className="todo-table__action-button todo-table__action-button--edit"
-              onClick={handleEdit()}
+              onClick={handleEdit}
             >
               Edit
             </button>
             <button
               className="todo-table__action-button todo-table__action-button--delete"
-              onClick={handleDelete()}
+              onClick={handleDelete}
             >
               Delete
             </button>

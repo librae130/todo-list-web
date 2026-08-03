@@ -8,24 +8,23 @@ using Microsoft.AspNetCore.Mvc;
 namespace backend.Controllers;
 
 [ApiController]
-[Route("api")]
+[Route("api/users")]
 public class AuthController : ControllerBase
 {
     private readonly AuthService _authService;
     private readonly JWTService _jwtService;
 
-  public AuthController(AuthService authService, JWTService jwtService)
-  {
-    _authService = authService;
-    _jwtService = jwtService;
-  }
+    public AuthController(AuthService authService, JWTService jwtService)
+    {
+        _authService = authService;
+        _jwtService = jwtService;
+    }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserDTO registerUserDTO)
     {
         try
         {
-
             var user = await _authService.Register(registerUserDTO);
             return CreatedAtAction(nameof(Register), new { id = user.Id }, user.ToDTO());
         }
@@ -45,7 +44,7 @@ public class AuthController : ControllerBase
             return Unauthorized("Invalid credentials");
         }
 
-        var token = _jwtService.GenerateJWTToken(user.Username);
+        var token = _jwtService.GenerateJWTToken(user.ToDTO());
         return Ok(new { token });
     }
 }

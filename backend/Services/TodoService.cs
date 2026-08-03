@@ -15,19 +15,21 @@ public class TodoService
     _context = context;
   }
 
-  public async Task<List<Todo>> GetList()
+  public async Task<List<Todo>> GetList(Guid userId)
   {
-    return await _context.Todos.ToListAsync();
+    var query = _context.Todos.AsQueryable();
+    query = query.Where(x => x.UserId == userId);
+    return await query.ToListAsync();
   }
 
-  public async Task<List<Todo>> SearchList(string? search, string? filter)
+  public async Task<List<Todo>> SearchList(Guid userId, string? search, string? filter)
   {
     var query = _context.Todos.AsQueryable();
 
     // If search or filter are not provided, return the full list as a default behavior.
     if (string.IsNullOrWhiteSpace(search) || string.IsNullOrWhiteSpace(filter))
     {
-      return await GetList();
+      return await GetList(userId);
     }
 
     var normalizedSearch = search.Trim();
@@ -36,25 +38,26 @@ public class TodoService
     switch (filter.Trim().ToLowerInvariant())
     {
       case "name":
-        query = query.Where(todo => todo.Name.ToLower().Contains(normalizedSearch.ToLower()));
+        query = query.Where(x => x.Name.ToLower().Contains(normalizedSearch.ToLower()) && x.UserId == userId);
         break;
       case "description":
-        query = query.Where(todo => todo.Description.ToLower().Contains(normalizedSearch.ToLower()));
+        query = query.Where(x => x.Description.ToLower().Contains(normalizedSearch.ToLower())&& x.UserId == userId);
         break;
       case "createddate":
         // For date filtering, parse the search string and compare only the date part, ignoring the time.
         if (DateTime.TryParse(normalizedSearch, out var searchDate))
         {
-          query = query.Where(todo => todo.CreatedAt.Date == searchDate.Date);
+          query = query.Where(x => x.CreatedAt.Date == searchDate.Date&& x.UserId == userId);
         }
         break;
       default:
         // If the filter is unknown or not provided, default to 
         // searching across both name, description and created date.
-        query = query.Where(todo =>
-            todo.Name.ToLower().Contains(normalizedSearch.ToLower())
-            || todo.Description.ToLower().Contains(normalizedSearch.ToLower())
-            || todo.CreatedAt.ToString().ToLower().Contains(normalizedSearch.ToLower())
+        query = query.Where(x =>
+            (x.Name.ToLower().Contains(normalizedSearch.ToLower())
+            || x.Description.ToLower().Contains(normalizedSearch.ToLower())
+            || x.CreatedAt.ToString().ToLower().Contains(normalizedSearch.ToLower()))
+            && x.UserId == userId
         );
         break;
     }
