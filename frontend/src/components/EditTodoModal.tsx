@@ -12,17 +12,20 @@ export const EditTodoModal = ({ todo, onSave, onClose }: EditTodoModalProps) => 
   const [isSaving, setIsSaving] = useState(false);
   const [name, setName] = useState(todo.name);
   const [description, setDescription] = useState(todo.description);
-  const [errors, setErrors] = useState<{ name?: string; description?: string }>({});
+  const [validationErrors, setValidationErrors] = useState<{
+    name?: string;
+    description?: string;
+  }>({});
 
   useEffect(() => {
     setName(todo.name);
     setDescription(todo.description);
-    setErrors({});
+    setValidationErrors({});
   }, [todo]);
 
-  function handleSave(event: any) {
+  const handleSave=(event: any)=> {
     event.preventDefault();
-    setErrors({});
+    setValidationErrors({});
     const newErrors: { name?: string; description?: string } = {};
 
     if (name.trim() === "") {
@@ -36,7 +39,7 @@ export const EditTodoModal = ({ todo, onSave, onClose }: EditTodoModalProps) => 
     }
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+      setValidationErrors(newErrors);
       return;
     }
 
@@ -68,9 +71,9 @@ export const EditTodoModal = ({ todo, onSave, onClose }: EditTodoModalProps) => 
             onChange={(event) => setName(event.target.value)}
           />
           <div className="modal__input-footer">
-            {errors.name && (
+            {validationErrors.name && (
               <p className="modal__input-footer-error-message">
-                {errors.name}
+                {validationErrors.name}
               </p>
             )}
             <p className="modal__input-footer-char-counter">
@@ -86,9 +89,9 @@ export const EditTodoModal = ({ todo, onSave, onClose }: EditTodoModalProps) => 
             onChange={(event) => setDescription(event.target.value)}
           />
           <div className="modal__input-footer">
-            {errors.description && (
+            {validationErrors.description && (
               <p className="modal__input-footer-error-message">
-                {errors.description}
+                {validationErrors.description}
               </p>
             )}
             <p className="modal__input-footer-char-counter">

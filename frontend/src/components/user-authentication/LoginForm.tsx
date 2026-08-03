@@ -2,23 +2,23 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 type LoginFormProps = {
-  onLogin: (username: string, password: string) => void
+  onClickLogin: (username: string, password: string) => Promise<void>
 }
 
-export const LoginForm = ({ onLogin }: LoginFormProps) => {
+export const LoginForm = ({ onClickLogin }: LoginFormProps) => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+  const [validationError, setValidationError] = useState<string>("");
 
   const handleLogin = async (e: any) => {
     e.preventDefault();
 
-    setError("");
+    setValidationError("");
 
     var newError: string = "";
 
-    if (password.trim()==="") {
+    if (password.trim() === "") {
       newError = "Password can not be blank.";
     }
 
@@ -27,12 +27,12 @@ export const LoginForm = ({ onLogin }: LoginFormProps) => {
     }
 
     if (newError.length > 0) {
-      setError(newError);
+      setValidationError(newError);
       return;
     }
 
     setIsLoggingIn(true);
-    onLogin(username, password);
+    await onClickLogin(username, password);
     setIsLoggingIn(false);
   };
 
@@ -60,7 +60,9 @@ export const LoginForm = ({ onLogin }: LoginFormProps) => {
         onChange={(e) => setPassword(e.target.value)}
       />
       <div className="form-login__input-footer">
-        {error && <p className="form-login__error-message">{error}</p>}
+        {validationError && (
+          <p className="form-login__error-message">{validationError}</p>
+        )}
       </div>
       <button
         className="form-login__submit-button"

@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { apiClient } from "../utils/api.tsx";
-import axios from "axios";
 import type { TodoDTO } from "../dtos/TodoDTO.tsx";
 import type { UpdateTodoDTO } from "../dtos/UpdateTodoDTO.tsx";
 import type { CreateTodoDTO } from "../dtos/CreateTodoDTO.tsx";
@@ -10,9 +9,12 @@ import { TodoDashboardControls } from "../components/todo-dashboard-controls/Tod
 //import { EditTodoModal } from "../components/EditTodoModal.tsx";
 //import { CreateTodoModal } from "../components/CreateTodoModal.tsx";
 import { formatDateTime } from "../utils/stringUtils.tsx";
-import { getErrorMessage } from "../utils/errorHandler.tsx";
+import { getErrorMessage } from "../utils/errorUtils.tsx";
+import { useNavigate } from "react-router-dom";
 
 export const TodoDashboard = () => {
+  const navigate = useNavigate();
+
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [tableData, setTableData] = useState<TodoDTO[]>([]);
@@ -158,16 +160,17 @@ export const TodoDashboard = () => {
         <TodoDashboardControls
           onSearchChange={setSearchQuery}
           onFilterChange={setFilterType}
-          onCreate={handleCreateClick}
+          onClickCreate={handleCreateClick}
+          onClickLogin={() => navigate("/login")}
         />
 
         <TodoTable
           data={tableData}
           showCreateRow={showCreateRow}
           onCloseCreateRow={() => setShowCreateRow(false)}
-          onCreate={createTodo}
-          onEdit={editTodo}
-          onDelete={deleteTodo}
+          onClickCreate={createTodo}
+          onClickEdit={editTodo}
+          onClickDelete={deleteTodo}
           createRowRef={createRowRef}
         />
       </div>
