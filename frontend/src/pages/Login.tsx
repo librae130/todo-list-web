@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { LoginForm } from "../components/user-authentication/LoginForm";
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "../utils/api";
+import { getErrorMessage } from "../utils/errorHandler";
 
 export const Login = () => {
   const navigate = useNavigate();
+  const [error, setError] = useState<string>("");
 
   const loginUser = async (username: string, password: string) => {
     try {
@@ -16,12 +19,13 @@ export const Login = () => {
 
       navigate("/");
     } catch (err: any) {
-      return Error(err.response?.data?.message || "An error occurred during registration.");
+      setError(getErrorMessage(err));
     }
-  }
+  };
 
   return (
     <div>
+      {error && <p className="status-message status-message--error">{error}</p>}
       <LoginForm onLogin={loginUser} />
     </div>
   );
