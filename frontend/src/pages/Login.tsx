@@ -2,10 +2,11 @@ import { useState } from "react";
 import { LoginForm } from "../components/user-authentication/LoginForm";
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "../utils/api";
-import { getErrorMessage } from "../utils/errorHandler";
+import { getErrorMessage } from "../utils/errorUtils";
 
 export const Login = () => {
   const navigate = useNavigate();
+  
   const [error, setError] = useState<string>("");
 
   const loginUser = async (username: string, password: string) => {
@@ -26,7 +27,7 @@ export const Login = () => {
   return (
     <div>
       {error && <p className="status-message status-message--error">{error}</p>}
-      <LoginForm onLogin={loginUser} />
+      <LoginForm onClickLogin={loginUser} />
     </div>
   );
 };

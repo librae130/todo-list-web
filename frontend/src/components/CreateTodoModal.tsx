@@ -8,13 +8,13 @@ type CreateTodoModalProps = {
 
 export const CreateTodoModal = ({ onCreate, onClose }: CreateTodoModalProps) => {
   const [isCreating, setIsCreating] = useState(false);
-  const [errors, setErrors] = useState<{ name?: string; description?: string }>({});
+  const [validationErrors, setValidationErrors] = useState<{ name?: string; description?: string }>({});
   const [nameLength, setNameLength] = useState(0);
   const [descriptionLength, setDescriptionLength] = useState(0);
 
   const handleCreate = (event: any) => {
     event.preventDefault();
-    setErrors({});
+    setValidationErrors({});
     const formData = new FormData(event.currentTarget);
 
     const name = String(formData.get("name") ?? "");
@@ -33,7 +33,7 @@ export const CreateTodoModal = ({ onCreate, onClose }: CreateTodoModalProps) => 
     }
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+      setValidationErrors(newErrors);
       return;
     }
 
@@ -56,7 +56,10 @@ export const CreateTodoModal = ({ onCreate, onClose }: CreateTodoModalProps) => 
         <span className="modal__close-button" onClick={handleClose}>
           &times;
         </span>
-        <form className="modal__form modal__form--create" onSubmit={handleCreate}>
+        <form
+          className="modal__form modal__form--create"
+          onSubmit={handleCreate}
+        >
           <label className="modal__label">Name:</label>
           <input
             className="modal__input modal__input--name"
@@ -67,7 +70,11 @@ export const CreateTodoModal = ({ onCreate, onClose }: CreateTodoModalProps) => 
             onChange={(e) => setNameLength(e.target.value.length)}
           />
           <div className="modal__input-footer">
-            {errors.name && <p className="modal__input-footer-error-message">{errors.name}</p>}
+            {validationErrors.name && (
+              <p className="modal__input-footer-error-message">
+                {validationErrors.name}
+              </p>
+            )}
             <p className="modal__input-footer-char-counter">{nameLength}/100</p>
           </div>
           <label className="modal__label">Description:</label>
@@ -79,12 +86,20 @@ export const CreateTodoModal = ({ onCreate, onClose }: CreateTodoModalProps) => 
             onChange={(e) => setDescriptionLength(e.target.value.length)}
           />
           <div className="modal__input-footer">
-            {errors.description && (
-              <p className="modal__input-footer-error-message">{errors.description}</p>
+            {validationErrors.description && (
+              <p className="modal__input-footer-error-message">
+                {validationErrors.description}
+              </p>
             )}
-            <p className="modal__input-footer-char-counter">{descriptionLength}/500</p>
+            <p className="modal__input-footer-char-counter">
+              {descriptionLength}/500
+            </p>
           </div>
-          <button className="modal__submit-button" type="submit" disabled={isCreating}>
+          <button
+            className="modal__submit-button"
+            type="submit"
+            disabled={isCreating}
+          >
             {isCreating ? "Creating..." : "Create"}
           </button>
         </form>
