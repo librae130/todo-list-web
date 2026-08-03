@@ -5,19 +5,27 @@ import type { TodoDTO } from "../dtos/TodoDTO.tsx";
 type TodoTableRowProps = {
   todo: TodoDTO;
   // onEdit: (editMode: boolean, id: string | null) => void;
-  onEdit: (editingTodoId: string, updateTodoDTO: UpdateTodoDTO) => void;
-  onDelete: (id: string) => void;
+  onClickEdit: (
+    editingTodoId: string,
+    updateTodoDTO: UpdateTodoDTO,
+  ) => Promise<void>;
+  onClickDelete: (id: string) => Promise<void>;
 };
 
-export const TodoTableRow = ({ todo, onEdit, onDelete }: TodoTableRowProps) => {
+export const TodoTableRow = ({
+  todo,
+  onClickEdit,
+  onClickDelete,
+}: TodoTableRowProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(todo.name);
   const [editedDescription, setEditedDescription] = useState(todo.description);
-  const [errors, setErrors] = useState<{ name?: string; description?: string }>({});
+  const [errors, setErrors] = useState<{ name?: string; description?: string }>(
+    {},
+  );
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSaveEdit = async () => {
-
     if (editedName === todo.name && editedDescription === todo.description) {
       setIsEditing(false);
       return;
@@ -43,7 +51,10 @@ export const TodoTableRow = ({ todo, onEdit, onDelete }: TodoTableRowProps) => {
     }
 
     setIsSaving(true);
-    await onEdit(todo.id, { name: editedName, description: editedDescription });
+    await onClickEdit(todo.id, {
+      name: editedName,
+      description: editedDescription,
+    });
     setIsSaving(false);
     setIsEditing(false);
   };
@@ -54,8 +65,8 @@ export const TodoTableRow = ({ todo, onEdit, onDelete }: TodoTableRowProps) => {
     setIsEditing(false);
   };
 
-  const handleDelete = () => {
-    onDelete(todo.id);
+  const handleDelete = async () => {
+    await onClickDelete(todo.id);
   };
 
   const handleEdit = () => {
@@ -75,8 +86,12 @@ export const TodoTableRow = ({ todo, onEdit, onDelete }: TodoTableRowProps) => {
             onChange={(e) => setEditedName(e.target.value)}
           />
           <div className="todo-table__footer">
-            {errors.name && <p className="todo-table__footer-error-message">{errors.name}</p>}
-            <p className="todo-table__footer-char-counter">{editedName.length}/100</p>
+            {errors.name && (
+              <p className="todo-table__footer-error-message">{errors.name}</p>
+            )}
+            <p className="todo-table__footer-char-counter">
+              {editedName.length}/100
+            </p>
           </div>
         </td>
         <td className="todo-table__cell todo-table__cell--description">
@@ -90,12 +105,18 @@ export const TodoTableRow = ({ todo, onEdit, onDelete }: TodoTableRowProps) => {
           />
           <div className="todo-table__footer">
             {errors.description && (
-              <p className="todo-table__footer-error-message">{errors.description}</p>
+              <p className="todo-table__footer-error-message">
+                {errors.description}
+              </p>
             )}
-            <p className="todo-table__footer-char-counter">{editedDescription.length}/500</p>
+            <p className="todo-table__footer-char-counter">
+              {editedDescription.length}/500
+            </p>
           </div>
         </td>
-        <td className="todo-table__cell todo-table__cell--date">{todo.createdAt}</td>
+        <td className="todo-table__cell todo-table__cell--date">
+          {todo.createdAt}
+        </td>
         <td className="todo-table__cell todo-table__cell--actions">
           <div className="todo-table__actions">
             <button
@@ -120,8 +141,12 @@ export const TodoTableRow = ({ todo, onEdit, onDelete }: TodoTableRowProps) => {
     return (
       <tr className="todo-table__row">
         <td className="todo-table__cell todo-table__cell--name">{todo.name}</td>
-        <td className="todo-table__cell todo-table__cell--description">{todo.description}</td>
-        <td className="todo-table__cell todo-table__cell--date">{todo.createdAt}</td>
+        <td className="todo-table__cell todo-table__cell--description">
+          {todo.description}
+        </td>
+        <td className="todo-table__cell todo-table__cell--date">
+          {todo.createdAt}
+        </td>
         <td className="todo-table__cell todo-table__cell--actions">
           <div className="todo-table__actions">
             <button

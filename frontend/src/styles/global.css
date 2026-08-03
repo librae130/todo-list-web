@@ -175,7 +175,7 @@ textarea {
 
 .todo-dashboard__container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1300px;
 }
 
 .todo-dashboard-controls {
@@ -192,7 +192,7 @@ textarea {
   flex: 1;
 }
 
-.todo-dashboard-controls__filter {
+.todo-dashboard-controls__create {
   flex-shrink: 0;
 }
 

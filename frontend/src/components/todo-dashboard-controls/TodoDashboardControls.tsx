@@ -2,17 +2,20 @@ import { SearchTodo } from "./SearchTodo.tsx";
 import { TodoFilterSelect } from "./TodoFilterSelect.tsx";
 import type { TodoFilterOption } from "./TodoFilterSelect.tsx";
 import { CreateTodoButton } from "./CreateTodoButton.tsx";
+import { LoginButton } from "./LoginButton.tsx";
 
 type TodoDashboardControlsProps = {
   onSearchChange: (query: string) => void;
   onFilterChange: (filter: TodoFilterOption) => void;
-  onCreate: () => void;
+  onClickCreate: () => void;
+  onClickLogin: () => void;
 };
 
 export const TodoDashboardControls = ({
   onSearchChange,
   onFilterChange,
-  onCreate,
+  onClickCreate,
+  onClickLogin,
 }: TodoDashboardControlsProps) => {
   return (
     <div className="todo-dashboard-controls">
@@ -22,8 +25,11 @@ export const TodoDashboardControls = ({
       <div className="todo-dashboard-controls__filter">
         <TodoFilterSelect onFilterChange={onFilterChange} />
       </div>
-      <div className="todo-dashboard-controls__actions">
-        <CreateTodoButton onCreate={onCreate} />
+      <div className="todo-dashboard-controls__create">
+        <CreateTodoButton onClickCreate={onClickCreate} />
+      </div>
+      <div className="todo-dashboard-controls__login">
+        <LoginButton onClickLogin={onClickLogin} />
       </div>
     </div>
   );
