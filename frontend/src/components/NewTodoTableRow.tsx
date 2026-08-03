@@ -4,19 +4,26 @@ import type { CreateTodoDTO } from "../dtos/CreateTodoDTO.tsx";
 
 type NewTodoTableRowProps = {
   // onEdit: (editMode: boolean, id: string | null) => void;
-  onCreate: (newTodo: CreateTodoDTO) => void;
+  onClickCreate: (newTodo: CreateTodoDTO) => Promise<void>;
   onCloseCreateRow: () => void;
   ref: RefObject<HTMLTableRowElement | null>;
 };
 
-export const NewTodoTableRow = ({ onCreate, onCloseCreateRow, ref }: NewTodoTableRowProps) => {
+export const NewTodoTableRow = ({
+  onClickCreate,
+  onCloseCreateRow,
+  ref,
+}: NewTodoTableRowProps) => {
   const [newName, setNewName] = useState("");
   const [newDescription, setNewDescription] = useState("");
-  const [errors, setErrors] = useState<{ name?: string; description?: string }>({});
+  const [validationErrors, setValidationErrors] = useState<{
+    name?: string;
+    description?: string;
+  }>({});
   const [isSaving, setIsSaving] = useState(false);
 
   const handleCreate = async () => {
-    setErrors({});
+    setValidationErrors({});
     const newErrors: { name?: string; description?: string } = {};
 
     if (newName.trim() === "") {
@@ -26,16 +33,17 @@ export const NewTodoTableRow = ({ onCreate, onCloseCreateRow, ref }: NewTodoTabl
     }
 
     if (newDescription.length > 500) {
-      newErrors.description = "Description cannot be longer than 500 characters.";
+      newErrors.description =
+        "Description cannot be longer than 500 characters.";
     }
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+      setValidationErrors(newErrors);
       return;
     }
 
     setIsSaving(true);
-    await onCreate({
+    await onClickCreate({
       name: newName,
       description: newDescription,
     });
@@ -55,8 +63,14 @@ export const NewTodoTableRow = ({ onCreate, onCloseCreateRow, ref }: NewTodoTabl
           onChange={(e) => setNewName(e.target.value)}
         />
         <div className="todo-table__footer">
-          {errors.name && <p className="todo-table__footer-error-message">{errors.name}</p>}
-          <p className="todo-table__footer-char-counter">{newName.length}/100</p>
+          {validationErrors.name && (
+            <p className="todo-table__footer-error-message">
+              {validationErrors.name}
+            </p>
+          )}
+          <p className="todo-table__footer-char-counter">
+            {newName.length}/100
+          </p>
         </div>
       </td>
       <td className="todo-table__cell todo-table__cell--description">
@@ -69,10 +83,14 @@ export const NewTodoTableRow = ({ onCreate, onCloseCreateRow, ref }: NewTodoTabl
           onChange={(e) => setNewDescription(e.target.value)}
         />
         <div className="todo-table__footer">
-          {errors.description && (
-            <p className="todo-table__footer-error-message">{errors.description}</p>
+          {validationErrors.description && (
+            <p className="todo-table__footer-error-message">
+              {validationErrors.description}
+            </p>
           )}
-          <p className="todo-table__footer-char-counter">{newDescription.length}/500</p>
+          <p className="todo-table__footer-char-counter">
+            {newDescription.length}/500
+          </p>
         </div>
       </td>
       <td className="todo-table__cell todo-table__cell--date"></td>

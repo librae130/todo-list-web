@@ -1,20 +1,20 @@
 import { useState } from "react";
-import { Link, redirect } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 type RegisterFormProps = {
-  onRegister: (username: string, password: string) => void;
+  onClickRegister: (username: string, password: string) => Promise<void>;
 };
 
-export const RegisterForm = ({ onRegister }: RegisterFormProps) => {
+export const RegisterForm = ({ onClickRegister }: RegisterFormProps) => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isRegistering, setIsRegistering] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+  const [validationError, setValidationError] = useState<string>("");
 
   const handleRegister = async (e: any) => {
     e.preventDefault();
 
-    setError("");
+    setValidationError("");
 
     var newError: string = "";
 
@@ -27,12 +27,12 @@ export const RegisterForm = ({ onRegister }: RegisterFormProps) => {
     }
 
     if (newError.length > 0) {
-      setError(newError);
+      setValidationError(newError);
       return;
     }
 
     setIsRegistering(true);
-    onRegister(username, password);
+    await onClickRegister(username, password);
     setIsRegistering(false);
   };
 
@@ -60,9 +60,15 @@ export const RegisterForm = ({ onRegister }: RegisterFormProps) => {
         onChange={(e) => setPassword(e.target.value)}
       />
       <div className="form-login__input-footer">
-        {error && <p className="form-login__error-message">{error}</p>}
+        {validationError && (
+          <p className="form-login__error-message">{validationError}</p>
+        )}
       </div>
-      <button className="form-login__submit-button" type="submit" disabled={isRegistering}>
+      <button
+        className="form-login__submit-button"
+        type="submit"
+        disabled={isRegistering}
+      >
         {isRegistering ? "Registering..." : "Register"}
       </button>
       <p className="form-login__login-link">

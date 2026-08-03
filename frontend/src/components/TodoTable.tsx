@@ -9,20 +9,23 @@ type TodoTableProps = {
   data: TodoDTO[];
   showCreateRow: boolean;
   //onEdit: (editMode: boolean, id: string | null) => void;
-  onCreate: (newTodo: CreateTodoDTO) => void;
+  onClickCreate: (newTodo: CreateTodoDTO) => Promise<void>;
   onCloseCreateRow: () => void;
-  onEdit: (editingTodoId:string,updatedTodo: UpdateTodoDTO) => void;
-  onDelete: (id: string) => void;
-  createRowRef: RefObject<HTMLTableRowElement|null>;
+  onClickEdit: (
+    editingTodoId: string,
+    updatedTodo: UpdateTodoDTO,
+  ) => Promise<void>;
+  onClickDelete: (id: string) => Promise<void>;
+  createRowRef: RefObject<HTMLTableRowElement | null>;
 };
 
 export const TodoTable = ({
   data,
   showCreateRow,
   onCloseCreateRow,
-  onCreate,
-  onEdit,
-  onDelete,
+  onClickCreate,
+  onClickEdit,
+  onClickDelete,
   createRowRef,
 }: TodoTableProps) => {
   return (
@@ -46,7 +49,7 @@ export const TodoTable = ({
       <tbody className="todo-table__body">
         {showCreateRow && (
           <NewTodoTableRow
-            onCreate={onCreate}
+            onClickCreate={onClickCreate}
             onCloseCreateRow={onCloseCreateRow}
             ref={createRowRef}
           />
@@ -55,8 +58,8 @@ export const TodoTable = ({
           <TodoTableRow
             key={todo.id}
             todo={todo}
-            onEdit={onEdit}
-            onDelete={onDelete}
+            onClickEdit={onClickEdit}
+            onClickDelete={onClickDelete}
           />
         ))}
       </tbody>
