@@ -8,106 +8,139 @@ namespace backend.Services;
 
 public class TodoService
 {
-  private readonly ApplicationDBContext _context;
+    private readonly ApplicationDBContext _context;
 
-  public TodoService(ApplicationDBContext context)
-  {
-    _context = context;
-  }
-
-  public async Task<List<Todo>> GetList(Guid userId)
-  {
-    var query = _context.Todos.AsQueryable();
-    query = query.Where(x => x.UserId == userId);
-    return await query.ToListAsync();
-  }
-
-  public async Task<List<Todo>> SearchList(Guid userId, string? search, string? filter)
-  {
-    var query = _context.Todos.AsQueryable();
-
-    // If search or filter are not provided, return the full list as a default behavior.
-    if (string.IsNullOrWhiteSpace(search) || string.IsNullOrWhiteSpace(filter))
+    public TodoService(ApplicationDBContext context)
     {
-      return await GetList(userId);
+        _context = context;
     }
 
-    var normalizedSearch = search.Trim();
-
-    // Dynamically build the search query based on the specified filter.
-    switch (filter.Trim().ToLowerInvariant())
+    public async Task<List<Todo>> GetList(Guid userId, CancellationToken cancellationToken)
     {
-      case "name":
-        query = query.Where(x => x.Name.ToLower().Contains(normalizedSearch.ToLower()) && x.UserId == userId);
-        break;
-      case "description":
-        query = query.Where(x => x.Description.ToLower().Contains(normalizedSearch.ToLower())&& x.UserId == userId);
-        break;
-      case "createddate":
-        // For date filtering, parse the search string and compare only the date part, ignoring the time.
-        if (DateTime.TryParse(normalizedSearch, out var searchDate))
+        var query = _context.Todos.AsQueryable();
+        query = query.Where(x => x.UserId == userId);
+        return await query.ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<Todo>> SearchList(
+        Guid userId,
+        string? search,
+        string? filter,
+        CancellationToken cancellationToken
+    )
+    {
+        var query = _context.Todos.AsQueryable();
+
+        // If search or filter are not provided, return the full list as a default behavior.
+        if (string.IsNullOrWhiteSpace(search) || string.IsNullOrWhiteSpace(filter))
         {
-          query = query.Where(x => x.CreatedAt.Date == searchDate.Date&& x.UserId == userId);
+            return await GetList(userId, cancellationToken);
         }
-        break;
-      default:
-        // If the filter is unknown or not provided, default to 
-        // searching across both name, description and created date.
-        query = query.Where(x =>
-            (x.Name.ToLower().Contains(normalizedSearch.ToLower())
-            || x.Description.ToLower().Contains(normalizedSearch.ToLower())
-            || x.CreatedAt.ToString().ToLower().Contains(normalizedSearch.ToLower()))
-            && x.UserId == userId
+
+        var normalizedSearch = search.Trim();
+
+        // Dynamically build the search query based on the specified filter.
+        switch (filter.Trim().ToLowerInvariant())
+        {
+            case "name":
+                query = query.Where(x =>
+                    x.Name.ToLower().Contains(normalizedSearch.ToLower()) && x.UserId == userId
+                );
+                break;
+            case "description":
+                query = query.Where(x =>
+                    x.Description.ToLower().Contains(normalizedSearch.ToLower())
+                    && x.UserId == userId
+                );
+                break;
+            case "createddate":
+                // For date filtering, parse the search string and compare only the date part, ignoring the time.
+                if (DateTime.TryParse(normalizedSearch, out var searchDate))
+                {
+                    query = query.Where(x =>
+                        x.CreatedAt.Date == searchDate.Date && x.UserId == userId
+                    );
+                }
+                break;
+            default:
+                // If the filter is unknown or not provided, default to
+                // searching across both name, description and created date.
+                query = query.Where(x =>
+                    (
+                        x.Name.ToLower().Contains(normalizedSearch.ToLower())
+                        || x.Description.ToLower().Contains(normalizedSearch.ToLower())
+                        || x.CreatedAt.ToString().ToLower().Contains(normalizedSearch.ToLower())
+                    )
+                    && x.UserId == userId
+                );
+                break;
+        }
+
+        return await query.ToListAsync(cancellationToken);
+    }
+
+    public async Task<Todo?> GetById(Guid id, Guid userId, CancellationToken cancellationToken)
+    {
+        return await _context.Todos.FirstOrDefaultAsync(
+            x => x.Id == id && x.UserId == userId,
+            cancellationToken
         );
-        break;
     }
 
-    return await query.ToListAsync();
-  }
-
-  public async Task<Todo?> GetById(Guid id)
-  {
-    return await _context.Todos.FirstOrDefaultAsync(x => x.Id == id);
-  }
-
-  public async Task<Todo> Create(CreateTodoDTO createTodoDTO)
-  {
-    var todo = createTodoDTO.ToModel();
-    todo.CreatedAt = DateTime.UtcNow;
-
-    await _context.Todos.AddAsync(todo);
-    await _context.SaveChangesAsync();
-
-    return todo;
-  }
-
-  public async Task<Todo?> Update(Guid id, UpdateTodoDTO updateTodoDTO)
-  {
-    var foundTodo = await _context.Todos.FirstOrDefaultAsync(x => x.Id == id);
-
-    if (foundTodo == null)
+    public async Task<Todo> Create(
+        CreateTodoDTO createTodoDTO,
+        Guid userId,
+        CancellationToken cancellationToken
+    )
     {
-      return null;
+        var todo = createTodoDTO.ToModel();
+        todo.CreatedAt = DateTime.UtcNow;
+        todo.UserId = userId;
+
+        await _context.Todos.AddAsync(todo, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return todo;
     }
 
-    updateTodoDTO.ToModel(foundTodo);
-    await _context.SaveChangesAsync();
-
-    return foundTodo;
-  }
-
-  public async Task<bool> Delete(Guid id)
-  {
-    var foundTodo = await _context.Todos.FirstOrDefaultAsync(x => x.Id == id);
-
-    if (foundTodo == null)
+    public async Task<Todo?> Update(
+        Guid id,
+        UpdateTodoDTO updateTodoDTO,
+        Guid userId,
+        CancellationToken cancellationToken
+    )
     {
-      return false;
+        var foundTodo = await _context.Todos.FirstOrDefaultAsync(
+            x => x.Id == id && x.UserId == userId,
+            cancellationToken
+        );
+
+        if (foundTodo == null)
+        {
+            return null;
+        }
+
+        updateTodoDTO.ToModel(foundTodo);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return foundTodo;
     }
 
-    _context.Todos.Remove(foundTodo);
-    await _context.SaveChangesAsync();
+    public async Task<bool> Delete(Guid id, Guid userId, CancellationToken cancellationToken)
+    {
+        var foundTodo = await _context.Todos.FirstOrDefaultAsync(
+            x => x.Id == id && x.UserId == userId,
+            cancellationToken
+        );
 
-    return true;
-  }
+        if (foundTodo == null)
+        {
+            return false;
+        }
+
+        _context.Todos.Remove(foundTodo);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return true;
+    }
 };
