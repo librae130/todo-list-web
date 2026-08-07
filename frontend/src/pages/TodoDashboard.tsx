@@ -74,7 +74,7 @@ export const TodoDashboard = () => {
   //   }
   // };
 
-  const editTodo = async (editingTodoId: string, updatedTodo: UpdateTodoDTO) => {
+  const editTodoAsync = async (editingTodoId: string, updatedTodo: UpdateTodoDTO) => {
     if (editingTodoId == null) {
       return;
     }
@@ -106,7 +106,7 @@ export const TodoDashboard = () => {
     }
   };
 
-  const deleteTodo = async (id: string) => {
+  const deleteTodoAsync = async (id: string) => {
     setLoading(true);
     try {
       setTableData(tableData.filter((todo) => todo.id !== id));
@@ -123,7 +123,7 @@ export const TodoDashboard = () => {
   //   setIsCreating(createMode);
   // };
 
-  const createTodo = async (newTodo: CreateTodoDTO) => {
+  const createTodoAsync = async (newTodo: CreateTodoDTO) => {
     try {
       const response = await apiClient.post(`/api/todo-list`, newTodo);
       if (response.data != null) {
@@ -168,9 +168,9 @@ export const TodoDashboard = () => {
           data={tableData}
           showCreateRow={showCreateRow}
           onCloseCreateRow={() => setShowCreateRow(false)}
-          onClickCreate={createTodo}
-          onClickEdit={editTodo}
-          onClickDelete={deleteTodo}
+          onClickCreateAsync={createTodoAsync}
+          onClickEditAsync={editTodoAsync}
+          onClickDeleteAsync={deleteTodoAsync}
           createRowRef={createRowRef}
         />
       </div>

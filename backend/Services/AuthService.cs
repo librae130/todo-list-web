@@ -1,5 +1,6 @@
 using backend.Data;
 using backend.DTOs;
+using backend.Mappers;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +15,7 @@ public class AuthService
         _context = context;
     }
 
-    public async Task<User> Register(
+    public async Task<UserDTO> RegisterUserAsync(
         RegisterUserDTO registerUserDTO,
         CancellationToken cancellationToken
     )
@@ -39,10 +40,10 @@ public class AuthService
         _context.Users.Add(user);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return user;
+        return user.ToDTO();
     }
 
-    public async Task<User?> Login(LoginUserDTO loginUserDTO, CancellationToken cancellationToken)
+    public async Task<UserDTO?> LoginUserAsync(LoginUserDTO loginUserDTO, CancellationToken cancellationToken)
     {
         var user = await _context.Users.FirstOrDefaultAsync(
             u => u.Username == loginUserDTO.Username,
@@ -54,6 +55,6 @@ public class AuthService
             return null;
         }
 
-        return user;
+        return user.ToDTO();
     }
 }

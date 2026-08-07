@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 type LoginFormProps = {
-  onClickLogin: (username: string, password: string) => Promise<void>
-}
+  onClickLoginAsync: (username: string, password: string) => Promise<void>;
+};
 
-export const LoginForm = ({ onClickLogin }: LoginFormProps) => {
+export const LoginForm = ({ onClickLoginAsync }: LoginFormProps) => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
@@ -32,7 +32,7 @@ export const LoginForm = ({ onClickLogin }: LoginFormProps) => {
     }
 
     setIsLoggingIn(true);
-    await onClickLogin(username, password);
+    await onClickLoginAsync(username, password);
     setIsLoggingIn(false);
   };
 

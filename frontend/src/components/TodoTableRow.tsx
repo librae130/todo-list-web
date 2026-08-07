@@ -5,17 +5,17 @@ import type { TodoDTO } from "../dtos/TodoDTO.tsx";
 type TodoTableRowProps = {
   todo: TodoDTO;
   // onEdit: (editMode: boolean, id: string | null) => void;
-  onClickEdit: (
+  onClickEditAsync: (
     editingTodoId: string,
     updateTodoDTO: UpdateTodoDTO,
   ) => Promise<void>;
-  onClickDelete: (id: string) => Promise<void>;
+  onClickDeleteAsync: (id: string) => Promise<void>;
 };
 
 export const TodoTableRow = ({
   todo,
-  onClickEdit,
-  onClickDelete,
+  onClickEditAsync,
+  onClickDeleteAsync,
 }: TodoTableRowProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(todo.name);
@@ -51,7 +51,7 @@ export const TodoTableRow = ({
     }
 
     setIsSaving(true);
-    await onClickEdit(todo.id, {
+    await onClickEditAsync(todo.id, {
       name: editedName,
       description: editedDescription,
     });
@@ -66,7 +66,7 @@ export const TodoTableRow = ({
   };
 
   const handleDelete = async () => {
-    await onClickDelete(todo.id);
+    await onClickDeleteAsync(todo.id);
   };
 
   const handleEdit = () => {
