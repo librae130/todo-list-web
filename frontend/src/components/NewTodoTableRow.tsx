@@ -4,13 +4,13 @@ import type { CreateTodoDTO } from "../dtos/CreateTodoDTO.tsx";
 
 type NewTodoTableRowProps = {
   // onEdit: (editMode: boolean, id: string | null) => void;
-  onClickCreate: (newTodo: CreateTodoDTO) => Promise<void>;
+  onClickCreateAsync: (newTodo: CreateTodoDTO) => Promise<void>;
   onCloseCreateRow: () => void;
   ref: RefObject<HTMLTableRowElement | null>;
 };
 
 export const NewTodoTableRow = ({
-  onClickCreate,
+  onClickCreateAsync,
   onCloseCreateRow,
   ref,
 }: NewTodoTableRowProps) => {
@@ -43,7 +43,7 @@ export const NewTodoTableRow = ({
     }
 
     setIsSaving(true);
-    await onClickCreate({
+    await onClickCreateAsync({
       name: newName,
       description: newDescription,
     });

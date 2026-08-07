@@ -11,46 +11,39 @@ namespace backend.Controllers;
 [Route("api/users")]
 public class AuthController : ControllerBase
 {
-    private readonly AuthService _authService;
-    private readonly JWTService _jwtService;
+  private readonly AuthService _authService;
+  private readonly JWTService _jwtService;
 
-    public AuthController(AuthService authService, JWTService jwtService)
+  public AuthController(AuthService authService, JWTService jwtService)
+  {
+    _authService = authService;
+    _jwtService = jwtService;
+  }
+
+  [HttpPost("register")]
+  public async Task<IActionResult> RegisterUserAsync(
+      [FromBody] RegisterUserDTO registerUserDTO,
+      CancellationToken cancellationToken
+  )
+  {
+    var user = await _authService.RegisterUserAsync(registerUserDTO, cancellationToken);
+    return CreatedAtAction(nameof(RegisterUserAsync), new { id = user.Id }, user);
+  }
+
+  [HttpPost("login")]
+  public async Task<IActionResult> LoginUserAsync(
+      [FromBody] LoginUserDTO loginUserDTO,
+      CancellationToken cancellationToken
+  )
+  {
+    var user = await _authService.LoginUserAsync(loginUserDTO, cancellationToken);
+
+    if (user == null)
     {
-        _authService = authService;
-        _jwtService = jwtService;
+      return Unauthorized("Invalid credentials");
     }
 
-    [HttpPost("register")]
-    public async Task<IActionResult> Register(
-        [FromBody] RegisterUserDTO registerUserDTO,
-        CancellationToken cancellationToken
-    )
-    {
-        try
-        {
-            var user = await _authService.Register(registerUserDTO, cancellationToken);
-            return CreatedAtAction(nameof(Register), new { id = user.Id }, user.ToDTO());
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-
-    [HttpPost("login")]
-    public async Task<IActionResult> Login(
-        [FromBody] LoginUserDTO loginUserDTO,
-        CancellationToken cancellationToken
-    )
-    {
-        var user = await _authService.Login(loginUserDTO, cancellationToken);
-
-        if (user == null)
-        {
-            return Unauthorized("Invalid credentials");
-        }
-
-        var token = _jwtService.GenerateJWTToken(user.ToDTO());
-        return Ok(new { token });
-    }
+    var token = _jwtService.GenerateJWTToken(user);
+    return Ok(new { token });
+  }
 }

@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/librae/Projects/todo-list-web/backend.tests/backend.tests.csproj": {}
+    "C:\\Users\\librae\\Projects\\todo-list-web\\backend.tests\\backend.tests.csproj": {}
   },
   "projects": {
-    "/home/librae/Projects/todo-list-web/backend.tests/backend.tests.csproj": {
+    "C:\\Users\\librae\\Projects\\todo-list-web\\backend.tests\\backend.tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/librae/Projects/todo-list-web/backend.tests/backend.tests.csproj",
+        "projectUniqueName": "C:\\Users\\librae\\Projects\\todo-list-web\\backend.tests\\backend.tests.csproj",
         "projectName": "backend.tests",
-        "projectPath": "/home/librae/Projects/todo-list-web/backend.tests/backend.tests.csproj",
-        "packagesPath": "/home/librae/.nuget/packages/",
-        "outputPath": "/home/librae/Projects/todo-list-web/backend.tests/obj/",
+        "projectPath": "C:\\Users\\librae\\Projects\\todo-list-web\\backend.tests\\backend.tests.csproj",
+        "packagesPath": "C:\\Users\\librae\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\librae\\Projects\\todo-list-web\\backend.tests\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/librae/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\librae\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -24,10 +24,11 @@
         },
         "frameworks": {
           "net10.0": {
+            "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "/home/librae/Projects/todo-list-web/backend/backend.csproj": {
-                "projectPath": "/home/librae/Projects/todo-list-web/backend/backend.csproj"
+              "C:\\Users\\librae\\Projects\\todo-list-web\\backend\\backend.csproj": {
+                "projectPath": "C:\\Users\\librae\\Projects\\todo-list-web\\backend\\backend.csproj"
               }
             }
           }
@@ -42,10 +43,11 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "10.0.300"
       },
       "frameworks": {
         "net10.0": {
+          "framework": "net10.0",
           "targetAlias": "net10.0",
           "dependencies": {
             "Microsoft.EntityFrameworkCore.InMemory": {
@@ -85,7 +87,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.110/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -363,17 +365,17 @@
         }
       }
     },
-    "/home/librae/Projects/todo-list-web/backend/backend.csproj": {
+    "C:\\Users\\librae\\Projects\\todo-list-web\\backend\\backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/librae/Projects/todo-list-web/backend/backend.csproj",
+        "projectUniqueName": "C:\\Users\\librae\\Projects\\todo-list-web\\backend\\backend.csproj",
         "projectName": "backend",
-        "projectPath": "/home/librae/Projects/todo-list-web/backend/backend.csproj",
-        "packagesPath": "/home/librae/.nuget/packages/",
-        "outputPath": "/home/librae/Projects/todo-list-web/backend/obj/",
+        "projectPath": "C:\\Users\\librae\\Projects\\todo-list-web\\backend\\backend.csproj",
+        "packagesPath": "C:\\Users\\librae\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\librae\\Projects\\todo-list-web\\backend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/librae/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\librae\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -383,6 +385,7 @@
         },
         "frameworks": {
           "net10.0": {
+            "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {}
           }
@@ -397,10 +400,11 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "10.0.300"
       },
       "frameworks": {
         "net10.0": {
+          "framework": "net10.0",
           "targetAlias": "net10.0",
           "dependencies": {
             "BCrypt.Net-Next": {
@@ -453,7 +457,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.110/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

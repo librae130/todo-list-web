@@ -32,58 +32,58 @@ public class TodoController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetList(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetTodoListAsync(CancellationToken cancellationToken)
     {
         var userId = GetCurrentUserId();
-        var todos = await _todoService.GetList(userId, cancellationToken);
-        return Ok(todos.Select(todo => todo.ToDTO()));
+        var todos = await _todoService.GetTodoListAsync(userId, cancellationToken);
+        return Ok(todos);
     }
 
     [HttpGet("search")]
-    public async Task<IActionResult> SearchList(
+    public async Task<IActionResult> SearchTodoListAsync(
         [FromQuery] string? search,
         [FromQuery] string? filter,
         CancellationToken cancellationToken
     )
     {
         var userId = GetCurrentUserId();
-        var todos = await _todoService.SearchList(userId, search, filter, cancellationToken);
-        return Ok(todos.Select(todo => todo.ToDTO()));
+        var todos = await _todoService.SearchTodoListAsync(userId, search, filter, cancellationToken);
+        return Ok(todos);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(
+    public async Task<IActionResult> GetTodoByIdAsync(
         [FromRoute] Guid id,
         CancellationToken cancellationToken
     )
     {
         var userId = GetCurrentUserId();
 
-        var foundTodo = await _todoService.GetById(id, userId, cancellationToken);
+        var foundTodo = await _todoService.GetTodoByIdAsync(id, userId, cancellationToken);
 
         if (foundTodo == null)
         {
             return NotFound($"To-do with id {id} of user with id {userId} not found");
         }
 
-        return Ok(foundTodo.ToDTO());
+        return Ok(foundTodo);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(
+    public async Task<IActionResult> CreateTodoAsync(
         [FromBody] CreateTodoDTO createTodoDTO,
         CancellationToken cancellationToken
     )
     {
         var userId = GetCurrentUserId();
 
-        var createdTodo = await _todoService.Create(createTodoDTO, userId, cancellationToken);
+        var createdTodo = await _todoService.CreateTodoAsync(createTodoDTO, userId, cancellationToken);
 
-        return CreatedAtAction(nameof(GetById), new { id = createdTodo.Id }, createdTodo.ToDTO());
+        return CreatedAtAction(nameof(GetTodoByIdAsync), new { id = createdTodo.Id }, createdTodo);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(
+    public async Task<IActionResult> UpdateTodoAsync(
         [FromRoute] Guid id,
         [FromBody] UpdateTodoDTO updateTodoDTO,
         CancellationToken cancellationToken
@@ -91,25 +91,25 @@ public class TodoController : ControllerBase
     {
         var userId = GetCurrentUserId();
 
-        var updatedTodo = await _todoService.Update(id, updateTodoDTO, userId, cancellationToken);
+        var updatedTodo = await _todoService.UpdateTodoAsync(id, updateTodoDTO, userId, cancellationToken);
 
         if (updatedTodo == null)
         {
             return NotFound($"To-do with id {id} of user with id {userId} not found");
         }
 
-        return Ok(updatedTodo.ToDTO());
+        return Ok(updatedTodo);
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(
+    public async Task<IActionResult> DeleteTodoAsync(
         [FromRoute] Guid id,
         CancellationToken cancellationToken
     )
   {
         var userId = GetCurrentUserId();
       
-        var deleted = await _todoService.Delete(id, userId, cancellationToken);
+        var deleted = await _todoService.DeleteTodoAsync(id, userId, cancellationToken);
 
         if (!deleted)
         {

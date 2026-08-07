@@ -9,7 +9,7 @@ export const Register = () => {
   
   const [error, setError] = useState<string>("");
 
-  const registerUser = async (username: string, password: string) => {
+  const registerUserAsync = async (username: string, password: string) => {
     try {
       await apiClient.post("/api/users/register", {
         username,
@@ -25,7 +25,7 @@ export const Register = () => {
   return (
     <div>
       {error && <p className="status-message status-message--error">{error}</p>}
-      <RegisterForm onClickRegister={registerUser} />
+      <RegisterForm onClickRegisterAsync={registerUserAsync} />
     </div>
   );
 };

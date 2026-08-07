@@ -9,7 +9,7 @@ export const Login = () => {
   
   const [error, setError] = useState<string>("");
 
-  const loginUser = async (username: string, password: string) => {
+  const loginUserAsync = async (username: string, password: string) => {
     try {
       const response = await apiClient.post("/api/users/login", {
         username,
@@ -27,7 +27,7 @@ export const Login = () => {
   return (
     <div>
       {error && <p className="status-message status-message--error">{error}</p>}
-      <LoginForm onClickLogin={loginUser} />
+      <LoginForm onClickLoginAsync={loginUserAsync} />
     </div>
   );
 };
