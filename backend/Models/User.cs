@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace backend.Models;
 
-public class User
+internal class User
 {
     [Key]
     public Guid Id { get; set; }

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import type { TodoDTO } from "../dtos/TodoDTO.tsx";
-import type { UpdateTodoDTO } from "../dtos/UpdateTodoDTO.tsx";
+import type { TodoDto } from "../dtos/TodoDto.tsx";
+import type { UpdateTodoDto } from "../dtos/UpdateTodoDto.tsx";
 
 type EditTodoModalProps = {
-  todo: TodoDTO;
-  onClickSaveAsync: (updatedTodo: UpdateTodoDTO) => Promise<void>;
+  todo: TodoDto;
+  onClickSaveAsync: (updatedTodo: UpdateTodoDto) => Promise<void>;
   onClose: () => void;
 };
 

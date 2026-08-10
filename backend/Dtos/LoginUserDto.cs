@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace backend.DTOs;
+namespace backend.Dtos;
 
-public class LoginUserDTO
+public class LoginUserDto
 {
     [Required]
     [MaxLength(50)]

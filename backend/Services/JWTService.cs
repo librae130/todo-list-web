@@ -3,11 +3,11 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
-using backend.DTOs;
+using backend.Dtos;
 
 namespace backend.Services;
 
-public class JWTService
+internal class JWTService
 {
     private readonly IConfiguration _config;
 
@@ -16,7 +16,7 @@ public class JWTService
         _config = config;
     }
 
-    public string GenerateJWTToken(UserDTO user)
+    public string GenerateJWTToken(UserDto user)
     {
     var claims = new[] { new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())};
 

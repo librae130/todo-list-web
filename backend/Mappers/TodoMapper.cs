@@ -1,13 +1,13 @@
-using backend.DTOs;
+using backend.Dtos;
 using backend.Models;
 
 namespace backend.Mappers;
 
-public static class TodoMapper
+internal static class TodoMapper
 {
-    public static TodoDTO ToDTO(this Todo todo)
+    public static TodoDto ToDto(this Todo todo)
     {
-        return new TodoDTO
+        return new TodoDto
         {
             Id = todo.Id,
             Name = todo.Name,
@@ -16,19 +16,19 @@ public static class TodoMapper
         };
     }
 
-    public static Todo ToModel(this CreateTodoDTO createTodoDTO)
+    public static Todo ToModel(this CreateTodoDto createTodoDto)
     {
         return new Todo
         {
-            Name = createTodoDTO.Name,
-            Description = createTodoDTO.Description,
+            Name = createTodoDto.Name,
+            Description = createTodoDto.Description,
         };
     }
 
-    public static Todo ToModel(this UpdateTodoDTO updateTodoDTO, Todo todo)
+    public static Todo ToModel(this UpdateTodoDto updateTodoDto, Todo todo)
     {
-        todo.Name = updateTodoDTO.Name;
-        todo.Description = updateTodoDTO.Description;
+        todo.Name = updateTodoDto.Name;
+        todo.Description = updateTodoDto.Description;
 
         return todo;
     }

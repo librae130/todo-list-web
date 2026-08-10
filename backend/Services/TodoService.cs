@@ -1,12 +1,12 @@
 using backend.Data;
-using backend.DTOs;
+using backend.Dtos;
 using backend.Mappers;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services;
 
-public class TodoService
+internal class TodoService
 {
   private readonly ApplicationDBContext _context;
 
@@ -15,15 +15,15 @@ public class TodoService
     _context = context;
   }
 
-  public async Task<List<TodoDTO>> GetTodoListAsync(Guid userId, CancellationToken cancellationToken)
+  public async Task<List<TodoDto>> GetTodoListAsync(Guid userId, CancellationToken cancellationToken)
   {
     var query = _context.Todos.AsQueryable();
     query = query.Where(x => x.UserId == userId);
     var todos = await query.ToListAsync(cancellationToken);
-    return todos.ConvertAll(x => x.ToDTO());
+    return todos.ConvertAll(x => x.ToDto());
   }
 
-  public async Task<List<TodoDTO>> SearchTodoListAsync(
+  public async Task<List<TodoDto>> SearchTodoListAsync(
       Guid userId,
       string? search,
       string? filter,
@@ -78,38 +78,38 @@ public class TodoService
     }
 
     var todos = await query.ToListAsync(cancellationToken);
-    return todos.ConvertAll(x => x.ToDTO());
+    return todos.ConvertAll(x => x.ToDto());
   }
 
-  public async Task<TodoDTO?> GetTodoByIdAsync(Guid id, Guid userId, CancellationToken cancellationToken)
+  public async Task<TodoDto?> GetTodoByIdAsync(Guid id, Guid userId, CancellationToken cancellationToken)
   {
     var foundTodo = await _context.Todos.FirstOrDefaultAsync(
         x => x.Id == id && x.UserId == userId,
         cancellationToken
     );
 
-    return foundTodo?.ToDTO();
+    return foundTodo?.ToDto();
   }
 
-  public async Task<TodoDTO> CreateTodoAsync(
-      CreateTodoDTO createTodoDTO,
+  public async Task<TodoDto> CreateTodoAsync(
+      CreateTodoDto createTodoDto,
       Guid userId,
       CancellationToken cancellationToken
   )
   {
-    var todo = createTodoDTO.ToModel();
+    var todo = createTodoDto.ToModel();
     todo.CreatedAt = DateTime.UtcNow;
     todo.UserId = userId;
 
     await _context.Todos.AddAsync(todo, cancellationToken);
     await _context.SaveChangesAsync(cancellationToken);
 
-    return todo.ToDTO();
+    return todo.ToDto();
   }
 
-  public async Task<TodoDTO?> UpdateTodoAsync(
+  public async Task<TodoDto?> UpdateTodoAsync(
       Guid id,
-      UpdateTodoDTO updateTodoDTO,
+      UpdateTodoDto updateTodoDto,
       Guid userId,
       CancellationToken cancellationToken
   )
@@ -124,10 +124,10 @@ public class TodoService
       return null;
     }
 
-    updateTodoDTO.ToModel(foundTodo);
+    updateTodoDto.ToModel(foundTodo);
     await _context.SaveChangesAsync(cancellationToken);
 
-    return foundTodo.ToDTO();
+    return foundTodo.ToDto();
   }
 
   public async Task<bool> DeleteTodoAsync(Guid id, Guid userId, CancellationToken cancellationToken)

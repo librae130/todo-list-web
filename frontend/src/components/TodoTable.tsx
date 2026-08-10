@@ -1,19 +1,19 @@
-import type { TodoDTO } from "../dtos/TodoDTO.tsx";
+import type { TodoDto } from "../dtos/TodoDto.tsx";
 import type { RefObject } from "react";
-import type { UpdateTodoDTO } from "../dtos/UpdateTodoDTO.tsx";
-import type { CreateTodoDTO } from "../dtos/CreateTodoDTO.tsx";
+import type { UpdateTodoDto } from "../dtos/UpdateTodoDto.tsx";
+import type { CreateTodoDto } from "../dtos/CreateTodoDto.tsx";
 import { TodoTableRow } from "./TodoTableRow.tsx";
 import { NewTodoTableRow } from "./NewTodoTableRow.tsx";
 
 type TodoTableProps = {
-  data: TodoDTO[];
+  data: TodoDto[];
   showCreateRow: boolean;
   //onEdit: (editMode: boolean, id: string | null) => void;
-  onClickCreateAsync: (newTodo: CreateTodoDTO) => Promise<void>;
+  onClickCreateAsync: (newTodo: CreateTodoDto) => Promise<void>;
   onCloseCreateRow: () => void;
   onClickEditAsync: (
     editingTodoId: string,
-    updatedTodo: UpdateTodoDTO,
+    updatedTodo: UpdateTodoDto,
   ) => Promise<void>;
   onClickDeleteAsync: (id: string) => Promise<void>;
   createRowRef: RefObject<HTMLTableRowElement | null>;
@@ -54,7 +54,7 @@ export const TodoTable = ({
             ref={createRowRef}
           />
         )}
-        {data.map((todo: TodoDTO) => (
+        {data.map((todo: TodoDto) => (
           <TodoTableRow
             key={todo.id}
             todo={todo}

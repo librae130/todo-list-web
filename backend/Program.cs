@@ -1,7 +1,7 @@
 using System.Text;
 using backend.Data;
+using backend.Helpers;
 using backend.Services;
-using backend.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -53,9 +53,11 @@ builder
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(
-        builder.Configuration["Jwt:Key"]
-        ?? throw new InvalidOperationException("Jwt:Key not found in configuration.")
-    )
+                    builder.Configuration["Jwt:Key"]
+                        ?? throw new InvalidOperationException(
+                            "Jwt:Key not found in configuration."
+                        )
+                )
             ),
         };
     });

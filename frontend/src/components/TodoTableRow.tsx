@@ -1,13 +1,13 @@
 import { useState } from "react";
-import type { UpdateTodoDTO } from "../dtos/UpdateTodoDTO.tsx";
-import type { TodoDTO } from "../dtos/TodoDTO.tsx";
+import type { UpdateTodoDto } from "../dtos/UpdateTodoDto.tsx";
+import type { TodoDto } from "../dtos/TodoDto.tsx";
 
 type TodoTableRowProps = {
-  todo: TodoDTO;
+  todo: TodoDto;
   // onEdit: (editMode: boolean, id: string | null) => void;
   onClickEditAsync: (
     editingTodoId: string,
-    updateTodoDTO: UpdateTodoDTO,
+    updateTodoDto: UpdateTodoDto,
   ) => Promise<void>;
   onClickDeleteAsync: (id: string) => Promise<void>;
 };
