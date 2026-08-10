@@ -1,6 +1,7 @@
 using System.Text;
 using backend.Data;
 using backend.Helpers;
+using backend.Repositories;
 using backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,9 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
     )
 );
 
-builder.Services.AddScoped<JWTService>();
+builder.Services.AddScoped<ITodoRepository, TodoRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<TodoService>();
 builder.Services.AddScoped<AuthService>();
 

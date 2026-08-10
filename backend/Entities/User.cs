@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace backend.Models;
+namespace backend.Entities;
 
-internal class User
+public class User
 {
     [Key]
     public Guid Id { get; set; }

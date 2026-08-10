@@ -1,7 +1,7 @@
 import type { TodoDto } from "../dtos/TodoDto.tsx";
 import type { RefObject } from "react";
 import type { UpdateTodoDto } from "../dtos/UpdateTodoDto.tsx";
-import type { CreateTodoDto } from "../dtos/CreateTodoDto.tsx";
+import type { AddTodoDto } from "../dtos/AddTodoDto.tsx";
 import { TodoTableRow } from "./TodoTableRow.tsx";
 import { NewTodoTableRow } from "./NewTodoTableRow.tsx";
 
@@ -9,13 +9,13 @@ type TodoTableProps = {
   data: TodoDto[];
   showCreateRow: boolean;
   //onEdit: (editMode: boolean, id: string | null) => void;
-  onClickCreateAsync: (newTodo: CreateTodoDto) => Promise<void>;
+  onClickCreateAsync: (newTodo: AddTodoDto) => Promise<void>;
   onCloseCreateRow: () => void;
   onClickEditAsync: (
     editingTodoId: string,
     updatedTodo: UpdateTodoDto,
   ) => Promise<void>;
-  onClickDeleteAsync: (id: string) => Promise<void>;
+  onClickRemoveAsync: (id: string) => Promise<void>;
   createRowRef: RefObject<HTMLTableRowElement | null>;
 };
 
@@ -25,7 +25,7 @@ export const TodoTable = ({
   onCloseCreateRow,
   onClickCreateAsync,
   onClickEditAsync,
-  onClickDeleteAsync,
+  onClickRemoveAsync,
   createRowRef,
 }: TodoTableProps) => {
   return (
@@ -59,7 +59,7 @@ export const TodoTable = ({
             key={todo.id}
             todo={todo}
             onClickEditAsync={onClickEditAsync}
-            onClickDeleteAsync={onClickDeleteAsync}
+            onClickRemoveAsync={onClickRemoveAsync}
           />
         ))}
       </tbody>

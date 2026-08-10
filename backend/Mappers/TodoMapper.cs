@@ -1,5 +1,5 @@
 using backend.Dtos;
-using backend.Models;
+using backend.Entities;
 
 namespace backend.Mappers;
 
@@ -16,13 +16,9 @@ internal static class TodoMapper
         };
     }
 
-    public static Todo ToModel(this CreateTodoDto createTodoDto)
+    public static Todo ToModel(this AddTodoDto addTodoDto)
     {
-        return new Todo
-        {
-            Name = createTodoDto.Name,
-            Description = createTodoDto.Description,
-        };
+        return new Todo { Name = addTodoDto.Name, Description = addTodoDto.Description };
     }
 
     public static Todo ToModel(this UpdateTodoDto updateTodoDto, Todo todo)

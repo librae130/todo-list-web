@@ -1,24 +1,23 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.IdentityModel.Tokens;
-
 using backend.Dtos;
+using Microsoft.IdentityModel.Tokens;
 
 namespace backend.Services;
 
-internal class JWTService
+public class JwtService
 {
     private readonly IConfiguration _config;
 
-    public JWTService(IConfiguration config)
+    public JwtService(IConfiguration config)
     {
         _config = config;
     }
 
-    public string GenerateJWTToken(UserDto user)
+    public string GenerateJwtToken(UserDto user)
     {
-    var claims = new[] { new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())};
+        var claims = new[] { new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()) };
 
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? "this-jwtkey-is-32-character-long")

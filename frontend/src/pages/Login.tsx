@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { LoginForm } from "../components/user-authentication/LoginForm";
 import { useNavigate } from "react-router-dom";
-import { apiClient } from "../utils/api";
+import { apiClient } from "../utils/apiClient";
 import { getErrorMessage } from "../utils/errorUtils";
 
 export const Login = () => {
