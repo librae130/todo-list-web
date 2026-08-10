@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Models;
 
-public class Todo
+internal class Todo
 {
     [Key]
     public Guid Id { get; set; }

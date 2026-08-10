@@ -1,6 +1,5 @@
-using System.Security.Claims;
-using backend.DTOs;
-using backend.Mappers;
+using backend.Dtos;
+using backend.Helpers;
 using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,27 +13,15 @@ public class TodoController : ControllerBase
 {
     private readonly TodoService _todoService;
 
-    public TodoController(TodoService todoService)
+    internal TodoController(TodoService todoService)
     {
         _todoService = todoService;
-    }
-
-    private Guid GetCurrentUserId()
-    {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-
-        if (userIdClaim == null)
-        {
-            throw new UnauthorizedAccessException("User ID not found in token.");
-        }
-
-        return Guid.Parse(userIdClaim.Value);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetTodoListAsync(CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
+        var userId = JwtTokenParser.GetCurrentUserId(User);
         var todos = await _todoService.GetTodoListAsync(userId, cancellationToken);
         return Ok(todos);
     }
@@ -46,8 +33,13 @@ public class TodoController : ControllerBase
         CancellationToken cancellationToken
     )
     {
-        var userId = GetCurrentUserId();
-        var todos = await _todoService.SearchTodoListAsync(userId, search, filter, cancellationToken);
+        var userId = JwtTokenParser.GetCurrentUserId(User);
+        var todos = await _todoService.SearchTodoListAsync(
+            userId,
+            search,
+            filter,
+            cancellationToken
+        );
         return Ok(todos);
     }
 
@@ -57,7 +49,7 @@ public class TodoController : ControllerBase
         CancellationToken cancellationToken
     )
     {
-        var userId = GetCurrentUserId();
+        var userId = JwtTokenParser.GetCurrentUserId(User);
 
         var foundTodo = await _todoService.GetTodoByIdAsync(id, userId, cancellationToken);
 
@@ -71,13 +63,17 @@ public class TodoController : ControllerBase
 
     [HttpPost]
     public async Task<IActionResult> CreateTodoAsync(
-        [FromBody] CreateTodoDTO createTodoDTO,
+        [FromBody] CreateTodoDto createTodoDto,
         CancellationToken cancellationToken
     )
     {
-        var userId = GetCurrentUserId();
+        var userId = JwtTokenParser.GetCurrentUserId(User);
 
-        var createdTodo = await _todoService.CreateTodoAsync(createTodoDTO, userId, cancellationToken);
+        var createdTodo = await _todoService.CreateTodoAsync(
+            createTodoDto,
+            userId,
+            cancellationToken
+        );
 
         return CreatedAtAction(nameof(GetTodoByIdAsync), new { id = createdTodo.Id }, createdTodo);
     }
@@ -85,13 +81,18 @@ public class TodoController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTodoAsync(
         [FromRoute] Guid id,
-        [FromBody] UpdateTodoDTO updateTodoDTO,
+        [FromBody] UpdateTodoDto updateTodoDto,
         CancellationToken cancellationToken
     )
     {
-        var userId = GetCurrentUserId();
+        var userId = JwtTokenParser.GetCurrentUserId(User);
 
-        var updatedTodo = await _todoService.UpdateTodoAsync(id, updateTodoDTO, userId, cancellationToken);
+        var updatedTodo = await _todoService.UpdateTodoAsync(
+            id,
+            updateTodoDto,
+            userId,
+            cancellationToken
+        );
 
         if (updatedTodo == null)
         {
@@ -106,9 +107,9 @@ public class TodoController : ControllerBase
         [FromRoute] Guid id,
         CancellationToken cancellationToken
     )
-  {
-        var userId = GetCurrentUserId();
-      
+    {
+        var userId = JwtTokenParser.GetCurrentUserId(User);
+
         var deleted = await _todoService.DeleteTodoAsync(id, userId, cancellationToken);
 
         if (!deleted)

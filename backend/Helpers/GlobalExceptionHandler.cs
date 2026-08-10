@@ -1,23 +1,25 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 
-namespace backend.Middlewares;
-public class GlobalExceptionHandler : IExceptionHandler
+namespace backend.Helpers;
+
+internal class GlobalExceptionHandler : IExceptionHandler
 {
-  public async ValueTask<bool> TryHandleAsync(
-      HttpContext httpContext,
-      Exception exception,
-      CancellationToken cancellationToken)
-  {
-    var problemDetails = new ProblemDetails
+    public async ValueTask<bool> TryHandleAsync(
+        HttpContext httpContext,
+        Exception exception,
+        CancellationToken cancellationToken
+    )
     {
-      Status = StatusCodes.Status500InternalServerError,
-      Title = "An error occurred",
-      Detail = exception.Message
-    };
+        var problemDetails = new ProblemDetails
+        {
+            Status = StatusCodes.Status500InternalServerError,
+            Title = "An error occurred",
+            Detail = exception.Message,
+        };
 
-    httpContext.Response.StatusCode = problemDetails.Status.Value;
-    await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
-    return true;
-  }
+        httpContext.Response.StatusCode = problemDetails.Status.Value;
+        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+        return true;
+    }
 }

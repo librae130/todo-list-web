@@ -1,10 +1,10 @@
 import { useState } from "react";
 import type { RefObject } from "react";
-import type { CreateTodoDTO } from "../dtos/CreateTodoDTO.tsx";
+import type { CreateTodoDto } from "../dtos/CreateTodoDto.tsx";
 
 type NewTodoTableRowProps = {
   // onEdit: (editMode: boolean, id: string | null) => void;
-  onClickCreateAsync: (newTodo: CreateTodoDTO) => Promise<void>;
+  onClickCreateAsync: (newTodo: CreateTodoDto) => Promise<void>;
   onCloseCreateRow: () => void;
   ref: RefObject<HTMLTableRowElement | null>;
 };

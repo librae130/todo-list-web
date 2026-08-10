@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using backend.DTOs;
+using backend.Dtos;
 using backend.Mappers;
 using backend.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +14,7 @@ public class AuthController : ControllerBase
   private readonly AuthService _authService;
   private readonly JWTService _jwtService;
 
-  public AuthController(AuthService authService, JWTService jwtService)
+  internal AuthController(AuthService authService, JWTService jwtService)
   {
     _authService = authService;
     _jwtService = jwtService;
@@ -22,21 +22,21 @@ public class AuthController : ControllerBase
 
   [HttpPost("register")]
   public async Task<IActionResult> RegisterUserAsync(
-      [FromBody] RegisterUserDTO registerUserDTO,
+      [FromBody] RegisterUserDto registerUserDto,
       CancellationToken cancellationToken
   )
   {
-    var user = await _authService.RegisterUserAsync(registerUserDTO, cancellationToken);
+    var user = await _authService.RegisterUserAsync(registerUserDto, cancellationToken);
     return CreatedAtAction(nameof(RegisterUserAsync), new { id = user.Id }, user);
   }
 
   [HttpPost("login")]
   public async Task<IActionResult> LoginUserAsync(
-      [FromBody] LoginUserDTO loginUserDTO,
+      [FromBody] LoginUserDto loginUserDto,
       CancellationToken cancellationToken
   )
   {
-    var user = await _authService.LoginUserAsync(loginUserDTO, cancellationToken);
+    var user = await _authService.LoginUserAsync(loginUserDto, cancellationToken);
 
     if (user == null)
     {

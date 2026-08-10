@@ -1,13 +1,13 @@
 using backend.Models;
-using backend.DTOs;
+using backend.Dtos;
 
 namespace backend.Mappers;
 
-    public static class UserMapper
+    internal static class UserMapper
     {
-    public static UserDTO ToDTO(this User user)
+    public static UserDto ToDto(this User user)
     {
-      return new UserDTO
+      return new UserDto
       {
         Id = user.Id,
         Username = user.Username,

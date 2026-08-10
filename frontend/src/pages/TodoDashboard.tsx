@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { apiClient } from "../utils/api.tsx";
-import type { TodoDTO } from "../dtos/TodoDTO.tsx";
-import type { UpdateTodoDTO } from "../dtos/UpdateTodoDTO.tsx";
-import type { CreateTodoDTO } from "../dtos/CreateTodoDTO.tsx";
+import type { TodoDto } from "../dtos/TodoDto.tsx";
+import type { UpdateTodoDto } from "../dtos/UpdateTodoDto.tsx";
+import type { CreateTodoDto } from "../dtos/CreateTodoDto.tsx";
 import type { TodoFilterOption } from "../components/todo-dashboard-controls/TodoFilterSelect.tsx";
 import { TodoTable } from "../components/TodoTable.tsx";
 import { TodoDashboardControls } from "../components/todo-dashboard-controls/TodoDashboardControls.tsx";
@@ -17,12 +17,12 @@ export const TodoDashboard = () => {
 
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [tableData, setTableData] = useState<TodoDTO[]>([]);
+  const [tableData, setTableData] = useState<TodoDto[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<TodoFilterOption>("all");
   //const [isEditing, setIsEditing] = useState(false);
   //const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
-  //const [editingTodo, setEditingTodo] = useState<TodoDTO | null>(null);
+  //const [editingTodo, setEditingTodo] = useState<TodoDto | null>(null);
   const [showCreateRow, setShowCreateRow] = useState(false);
   const createRowRef = useRef<HTMLTableRowElement | null>(null);
 
@@ -74,7 +74,7 @@ export const TodoDashboard = () => {
   //   }
   // };
 
-  const editTodoAsync = async (editingTodoId: string, updatedTodo: UpdateTodoDTO) => {
+  const editTodoAsync = async (editingTodoId: string, updatedTodo: UpdateTodoDto) => {
     if (editingTodoId == null) {
       return;
     }
@@ -123,7 +123,7 @@ export const TodoDashboard = () => {
   //   setIsCreating(createMode);
   // };
 
-  const createTodoAsync = async (newTodo: CreateTodoDTO) => {
+  const createTodoAsync = async (newTodo: CreateTodoDto) => {
     try {
       const response = await apiClient.post(`/api/todo-list`, newTodo);
       if (response.data != null) {
