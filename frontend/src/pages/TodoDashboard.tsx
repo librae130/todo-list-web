@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { apiClient } from "../utils/api.tsx";
+import { apiClient } from "../utils/apiClient.tsx";
 import type { TodoDto } from "../dtos/TodoDto.tsx";
 import type { UpdateTodoDto } from "../dtos/UpdateTodoDto.tsx";
-import type { CreateTodoDto } from "../dtos/CreateTodoDto.tsx";
+import type { AddTodoDto } from "../dtos/AddTodoDto.tsx";
 import type { TodoFilterOption } from "../components/todo-dashboard-controls/TodoFilterSelect.tsx";
 import { TodoTable } from "../components/TodoTable.tsx";
 import { TodoDashboardControls } from "../components/todo-dashboard-controls/TodoDashboardControls.tsx";
@@ -11,6 +11,7 @@ import { TodoDashboardControls } from "../components/todo-dashboard-controls/Tod
 import { formatDateTime } from "../utils/stringUtils.tsx";
 import { getErrorMessage } from "../utils/errorUtils.tsx";
 import { useNavigate } from "react-router-dom";
+import type { SearchTodoDto } from "../dtos/SearchTodoDto.tsx";
 
 export const TodoDashboard = () => {
   const navigate = useNavigate();
@@ -33,12 +34,32 @@ export const TodoDashboard = () => {
     const fetchTableData = async () => {
       setLoading(true);
       try {
-        const response = await apiClient.get("/api/todo-list/search", {
-          signal: abortController.signal,
-          params: {
-            search: searchQuery ?? "",
-            filter: filterType,
-          },
+        const searchTodoDto: SearchTodoDto = {
+          name: "",
+          description: "",
+          createdAt: "",
+        };
+
+        if (filterType === "all")
+        {
+          searchTodoDto.name = searchQuery;
+          searchTodoDto.description = searchQuery;
+        }
+        else if (filterType === "name")
+        {
+          searchTodoDto.name = searchQuery;
+        }
+        else if (filterType === "description")
+        {
+          searchTodoDto.description = searchQuery;
+        }
+        else if (filterType === "createdDate")
+        {
+          searchTodoDto.createdAt = searchQuery;
+        }
+
+        const response = await apiClient.post("/api/todos/search",searchTodoDto,{
+          signal: abortController.signal
         });
 
         const todosData =
@@ -80,7 +101,7 @@ export const TodoDashboard = () => {
     }
 
     try {
-      const response = await apiClient.put(`/api/todo-list/${editingTodoId}`, updatedTodo);
+      const response = await apiClient.put(`/api/todos/${editingTodoId}`, updatedTodo);
       if (response.data != null) {
         // After a successful API call, update the specific item in the local tableData state.
         setTableData(
@@ -106,11 +127,11 @@ export const TodoDashboard = () => {
     }
   };
 
-  const deleteTodoAsync = async (id: string) => {
+  const removeTodoAsync = async (id: string) => {
     setLoading(true);
     try {
       setTableData(tableData.filter((todo) => todo.id !== id));
-      await apiClient.delete(`/api/todo-list/${id}`);
+      await apiClient.delete(`/api/todos/${id}`);
     } catch (err: any) {
       setError(getErrorMessage(err));
     } finally {
@@ -123,9 +144,9 @@ export const TodoDashboard = () => {
   //   setIsCreating(createMode);
   // };
 
-  const createTodoAsync = async (newTodo: CreateTodoDto) => {
+  const addTodoAsync = async (newTodo: AddTodoDto) => {
     try {
-      const response = await apiClient.post(`/api/todo-list`, newTodo);
+      const response = await apiClient.post(`/api/todos`, newTodo);
       if (response.data != null) {
         setTableData([
           { ...response.data, createdAt: formatDateTime(response.data.createdAt) },
@@ -168,9 +189,9 @@ export const TodoDashboard = () => {
           data={tableData}
           showCreateRow={showCreateRow}
           onCloseCreateRow={() => setShowCreateRow(false)}
-          onClickCreateAsync={createTodoAsync}
+          onClickCreateAsync={addTodoAsync}
           onClickEditAsync={editTodoAsync}
-          onClickDeleteAsync={deleteTodoAsync}
+          onClickRemoveAsync={removeTodoAsync}
           createRowRef={createRowRef}
         />
       </div>

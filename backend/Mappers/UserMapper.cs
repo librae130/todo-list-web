@@ -1,18 +1,17 @@
-using backend.Models;
 using backend.Dtos;
+using backend.Entities;
 
 namespace backend.Mappers;
 
-    internal static class UserMapper
-    {
+internal static class UserMapper
+{
     public static UserDto ToDto(this User user)
     {
-      return new UserDto
-      {
-        Id = user.Id,
-        Username = user.Username,
-        CreatedAt = user.CreatedAt
-      };
+        return new UserDto
+        {
+            Id = user.Id,
+            Username = user.Username,
+            CreatedAt = user.CreatedAt,
+        };
     }
 }
-

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import type { CreateTodoDto } from "../dtos/CreateTodoDto.tsx";
+import type { AddTodoDto } from "../dtos/AddTodoDto.tsx";
 
 type CreateTodoModalProps = {
-  onClickCreateAsync: (newTodo: CreateTodoDto) => Promise<void>;
+  onClickCreateAsync: (newTodo: AddTodoDto) => Promise<void>;
   onClose: () => void;
 };
 

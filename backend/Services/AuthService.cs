@@ -1,28 +1,27 @@
-using backend.Data;
 using backend.Dtos;
+using backend.Entities;
 using backend.Mappers;
-using backend.Models;
-using Microsoft.EntityFrameworkCore;
+using backend.Repositories;
 
 namespace backend.Services;
 
-internal class AuthService
+public class AuthService
 {
-    private readonly ApplicationDBContext _context;
+    private readonly IUserRepository _repo;
 
-    public AuthService(ApplicationDBContext context)
+    public AuthService(IUserRepository repo)
     {
-        _context = context;
+        _repo = repo;
     }
 
     public async Task<UserDto> RegisterUserAsync(
         RegisterUserDto registerUserDto,
-        CancellationToken cancellationToken
+        CancellationToken ct
     )
     {
-        var existingUser = await _context.Users.FirstOrDefaultAsync(
+        var existingUser = await _repo.FirstOrDefaultAsync(
             u => u.Username == registerUserDto.Username,
-            cancellationToken
+            ct
         );
         if (existingUser != null)
         {
@@ -37,17 +36,20 @@ internal class AuthService
             CreatedAt = DateTime.UtcNow,
         };
 
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _repo.AddAsync(user);
+        await _repo.SaveAsync(ct);
 
         return user.ToDto();
     }
 
-    public async Task<UserDto?> LoginUserAsync(LoginUserDto loginUserDto, CancellationToken cancellationToken)
+    public async Task<UserDto?> LoginUserAsync(
+        LoginUserDto loginUserDto,
+        CancellationToken ct
+    )
     {
-        var user = await _context.Users.FirstOrDefaultAsync(
+        var user = await _repo.FirstOrDefaultAsync(
             u => u.Username == loginUserDto.Username,
-            cancellationToken
+            ct
         );
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(loginUserDto.Password, user.PasswordHash))

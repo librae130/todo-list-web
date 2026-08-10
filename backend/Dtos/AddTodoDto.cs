@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace backend.Dtos;
 
-public class CreateTodoDto
+public class AddTodoDto
 {
     [Required]
     [StringLength(100, ErrorMessage = "Name cannot be longer than 100 characters.")]

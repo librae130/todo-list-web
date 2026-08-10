@@ -9,13 +9,13 @@ type TodoTableRowProps = {
     editingTodoId: string,
     updateTodoDto: UpdateTodoDto,
   ) => Promise<void>;
-  onClickDeleteAsync: (id: string) => Promise<void>;
+  onClickRemoveAsync: (id: string) => Promise<void>;
 };
 
 export const TodoTableRow = ({
   todo,
   onClickEditAsync,
-  onClickDeleteAsync,
+  onClickRemoveAsync,
 }: TodoTableRowProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(todo.name);
@@ -65,8 +65,8 @@ export const TodoTableRow = ({
     setIsEditing(false);
   };
 
-  const handleDelete = async () => {
-    await onClickDeleteAsync(todo.id);
+  const handleRemove = async () => {
+    await onClickRemoveAsync(todo.id);
   };
 
   const handleEdit = () => {
@@ -157,9 +157,9 @@ export const TodoTableRow = ({
             </button>
             <button
               className="todo-table__action-button todo-table__action-button--delete"
-              onClick={handleDelete}
+              onClick={handleRemove}
             >
-              Delete
+              Remove
             </button>
           </div>
         </td>

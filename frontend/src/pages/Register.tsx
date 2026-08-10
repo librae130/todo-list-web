@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { RegisterForm } from "../components/user-authentication/RegisterForm";
-import { apiClient } from "../utils/api";
+import { apiClient } from "../utils/apiClient";
 import { useNavigate } from "react-router-dom";
 import { getErrorMessage } from "../utils/errorUtils";
 
