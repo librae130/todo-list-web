@@ -1,5 +1,6 @@
+using backend.Data;
 using backend.Dtos;
-using backend.Helpers;
+using backend.Entities;
 using backend.Mappers;
 using backend.Repositories;
 
@@ -7,16 +8,16 @@ namespace backend.Services;
 
 public class TodoService
 {
-    private readonly ITodoRepository _repo;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public TodoService(ITodoRepository repo)
+    public TodoService(IUnitOfWork unitOfWork)
     {
-        _repo = repo;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<List<TodoDto>> GetAllTodosAsync(Guid userId, CancellationToken ct)
     {
-        var todos = await _repo.FindAsync(x => x.UserId == userId, ct);
+        var todos = await _unitOfWork.GetRepository<Todo>().FindAsync(x => x.UserId == userId, ct);
         return todos.ConvertAll(x => x.ToDto());
     }
 
@@ -26,13 +27,17 @@ public class TodoService
         CancellationToken ct
     )
     {
-        var searchedTodos = await _repo.SearchTodosAsync(userId, searchTodoDto, ct);
+        var searchedTodos = await (
+            (ITodoRepository)_unitOfWork.GetRepository<Todo>()
+        ).SearchTodosAsync(userId, searchTodoDto, ct);
         return searchedTodos.ConvertAll(x => x.ToDto());
     }
 
     public async Task<TodoDto?> GetTodoByIdAsync(Guid userId, Guid id, CancellationToken ct)
     {
-        var foundTodo = await _repo.FirstOrDefaultAsync(x=>x.Id == id && x.UserId == userId, ct);
+        var foundTodo = await _unitOfWork
+            .GetRepository<Todo>()
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
         return foundTodo?.ToDto();
     }
 
@@ -46,8 +51,8 @@ public class TodoService
         todo.CreatedAt = DateTime.UtcNow;
         todo.UserId = userId;
 
-        await _repo.AddAsync(todo, ct);
-        await _repo.SaveAsync(ct);
+        await _unitOfWork.GetRepository<Todo>().AddAsync(todo, ct);
+        await _unitOfWork.SaveAsync(ct);
 
         return todo.ToDto();
     }
@@ -59,7 +64,9 @@ public class TodoService
         CancellationToken ct
     )
     {
-        var foundTodo = await _repo.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
+        var foundTodo = await _unitOfWork
+            .GetRepository<Todo>()
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
 
         if (foundTodo == null)
         {
@@ -67,23 +74,25 @@ public class TodoService
         }
 
         updateTodoDto.ToModel(foundTodo);
-        _repo.Update(foundTodo);
-        await _repo.SaveAsync(ct);
+        _unitOfWork.GetRepository<Todo>().Update(foundTodo);
+        await _unitOfWork.SaveAsync(ct);
 
         return foundTodo.ToDto();
     }
 
     public async Task<bool> RemoveTodoAsync(Guid userId, Guid id, CancellationToken ct)
     {
-        var foundTodo = await _repo.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
+        var foundTodo = await _unitOfWork
+            .GetRepository<Todo>()
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
 
         if (foundTodo == null)
         {
             return false;
         }
 
-        _repo.Remove(foundTodo);
-        await _repo.SaveAsync(ct);
+        _unitOfWork.GetRepository<Todo>().Remove(foundTodo);
+        await _unitOfWork.SaveAsync(ct);
 
         return true;
     }
