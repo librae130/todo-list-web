@@ -19,12 +19,3 @@ apiClient.interceptors.request.use(
     return Promise.reject(error);
   },
 );
-
-// apiClient.interceptors.response.use(
-//   (response) => {
-//     return response;
-//   },
-//   (error) => {
-//     return Promise.reject(error);
-//   },
-// );

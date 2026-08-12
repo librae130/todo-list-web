@@ -26,6 +26,7 @@ export const TodoDashboard = () => {
   //const [editingTodo, setEditingTodo] = useState<TodoDto | null>(null);
   const [showCreateRow, setShowCreateRow] = useState(false);
   const createRowRef = useRef<HTMLTableRowElement | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(Boolean(localStorage.getItem("token")));
 
   // This effect hook is responsible for fetching the to-do list data whenever the search query or filter type changes.
   useEffect(() => {
@@ -40,26 +41,19 @@ export const TodoDashboard = () => {
           createdAt: "",
         };
 
-        if (filterType === "all")
-        {
+        if (filterType === "all") {
           searchTodoDto.name = searchQuery;
           searchTodoDto.description = searchQuery;
-        }
-        else if (filterType === "name")
-        {
+        } else if (filterType === "name") {
           searchTodoDto.name = searchQuery;
-        }
-        else if (filterType === "description")
-        {
+        } else if (filterType === "description") {
           searchTodoDto.description = searchQuery;
-        }
-        else if (filterType === "createdDate")
-        {
+        } else if (filterType === "createdDate") {
           searchTodoDto.createdAt = searchQuery;
         }
 
-        const response = await apiClient.post("/api/todos/search",searchTodoDto,{
-          signal: abortController.signal
+        const response = await apiClient.post("/api/todos/search", searchTodoDto, {
+          signal: abortController.signal,
         });
 
         const todosData =
@@ -80,6 +74,20 @@ export const TodoDashboard = () => {
 
     return () => abortController.abort();
   }, [searchQuery, filterType]);
+
+  useEffect(() => {
+    const checkLoginStatus = () => {
+      setIsLoggedIn(Boolean(localStorage.getItem("token")));
+    };
+
+    window.addEventListener("storage", checkLoginStatus);
+
+    checkLoginStatus();
+
+    return () => {
+      window.removeEventListener("storage", checkLoginStatus);
+    };
+  }, []);
 
   // // Manages the state for the editing modal.
   // const setEditMode = (editMode: boolean, id: string | null) => {
@@ -199,6 +207,11 @@ export const TodoDashboard = () => {
         <span className="status-message status-message--info">
           No to-do items found. Start by creating a new one!
         </span>
+      )}
+      {!isLoggedIn && (
+        <p className="status-message status-message--info">
+          Please log in to manage your to-do list.
+        </p>
       )}
       {/* {isEditing && editingTodo && (
         <EditTodoModal

@@ -8,6 +8,6 @@ public class ApplicationDBContext : DbContext
     public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options)
         : base(options) { }
 
-    public DbSet<Todo> Todos { get; set; }
-    public DbSet<User> Users { get; set; }
+    public DbSet<Todo> Todos { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
 }

@@ -26,8 +26,7 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
     )
 );
 
-builder.Services.AddScoped<ITodoRepository, TodoRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork<ApplicationDBContext>>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<TodoService>();
 builder.Services.AddScoped<AuthService>();
@@ -67,7 +66,7 @@ builder
 
 builder.Services.AddAuthorization();
 
-// app.
+// app
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

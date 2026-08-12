@@ -1,16 +1,16 @@
 using System.Linq.Expressions;
-using backend.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repositories;
 
-public class GenericRepository<T> : IGenericRepository<T>
+public class GenericRepository<T, TContext> : IGenericRepository<T>
     where T : class
+    where TContext : DbContext
 {
-    protected readonly ApplicationDBContext _context;
+    protected readonly TContext _context;
     protected readonly DbSet<T> _dbSet;
 
-    public GenericRepository(ApplicationDBContext context)
+    public GenericRepository(TContext context)
     {
         _context = context;
         _dbSet = context.Set<T>();

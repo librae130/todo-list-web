@@ -1,17 +1,17 @@
+using backend.Data;
 using backend.Dtos;
 using backend.Entities;
 using backend.Mappers;
-using backend.Repositories;
 
 namespace backend.Services;
 
 public class AuthService
 {
-    private readonly IUserRepository _repo;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public AuthService(IUserRepository repo)
+    public AuthService(IUnitOfWork unitOfWork)
     {
-        _repo = repo;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<UserDto> RegisterUserAsync(
@@ -19,10 +19,9 @@ public class AuthService
         CancellationToken ct
     )
     {
-        var existingUser = await _repo.FirstOrDefaultAsync(
-            u => u.Username == registerUserDto.Username,
-            ct
-        );
+        var existingUser = await _unitOfWork
+            .GetRepository<User>()
+            .FirstOrDefaultAsync(u => u.Username == registerUserDto.Username, ct);
         if (existingUser != null)
         {
             throw new Exception("Username already exists");
@@ -36,21 +35,17 @@ public class AuthService
             CreatedAt = DateTime.UtcNow,
         };
 
-        await _repo.AddAsync(user);
-        await _repo.SaveAsync(ct);
+        await _unitOfWork.GetRepository<User>().AddAsync(user);
+        await _unitOfWork.SaveAsync(ct);
 
         return user.ToDto();
     }
 
-    public async Task<UserDto?> LoginUserAsync(
-        LoginUserDto loginUserDto,
-        CancellationToken ct
-    )
+    public async Task<UserDto?> LoginUserAsync(LoginUserDto loginUserDto, CancellationToken ct)
     {
-        var user = await _repo.FirstOrDefaultAsync(
-            u => u.Username == loginUserDto.Username,
-            ct
-        );
+        var user = await _unitOfWork
+            .GetRepository<User>()
+            .FirstOrDefaultAsync(u => u.Username == loginUserDto.Username, ct);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(loginUserDto.Password, user.PasswordHash))
         {

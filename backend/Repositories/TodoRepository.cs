@@ -1,25 +1,26 @@
+using backend.Data;
 using backend.Dtos;
 using backend.Entities;
 using Microsoft.EntityFrameworkCore;
-using backend.Data;
 
 namespace backend.Repositories;
 
-public class TodoRepository : GenericRepository<Todo>, ITodoRepository
+public class TodoRepository<TContext> : GenericRepository<Todo, TContext>, ITodoRepository
+    where TContext : DbContext
 {
-    public TodoRepository(ApplicationDBContext context)
+    public TodoRepository(TContext context)
         : base(context) { }
 
     public async Task<List<Todo>> SearchTodosAsync(
-Guid userId,
+        Guid userId,
         SearchTodoDto searchTodoDto,
         CancellationToken cancellationToken
     )
     {
         var query = _dbSet.AsQueryable();
 
-            query = query.Where(x => x.UserId == userId);
-    
+        query = query.Where(x => x.UserId == userId);
+
         if (!string.IsNullOrWhiteSpace(searchTodoDto.Name))
         {
             query = query.Where(x =>
@@ -35,13 +36,13 @@ Guid userId,
             );
         }
 
-    if (searchTodoDto.CreatedAt != null)
-    {
-      if (DateTime.TryParse(searchTodoDto.CreatedAt, out var date))
-      {
-        query = query.Where(x => x.CreatedAt.Date == date);
-      }
-    }
+        if (searchTodoDto.CreatedAt != null)
+        {
+            if (DateTime.TryParse(searchTodoDto.CreatedAt, out var date))
+            {
+                query = query.Where(x => x.CreatedAt.Date == date);
+            }
+        }
 
         return await query.ToListAsync(cancellationToken);
     }
