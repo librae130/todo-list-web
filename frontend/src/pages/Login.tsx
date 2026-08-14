@@ -3,10 +3,11 @@ import { LoginForm } from "../components/user-authentication/LoginForm";
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "../utils/apiClient";
 import { getErrorMessage } from "../utils/errorUtils";
+import { setJwtToken } from "../utils/JwtUtils";
 
 export const Login = () => {
   const navigate = useNavigate();
-  
+
   const [error, setError] = useState<string>("");
 
   const loginUserAsync = async (username: string, password: string) => {
@@ -16,7 +17,7 @@ export const Login = () => {
         password,
       });
 
-      localStorage.setItem("token", response.data.token);
+      setJwtToken(response.data.token);
 
       navigate("/");
     } catch (err: any) {

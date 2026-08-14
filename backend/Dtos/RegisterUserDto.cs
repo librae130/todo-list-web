@@ -5,11 +5,14 @@ namespace backend.Dtos;
 public class RegisterUserDto
 {
     [Required]
-    [MaxLength(50)]
+    [StringLength(50, ErrorMessage = "Username cannot be longer than 50 characters.")]
     public string Username { get; set; } = string.Empty;
 
     [Required]
-    [MinLength(8)]
-    [MaxLength(50)]
+    [StringLength(
+        50,
+        MinimumLength = 5,
+        ErrorMessage = "Password must be between 8 and 50 characters."
+    )]
     public string Password { get; set; } = string.Empty;
 }

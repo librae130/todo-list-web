@@ -1,17 +1,19 @@
+using AutoMapper;
 using backend.Data;
 using backend.Dtos;
 using backend.Entities;
-using backend.Mappers;
 
 namespace backend.Services;
 
 public class AuthService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public AuthService(IUnitOfWork unitOfWork)
+    public AuthService(IUnitOfWork unitOfWork, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
     }
 
     public async Task<UserDto> RegisterUserAsync(
@@ -38,7 +40,7 @@ public class AuthService
         await _unitOfWork.GetRepository<User>().AddAsync(user);
         await _unitOfWork.SaveAsync(ct);
 
-        return user.ToDto();
+        return _mapper.Map<UserDto>(user);
     }
 
     public async Task<UserDto?> LoginUserAsync(LoginUserDto loginUserDto, CancellationToken ct)
@@ -52,6 +54,6 @@ public class AuthService
             return null;
         }
 
-        return user.ToDto();
+        return _mapper.Map<UserDto>(user);
     }
 }

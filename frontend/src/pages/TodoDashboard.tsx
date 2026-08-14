@@ -12,6 +12,7 @@ import { formatDateTime } from "../utils/stringUtils.tsx";
 import { getErrorMessage } from "../utils/errorUtils.tsx";
 import { useNavigate } from "react-router-dom";
 import type { SearchTodoDto } from "../dtos/SearchTodoDto.tsx";
+import { getJwtToken } from "../utils/JwtUtils.tsx";
 
 export const TodoDashboard = () => {
   const navigate = useNavigate();
@@ -26,10 +27,14 @@ export const TodoDashboard = () => {
   //const [editingTodo, setEditingTodo] = useState<TodoDto | null>(null);
   const [showCreateRow, setShowCreateRow] = useState(false);
   const createRowRef = useRef<HTMLTableRowElement | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(Boolean(localStorage.getItem("token")));
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(Boolean(getJwtToken()));
 
   // This effect hook is responsible for fetching the to-do list data whenever the search query or filter type changes.
   useEffect(() => {
+    if (!isLoggedIn) {
+      return;
+    }
+
     const abortController = new AbortController();
 
     const fetchTableData = async () => {
@@ -73,11 +78,12 @@ export const TodoDashboard = () => {
     fetchTableData();
 
     return () => abortController.abort();
-  }, [searchQuery, filterType]);
+  }, [isLoggedIn, searchQuery, filterType]);
 
+  // For syncing multiple tabs
   useEffect(() => {
     const checkLoginStatus = () => {
-      setIsLoggedIn(Boolean(localStorage.getItem("token")));
+      setIsLoggedIn(Boolean(getJwtToken()));
     };
 
     window.addEventListener("storage", checkLoginStatus);
@@ -176,7 +182,7 @@ export const TodoDashboard = () => {
     requestAnimationFrame(() => {
       createRowRef.current?.scrollIntoView({
         behavior: "smooth",
-        block: "center",
+        block: "end",
       });
     });
   };
@@ -203,7 +209,7 @@ export const TodoDashboard = () => {
           createRowRef={createRowRef}
         />
       </div>
-      {tableData.length > 0 || showCreateRow || (
+      {tableData.length > 0 || showCreateRow || !isLoggedIn || (
         <span className="status-message status-message--info">
           No to-do items found. Start by creating a new one!
         </span>

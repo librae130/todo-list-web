@@ -2894,19 +2894,19 @@
     ]
   },
   "packageFolders": {
-    "/home/librae/.nuget/packages/": {}
+    "/home/mask/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/librae/Projects/todo-list-web/backend.tests/backend.tests.csproj",
+      "projectUniqueName": "/home/shared/Projects/todo-list-web/backend.tests/backend.tests.csproj",
       "projectName": "backend.tests",
-      "projectPath": "/home/librae/Projects/todo-list-web/backend.tests/backend.tests.csproj",
-      "packagesPath": "/home/librae/.nuget/packages/",
-      "outputPath": "/home/librae/Projects/todo-list-web/backend.tests/obj/",
+      "projectPath": "/home/shared/Projects/todo-list-web/backend.tests/backend.tests.csproj",
+      "packagesPath": "/home/mask/.nuget/packages/",
+      "outputPath": "/home/shared/Projects/todo-list-web/backend.tests/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/librae/.nuget/NuGet/NuGet.Config"
+        "/home/mask/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
@@ -2918,8 +2918,8 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "/home/librae/Projects/todo-list-web/backend/backend.csproj": {
-              "projectPath": "/home/librae/Projects/todo-list-web/backend/backend.csproj"
+            "/home/shared/Projects/todo-list-web/backend/backend.csproj": {
+              "projectPath": "/home/shared/Projects/todo-list-web/backend/backend.csproj"
             }
           }
         }
@@ -2977,7 +2977,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.110/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.111/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",

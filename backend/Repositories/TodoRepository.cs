@@ -1,4 +1,3 @@
-using backend.Data;
 using backend.Dtos;
 using backend.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -21,29 +20,25 @@ public class TodoRepository<TContext> : GenericRepository<Todo, TContext>, ITodo
 
         query = query.Where(x => x.UserId == userId);
 
-        if (!string.IsNullOrWhiteSpace(searchTodoDto.Name))
+        var hasName = !string.IsNullOrWhiteSpace(searchTodoDto.Name);
+        var nameSearch = hasName ? searchTodoDto.Name.Trim().ToLower() : "";
+
+        var hasDescription = !string.IsNullOrWhiteSpace(searchTodoDto.Description);
+        var descriptionSearch = hasDescription ? searchTodoDto.Description.Trim().ToLower() : "";
+
+        var hasDate = DateTime.TryParse(searchTodoDto.CreatedAt, out var parsedDate);
+        var startDate = hasDate ? parsedDate.Date : default;
+        var endDate = hasDate ? parsedDate.Date.AddDays(1) : default;
+
+        if (hasName || hasDescription || hasDate)
         {
             query = query.Where(x =>
-                x.Name.Trim().ToLowerInvariant() == searchTodoDto.Name.Trim().ToLowerInvariant()
+                (hasName && x.Name.ToLower().Contains(nameSearch))
+                || (hasDescription && x.Description.ToLower().Contains(descriptionSearch))
+                || (hasDate && x.CreatedAt >= startDate && x.CreatedAt < endDate)
             );
         }
 
-        if (!string.IsNullOrWhiteSpace(searchTodoDto.Description))
-        {
-            query = query.Where(x =>
-                x.Description.Trim().ToLowerInvariant()
-                == searchTodoDto.Description.Trim().ToLowerInvariant()
-            );
-        }
-
-        if (searchTodoDto.CreatedAt != null)
-        {
-            if (DateTime.TryParse(searchTodoDto.CreatedAt, out var date))
-            {
-                query = query.Where(x => x.CreatedAt.Date == date);
-            }
-        }
-
-        return await query.ToListAsync(cancellationToken);
+        return await query.OrderByDescending(x => x.CreatedAt).ToListAsync(cancellationToken);
     }
 }

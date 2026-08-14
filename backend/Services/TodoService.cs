@@ -1,7 +1,7 @@
+using AutoMapper;
 using backend.Data;
 using backend.Dtos;
 using backend.Entities;
-using backend.Mappers;
 using backend.Repositories;
 
 namespace backend.Services;
@@ -9,16 +9,18 @@ namespace backend.Services;
 public class TodoService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public TodoService(IUnitOfWork unitOfWork)
+    public TodoService(IUnitOfWork unitOfWork, IMapper mapper)
     {
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
     }
 
     public async Task<List<TodoDto>> GetAllTodosAsync(Guid userId, CancellationToken ct)
     {
         var todos = await _unitOfWork.GetRepository<Todo>().FindAsync(x => x.UserId == userId, ct);
-        return todos.ConvertAll(x => x.ToDto());
+        return todos.ConvertAll(x => _mapper.Map<TodoDto>(x));
     }
 
     public async Task<List<TodoDto>> SearchTodosAsync(
@@ -30,7 +32,7 @@ public class TodoService
         var searchedTodos = await (
             (ITodoRepository)_unitOfWork.GetRepository<Todo>()
         ).SearchTodosAsync(userId, searchTodoDto, ct);
-        return searchedTodos.ConvertAll(x => x.ToDto());
+        return searchedTodos.ConvertAll(x => _mapper.Map<TodoDto>(x));
     }
 
     public async Task<TodoDto?> GetTodoByIdAsync(Guid userId, Guid id, CancellationToken ct)
@@ -38,7 +40,7 @@ public class TodoService
         var foundTodo = await _unitOfWork
             .GetRepository<Todo>()
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
-        return foundTodo?.ToDto();
+        return _mapper.Map<TodoDto>(foundTodo);
     }
 
     public async Task<TodoDto> AddTodoAsync(
@@ -47,14 +49,14 @@ public class TodoService
         CancellationToken ct
     )
     {
-        var todo = addTodoDto.ToModel();
+        var todo = _mapper.Map<Todo>(addTodoDto);
         todo.CreatedAt = DateTime.UtcNow;
         todo.UserId = userId;
 
         await _unitOfWork.GetRepository<Todo>().AddAsync(todo, ct);
         await _unitOfWork.SaveAsync(ct);
 
-        return todo.ToDto();
+        return _mapper.Map<TodoDto>(todo);
     }
 
     public async Task<TodoDto?> UpdateTodoAsync(
@@ -73,11 +75,13 @@ public class TodoService
             return null;
         }
 
-        updateTodoDto.ToModel(foundTodo);
+        foundTodo.Name = updateTodoDto.Name;
+        foundTodo.Description = updateTodoDto.Description;
+
         _unitOfWork.GetRepository<Todo>().Update(foundTodo);
         await _unitOfWork.SaveAsync(ct);
 
-        return foundTodo.ToDto();
+        return _mapper.Map<TodoDto>(foundTodo);
     }
 
     public async Task<bool> RemoveTodoAsync(Guid userId, Guid id, CancellationToken ct)

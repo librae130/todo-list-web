@@ -20,20 +20,21 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> RegisterUserAsync(
         [FromBody] RegisterUserDto registerUserDto,
-        CancellationToken cancellationToken
+        CancellationToken ct
     )
     {
-        var user = await _authService.RegisterUserAsync(registerUserDto, cancellationToken);
-        return CreatedAtAction(nameof(RegisterUserAsync), new { id = user.Id }, user);
+        var user = await _authService.RegisterUserAsync(registerUserDto, ct);
+        return Ok(user);
+        ;
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> LoginUserAsync(
         [FromBody] LoginUserDto loginUserDto,
-        CancellationToken cancellationToken
+        CancellationToken ct
     )
     {
-        var user = await _authService.LoginUserAsync(loginUserDto, cancellationToken);
+        var user = await _authService.LoginUserAsync(loginUserDto, ct);
 
         if (user == null)
         {
