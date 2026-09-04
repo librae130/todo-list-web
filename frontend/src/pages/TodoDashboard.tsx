@@ -3,6 +3,7 @@ import { apiClient } from "../utils/apiClient.tsx";
 import type { TodoDto } from "../dtos/TodoDto.tsx";
 import type { UpdateTodoDto } from "../dtos/UpdateTodoDto.tsx";
 import type { AddTodoDto } from "../dtos/AddTodoDto.tsx";
+import type { UserDto } from "../dtos/UserDto.tsx";
 import type { TodoFilterOption } from "../components/todo-dashboard-controls/TodoFilterSelect.tsx";
 import { TodoTable } from "../components/TodoTable.tsx";
 import { TodoDashboardControls } from "../components/todo-dashboard-controls/TodoDashboardControls.tsx";
@@ -12,7 +13,7 @@ import { formatDateTime } from "../utils/stringUtils.tsx";
 import { getErrorMessage } from "../utils/errorUtils.tsx";
 import { useNavigate } from "react-router-dom";
 import type { SearchTodoDto } from "../dtos/SearchTodoDto.tsx";
-import { getJwtToken } from "../utils/JwtUtils.tsx";
+import axios from "axios";
 
 export const TodoDashboard = () => {
   const navigate = useNavigate();
@@ -27,13 +28,33 @@ export const TodoDashboard = () => {
   //const [editingTodo, setEditingTodo] = useState<TodoDto | null>(null);
   const [showCreateRow, setShowCreateRow] = useState(false);
   const createRowRef = useRef<HTMLTableRowElement | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(Boolean(getJwtToken()));
+  const [user, setUser] = useState<UserDto | null>(null);
+
+  // This hook is for fetching current user if logged in.
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchUser = async () => {
+      try {
+        const response = await apiClient.get("/api/users/me", {
+          signal: controller.signal,
+        });
+        setUser(response.data);
+      } catch (error) {
+        if (axios.isCancel(error)) return;
+
+        setUser(null);
+      }
+    };
+
+    fetchUser();
+
+    return () => controller.abort();
+  }, []);
 
   // This effect hook is responsible for fetching the to-do list data whenever the search query or filter type changes.
   useEffect(() => {
-    if (!isLoggedIn) {
-      return;
-    }
+    if (user == null) return;
 
     const abortController = new AbortController();
 
@@ -68,8 +89,8 @@ export const TodoDashboard = () => {
           })) ?? [];
         setError("");
         setTableData(todosData);
-      } catch (err: any) {
-        setError(getErrorMessage(err));
+      } catch (error: any) {
+        setError(getErrorMessage(error));
       } finally {
         setLoading(false);
       }
@@ -78,22 +99,7 @@ export const TodoDashboard = () => {
     fetchTableData();
 
     return () => abortController.abort();
-  }, [isLoggedIn, searchQuery, filterType]);
-
-  // For syncing multiple tabs
-  useEffect(() => {
-    const checkLoginStatus = () => {
-      setIsLoggedIn(Boolean(getJwtToken()));
-    };
-
-    window.addEventListener("storage", checkLoginStatus);
-
-    checkLoginStatus();
-
-    return () => {
-      window.removeEventListener("storage", checkLoginStatus);
-    };
-  }, []);
+  }, [user, searchQuery, filterType]);
 
   // // Manages the state for the editing modal.
   // const setEditMode = (editMode: boolean, id: string | null) => {
@@ -133,8 +139,8 @@ export const TodoDashboard = () => {
       } else {
         throw new Error("Malformed data.");
       }
-    } catch (err: any) {
-      setError(getErrorMessage(err));
+    } catch (error: any) {
+      setError(getErrorMessage(error));
     } finally {
       setLoading(false);
       //setEditMode(false, null);
@@ -146,8 +152,8 @@ export const TodoDashboard = () => {
     try {
       setTableData(tableData.filter((todo) => todo.id !== id));
       await apiClient.delete(`/api/todos/${id}`);
-    } catch (err: any) {
-      setError(getErrorMessage(err));
+    } catch (error: any) {
+      setError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -169,8 +175,8 @@ export const TodoDashboard = () => {
       } else {
         throw new Error("Malformed data.");
       }
-    } catch (err: any) {
-      setError(getErrorMessage(err));
+    } catch (error: any) {
+      setError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -209,12 +215,12 @@ export const TodoDashboard = () => {
           createRowRef={createRowRef}
         />
       </div>
-      {tableData.length > 0 || showCreateRow || !isLoggedIn || (
+      {tableData.length > 0 || showCreateRow || user == null || (
         <span className="status-message status-message--info">
           No to-do items found. Start by creating a new one!
         </span>
       )}
-      {!isLoggedIn && (
+      {user == null && (
         <p className="status-message status-message--info">
           Please log in to manage your to-do list.
         </p>

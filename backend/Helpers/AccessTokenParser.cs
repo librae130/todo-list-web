@@ -2,7 +2,7 @@ using System.Security.Claims;
 
 namespace backend.Helpers;
 
-internal static class JwtTokenParser
+internal static class AccessTokenParser
 {
     public static Guid GetCurrentUserId(ClaimsPrincipal user)
     {

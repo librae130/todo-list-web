@@ -10,6 +10,7 @@ public class ApplicationDBContext : DbContext
 
     public DbSet<Todo> Todos { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
+    public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,6 +28,17 @@ public class ApplicationDBContext : DbContext
             entity.HasOne(x => x.User).WithMany(x => x.Todos).HasForeignKey(x => x.UserId);
             entity.Property(x => x.Name).HasMaxLength(100).IsRequired();
             entity.Property(x => x.Description).HasMaxLength(500);
+            entity.Property(x => x.CreatedAt).IsRequired();
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity
+                .HasOne(x => x.User)
+                .WithMany()
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
             entity.Property(x => x.CreatedAt).IsRequired();
         });
     }
