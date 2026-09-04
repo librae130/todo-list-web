@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { apiClient } from "../utils/api.tsx";
-import type { TodoDTO } from "../dtos/TodoDTO.tsx";
-import type { UpdateTodoDTO } from "../dtos/UpdateTodoDTO.tsx";
-import type { CreateTodoDTO } from "../dtos/CreateTodoDTO.tsx";
+import { apiClient } from "../utils/apiClient.tsx";
+import type { TodoDto } from "../dtos/TodoDto.tsx";
+import type { UpdateTodoDto } from "../dtos/UpdateTodoDto.tsx";
+import type { AddTodoDto } from "../dtos/AddTodoDto.tsx";
+import type { UserDto } from "../dtos/UserDto.tsx";
 import type { TodoFilterOption } from "../components/todo-dashboard-controls/TodoFilterSelect.tsx";
 import { TodoTable } from "../components/TodoTable.tsx";
 import { TodoDashboardControls } from "../components/todo-dashboard-controls/TodoDashboardControls.tsx";
@@ -11,34 +12,74 @@ import { TodoDashboardControls } from "../components/todo-dashboard-controls/Tod
 import { formatDateTime } from "../utils/stringUtils.tsx";
 import { getErrorMessage } from "../utils/errorUtils.tsx";
 import { useNavigate } from "react-router-dom";
+import type { SearchTodoDto } from "../dtos/SearchTodoDto.tsx";
+import axios from "axios";
 
 export const TodoDashboard = () => {
   const navigate = useNavigate();
 
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [tableData, setTableData] = useState<TodoDTO[]>([]);
+  const [tableData, setTableData] = useState<TodoDto[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<TodoFilterOption>("all");
   //const [isEditing, setIsEditing] = useState(false);
   //const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
-  //const [editingTodo, setEditingTodo] = useState<TodoDTO | null>(null);
+  //const [editingTodo, setEditingTodo] = useState<TodoDto | null>(null);
   const [showCreateRow, setShowCreateRow] = useState(false);
   const createRowRef = useRef<HTMLTableRowElement | null>(null);
+  const [user, setUser] = useState<UserDto | null>(null);
+
+  // This hook is for fetching current user if logged in.
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchUser = async () => {
+      try {
+        const response = await apiClient.get("/api/users/me", {
+          signal: controller.signal,
+        });
+        setUser(response.data);
+      } catch (error) {
+        if (axios.isCancel(error)) return;
+
+        setUser(null);
+      }
+    };
+
+    fetchUser();
+
+    return () => controller.abort();
+  }, []);
 
   // This effect hook is responsible for fetching the to-do list data whenever the search query or filter type changes.
   useEffect(() => {
+    if (user == null) return;
+
     const abortController = new AbortController();
 
     const fetchTableData = async () => {
       setLoading(true);
       try {
-        const response = await apiClient.get("/api/todo-list/search", {
+        const searchTodoDto: SearchTodoDto = {
+          name: "",
+          description: "",
+          createdAt: "",
+        };
+
+        if (filterType === "all") {
+          searchTodoDto.name = searchQuery;
+          searchTodoDto.description = searchQuery;
+        } else if (filterType === "name") {
+          searchTodoDto.name = searchQuery;
+        } else if (filterType === "description") {
+          searchTodoDto.description = searchQuery;
+        } else if (filterType === "createdDate") {
+          searchTodoDto.createdAt = searchQuery;
+        }
+
+        const response = await apiClient.post("/api/todos/search", searchTodoDto, {
           signal: abortController.signal,
-          params: {
-            search: searchQuery ?? "",
-            filter: filterType,
-          },
         });
 
         const todosData =
@@ -48,8 +89,8 @@ export const TodoDashboard = () => {
           })) ?? [];
         setError("");
         setTableData(todosData);
-      } catch (err: any) {
-        setError(getErrorMessage(err));
+      } catch (error: any) {
+        setError(getErrorMessage(error));
       } finally {
         setLoading(false);
       }
@@ -58,7 +99,7 @@ export const TodoDashboard = () => {
     fetchTableData();
 
     return () => abortController.abort();
-  }, [searchQuery, filterType]);
+  }, [user, searchQuery, filterType]);
 
   // // Manages the state for the editing modal.
   // const setEditMode = (editMode: boolean, id: string | null) => {
@@ -74,13 +115,13 @@ export const TodoDashboard = () => {
   //   }
   // };
 
-  const editTodo = async (editingTodoId: string, updatedTodo: UpdateTodoDTO) => {
+  const editTodoAsync = async (editingTodoId: string, updatedTodo: UpdateTodoDto) => {
     if (editingTodoId == null) {
       return;
     }
 
     try {
-      const response = await apiClient.put(`/api/todo-list/${editingTodoId}`, updatedTodo);
+      const response = await apiClient.put(`/api/todos/${editingTodoId}`, updatedTodo);
       if (response.data != null) {
         // After a successful API call, update the specific item in the local tableData state.
         setTableData(
@@ -98,21 +139,21 @@ export const TodoDashboard = () => {
       } else {
         throw new Error("Malformed data.");
       }
-    } catch (err: any) {
-      setError(getErrorMessage(err));
+    } catch (error: any) {
+      setError(getErrorMessage(error));
     } finally {
       setLoading(false);
       //setEditMode(false, null);
     }
   };
 
-  const deleteTodo = async (id: string) => {
+  const removeTodoAsync = async (id: string) => {
     setLoading(true);
     try {
       setTableData(tableData.filter((todo) => todo.id !== id));
-      await apiClient.delete(`/api/todo-list/${id}`);
-    } catch (err: any) {
-      setError(getErrorMessage(err));
+      await apiClient.delete(`/api/todos/${id}`);
+    } catch (error: any) {
+      setError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -123,9 +164,9 @@ export const TodoDashboard = () => {
   //   setIsCreating(createMode);
   // };
 
-  const createTodo = async (newTodo: CreateTodoDTO) => {
+  const addTodoAsync = async (newTodo: AddTodoDto) => {
     try {
-      const response = await apiClient.post(`/api/todo-list`, newTodo);
+      const response = await apiClient.post(`/api/todos`, newTodo);
       if (response.data != null) {
         setTableData([
           { ...response.data, createdAt: formatDateTime(response.data.createdAt) },
@@ -134,8 +175,8 @@ export const TodoDashboard = () => {
       } else {
         throw new Error("Malformed data.");
       }
-    } catch (err: any) {
-      setError(getErrorMessage(err));
+    } catch (error: any) {
+      setError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -147,7 +188,7 @@ export const TodoDashboard = () => {
     requestAnimationFrame(() => {
       createRowRef.current?.scrollIntoView({
         behavior: "smooth",
-        block: "center",
+        block: "end",
       });
     });
   };
@@ -168,16 +209,21 @@ export const TodoDashboard = () => {
           data={tableData}
           showCreateRow={showCreateRow}
           onCloseCreateRow={() => setShowCreateRow(false)}
-          onClickCreate={createTodo}
-          onClickEdit={editTodo}
-          onClickDelete={deleteTodo}
+          onClickCreateAsync={addTodoAsync}
+          onClickEditAsync={editTodoAsync}
+          onClickRemoveAsync={removeTodoAsync}
           createRowRef={createRowRef}
         />
       </div>
-      {tableData.length > 0 || showCreateRow || (
+      {tableData.length > 0 || showCreateRow || user == null || (
         <span className="status-message status-message--info">
           No to-do items found. Start by creating a new one!
         </span>
+      )}
+      {user == null && (
+        <p className="status-message status-message--info">
+          Please log in to manage your to-do list.
+        </p>
       )}
       {/* {isEditing && editingTodo && (
         <EditTodoModal

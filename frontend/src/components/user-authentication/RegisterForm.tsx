@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 type RegisterFormProps = {
-  onClickRegister: (username: string, password: string) => Promise<void>;
+  onClickRegisterAsync: (username: string, password: string) => Promise<void>;
 };
 
-export const RegisterForm = ({ onClickRegister }: RegisterFormProps) => {
+export const RegisterForm = ({ onClickRegisterAsync }: RegisterFormProps) => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isRegistering, setIsRegistering] = useState<boolean>(false);
@@ -32,7 +32,7 @@ export const RegisterForm = ({ onClickRegister }: RegisterFormProps) => {
     }
 
     setIsRegistering(true);
-    await onClickRegister(username, password);
+    await onClickRegisterAsync(username, password);
     setIsRegistering(false);
   };
 

@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
-import type { TodoDTO } from "../dtos/TodoDTO.tsx";
-import type { UpdateTodoDTO } from "../dtos/UpdateTodoDTO.tsx";
+import type { TodoDto } from "../dtos/TodoDto.tsx";
+import type { UpdateTodoDto } from "../dtos/UpdateTodoDto.tsx";
 
 type EditTodoModalProps = {
-  todo: TodoDTO;
-  onSave: (updatedTodo: UpdateTodoDTO) => void;
-  onClose: (open: boolean, id: string | null) => void;
+  todo: TodoDto;
+  onClickSaveAsync: (updatedTodo: UpdateTodoDto) => Promise<void>;
+  onClose: () => void;
 };
 
-export const EditTodoModal = ({ todo, onSave, onClose }: EditTodoModalProps) => {
+export const EditTodoModal = ({
+  todo,
+  onClickSaveAsync,
+  onClose,
+}: EditTodoModalProps) => {
   const [isSaving, setIsSaving] = useState(false);
   const [name, setName] = useState(todo.name);
   const [description, setDescription] = useState(todo.description);
@@ -23,7 +27,7 @@ export const EditTodoModal = ({ todo, onSave, onClose }: EditTodoModalProps) => 
     setValidationErrors({});
   }, [todo]);
 
-  const handleSave=(event: any)=> {
+  const handleSave = async (event: any) => {
     event.preventDefault();
     setValidationErrors({});
     const newErrors: { name?: string; description?: string } = {};
@@ -35,7 +39,8 @@ export const EditTodoModal = ({ todo, onSave, onClose }: EditTodoModalProps) => 
     }
 
     if (description.length > 500) {
-      newErrors.description = "Description cannot be longer than 500 characters.";
+      newErrors.description =
+        "Description cannot be longer than 500 characters.";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -44,13 +49,14 @@ export const EditTodoModal = ({ todo, onSave, onClose }: EditTodoModalProps) => 
     }
 
     setIsSaving(true);
-    onSave({ name: name, description });
+    await onClickSaveAsync({ name: name, description });
     setIsSaving(false);
-  }
+    onClose();
+  };
 
   const handleClose = () => {
     if (isSaving === false) {
-      onClose(false, null);
+      onClose();
     }
   };
 

@@ -1,21 +1,21 @@
-import type { TodoDTO } from "../dtos/TodoDTO.tsx";
+import type { TodoDto } from "../dtos/TodoDto.tsx";
 import type { RefObject } from "react";
-import type { UpdateTodoDTO } from "../dtos/UpdateTodoDTO.tsx";
-import type { CreateTodoDTO } from "../dtos/CreateTodoDTO.tsx";
+import type { UpdateTodoDto } from "../dtos/UpdateTodoDto.tsx";
+import type { AddTodoDto } from "../dtos/AddTodoDto.tsx";
 import { TodoTableRow } from "./TodoTableRow.tsx";
 import { NewTodoTableRow } from "./NewTodoTableRow.tsx";
 
 type TodoTableProps = {
-  data: TodoDTO[];
+  data: TodoDto[];
   showCreateRow: boolean;
   //onEdit: (editMode: boolean, id: string | null) => void;
-  onClickCreate: (newTodo: CreateTodoDTO) => Promise<void>;
+  onClickCreateAsync: (newTodo: AddTodoDto) => Promise<void>;
   onCloseCreateRow: () => void;
-  onClickEdit: (
+  onClickEditAsync: (
     editingTodoId: string,
-    updatedTodo: UpdateTodoDTO,
+    updatedTodo: UpdateTodoDto,
   ) => Promise<void>;
-  onClickDelete: (id: string) => Promise<void>;
+  onClickRemoveAsync: (id: string) => Promise<void>;
   createRowRef: RefObject<HTMLTableRowElement | null>;
 };
 
@@ -23,9 +23,9 @@ export const TodoTable = ({
   data,
   showCreateRow,
   onCloseCreateRow,
-  onClickCreate,
-  onClickEdit,
-  onClickDelete,
+  onClickCreateAsync,
+  onClickEditAsync,
+  onClickRemoveAsync,
   createRowRef,
 }: TodoTableProps) => {
   return (
@@ -49,17 +49,17 @@ export const TodoTable = ({
       <tbody className="todo-table__body">
         {showCreateRow && (
           <NewTodoTableRow
-            onClickCreate={onClickCreate}
+            onClickCreateAsync={onClickCreateAsync}
             onCloseCreateRow={onCloseCreateRow}
             ref={createRowRef}
           />
         )}
-        {data.map((todo: TodoDTO) => (
+        {data.map((todo: TodoDto) => (
           <TodoTableRow
             key={todo.id}
             todo={todo}
-            onClickEdit={onClickEdit}
-            onClickDelete={onClickDelete}
+            onClickEditAsync={onClickEditAsync}
+            onClickRemoveAsync={onClickRemoveAsync}
           />
         ))}
       </tbody>

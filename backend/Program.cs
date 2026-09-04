@@ -1,7 +1,7 @@
 using System.Text;
 using backend.Data;
+using backend.Helpers;
 using backend.Services;
-using backend.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -25,9 +25,13 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
     )
 );
 
-builder.Services.AddScoped<JWTService>();
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork<ApplicationDBContext>>();
+builder.Services.AddSingleton<TokenService>();
 builder.Services.AddScoped<TodoService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<UserService>();
 
 var allowedOriginsString = builder.Configuration["ALLOWED_ORIGINS"] ?? "http://localhost:3000";
 var origins = allowedOriginsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
@@ -35,7 +39,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod();
+        policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 
@@ -53,16 +57,30 @@ builder
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(
-        builder.Configuration["Jwt:Key"]
-        ?? throw new InvalidOperationException("Jwt:Key not found in configuration.")
-    )
+                    builder.Configuration["Jwt:Key"]
+                        ?? throw new InvalidOperationException(
+                            "Jwt:Key not found in configuration."
+                        )
+                )
             ),
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (context.Request.Cookies.ContainsKey("accessToken"))
+                {
+                    context.Token = context.Request.Cookies["accessToken"];
+                }
+                return Task.CompletedTask;
+            },
         };
     });
 
 builder.Services.AddAuthorization();
 
-// app.
+// app
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

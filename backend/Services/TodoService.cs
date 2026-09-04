@@ -1,145 +1,102 @@
+using AutoMapper;
 using backend.Data;
-using backend.DTOs;
-using backend.Mappers;
-using backend.Models;
-using Microsoft.EntityFrameworkCore;
+using backend.Dtos;
+using backend.Entities;
+using backend.Repositories;
 
 namespace backend.Services;
 
 public class TodoService
 {
-    private readonly ApplicationDBContext _context;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public TodoService(ApplicationDBContext context)
+    public TodoService(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        _context = context;
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
     }
 
-    public async Task<List<Todo>> GetList(Guid userId, CancellationToken cancellationToken)
+    public async Task<List<TodoDto>> GetAllTodosAsync(Guid userId, CancellationToken ct)
     {
-        var query = _context.Todos.AsQueryable();
-        query = query.Where(x => x.UserId == userId);
-        return await query.ToListAsync(cancellationToken);
+        var todos = await _unitOfWork.GetRepository<Todo>().FindAsync(x => x.UserId == userId, ct);
+        return todos.ConvertAll(x => _mapper.Map<TodoDto>(x));
     }
 
-    public async Task<List<Todo>> SearchList(
+    public async Task<List<TodoDto>> SearchTodosAsync(
         Guid userId,
-        string? search,
-        string? filter,
-        CancellationToken cancellationToken
+        SearchTodoDto searchTodoDto,
+        CancellationToken ct
     )
     {
-        var query = _context.Todos.AsQueryable();
-
-        // If search or filter are not provided, return the full list as a default behavior.
-        if (string.IsNullOrWhiteSpace(search) || string.IsNullOrWhiteSpace(filter))
-        {
-            return await GetList(userId, cancellationToken);
-        }
-
-        var normalizedSearch = search.Trim();
-
-        // Dynamically build the search query based on the specified filter.
-        switch (filter.Trim().ToLowerInvariant())
-        {
-            case "name":
-                query = query.Where(x =>
-                    x.Name.ToLower().Contains(normalizedSearch.ToLower()) && x.UserId == userId
-                );
-                break;
-            case "description":
-                query = query.Where(x =>
-                    x.Description.ToLower().Contains(normalizedSearch.ToLower())
-                    && x.UserId == userId
-                );
-                break;
-            case "createddate":
-                // For date filtering, parse the search string and compare only the date part, ignoring the time.
-                if (DateTime.TryParse(normalizedSearch, out var searchDate))
-                {
-                    query = query.Where(x =>
-                        x.CreatedAt.Date == searchDate.Date && x.UserId == userId
-                    );
-                }
-                break;
-            default:
-                // If the filter is unknown or not provided, default to
-                // searching across both name, description and created date.
-                query = query.Where(x =>
-                    (
-                        x.Name.ToLower().Contains(normalizedSearch.ToLower())
-                        || x.Description.ToLower().Contains(normalizedSearch.ToLower())
-                        || x.CreatedAt.ToString().ToLower().Contains(normalizedSearch.ToLower())
-                    )
-                    && x.UserId == userId
-                );
-                break;
-        }
-
-        return await query.ToListAsync(cancellationToken);
+        var searchedTodos = await (
+            (ITodoRepository)_unitOfWork.GetRepository<Todo>()
+        ).SearchTodosAsync(userId, searchTodoDto, ct);
+        return searchedTodos.ConvertAll(x => _mapper.Map<TodoDto>(x));
     }
 
-    public async Task<Todo?> GetById(Guid id, Guid userId, CancellationToken cancellationToken)
+    public async Task<TodoDto?> GetTodoByIdAsync(Guid userId, Guid id, CancellationToken ct)
     {
-        return await _context.Todos.FirstOrDefaultAsync(
-            x => x.Id == id && x.UserId == userId,
-            cancellationToken
-        );
+        var foundTodo = await _unitOfWork
+            .GetRepository<Todo>()
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
+        return _mapper.Map<TodoDto>(foundTodo);
     }
 
-    public async Task<Todo> Create(
-        CreateTodoDTO createTodoDTO,
+    public async Task<TodoDto> AddTodoAsync(
         Guid userId,
-        CancellationToken cancellationToken
+        AddTodoDto addTodoDto,
+        CancellationToken ct
     )
     {
-        var todo = createTodoDTO.ToModel();
+        var todo = _mapper.Map<Todo>(addTodoDto);
         todo.CreatedAt = DateTime.UtcNow;
         todo.UserId = userId;
 
-        await _context.Todos.AddAsync(todo, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.GetRepository<Todo>().AddAsync(todo, ct);
+        await _unitOfWork.SaveAsync(ct);
 
-        return todo;
+        return _mapper.Map<TodoDto>(todo);
     }
 
-    public async Task<Todo?> Update(
-        Guid id,
-        UpdateTodoDTO updateTodoDTO,
+    public async Task<TodoDto?> UpdateTodoAsync(
         Guid userId,
-        CancellationToken cancellationToken
+        Guid id,
+        UpdateTodoDto updateTodoDto,
+        CancellationToken ct
     )
     {
-        var foundTodo = await _context.Todos.FirstOrDefaultAsync(
-            x => x.Id == id && x.UserId == userId,
-            cancellationToken
-        );
+        var foundTodo = await _unitOfWork
+            .GetRepository<Todo>()
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
 
         if (foundTodo == null)
         {
             return null;
         }
 
-        updateTodoDTO.ToModel(foundTodo);
-        await _context.SaveChangesAsync(cancellationToken);
+        foundTodo.Name = updateTodoDto.Name;
+        foundTodo.Description = updateTodoDto.Description;
 
-        return foundTodo;
+        _unitOfWork.GetRepository<Todo>().Update(foundTodo);
+        await _unitOfWork.SaveAsync(ct);
+
+        return _mapper.Map<TodoDto>(foundTodo);
     }
 
-    public async Task<bool> Delete(Guid id, Guid userId, CancellationToken cancellationToken)
+    public async Task<bool> RemoveTodoAsync(Guid userId, Guid id, CancellationToken ct)
     {
-        var foundTodo = await _context.Todos.FirstOrDefaultAsync(
-            x => x.Id == id && x.UserId == userId,
-            cancellationToken
-        );
+        var foundTodo = await _unitOfWork
+            .GetRepository<Todo>()
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
 
         if (foundTodo == null)
         {
             return false;
         }
 
-        _context.Todos.Remove(foundTodo);
-        await _context.SaveChangesAsync(cancellationToken);
+        _unitOfWork.GetRepository<Todo>().Remove(foundTodo);
+        await _unitOfWork.SaveAsync(ct);
 
         return true;
     }

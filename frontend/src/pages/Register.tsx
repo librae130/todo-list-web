@@ -1,31 +1,31 @@
 import { useState } from "react";
 import { RegisterForm } from "../components/user-authentication/RegisterForm";
-import { apiClient } from "../utils/api";
+import { apiClient } from "../utils/apiClient";
 import { useNavigate } from "react-router-dom";
 import { getErrorMessage } from "../utils/errorUtils";
 
 export const Register = () => {
   const navigate = useNavigate();
-  
+
   const [error, setError] = useState<string>("");
 
-  const registerUser = async (username: string, password: string) => {
+  const registerUserAsync = async (username: string, password: string) => {
     try {
-      await apiClient.post("/api/users/register", {
+      await apiClient.post("/api/auth/register", {
         username,
         password,
       });
 
       navigate("/login");
-    } catch (err: any) {
-      setError(getErrorMessage(err));
+    } catch (error: any) {
+      setError(getErrorMessage(error));
     }
   };
 
   return (
     <div>
       {error && <p className="status-message status-message--error">{error}</p>}
-      <RegisterForm onClickRegister={registerUser} />
+      <RegisterForm onClickRegisterAsync={registerUserAsync} />
     </div>
   );
 };

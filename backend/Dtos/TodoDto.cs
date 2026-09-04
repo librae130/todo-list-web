@@ -1,8 +1,6 @@
-using System.ComponentModel.DataAnnotations;
+namespace backend.Dtos;
 
-namespace backend.DTOs;
-
-public class TodoDTO
+public class TodoDto
 {
   public Guid Id { get; set; }
   public string Name { get; set; } = string.Empty;

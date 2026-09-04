@@ -1,18 +1,24 @@
 import { useState } from "react";
-import type { CreateTodoDTO } from "../dtos/CreateTodoDTO.tsx";
+import type { AddTodoDto } from "../dtos/AddTodoDto.tsx";
 
 type CreateTodoModalProps = {
-  onCreate: (newTodo: CreateTodoDTO) => void;
-  onClose: (open: boolean) => void;
+  onClickCreateAsync: (newTodo: AddTodoDto) => Promise<void>;
+  onClose: () => void;
 };
 
-export const CreateTodoModal = ({ onCreate, onClose }: CreateTodoModalProps) => {
+export const CreateTodoModal = ({
+  onClickCreateAsync,
+  onClose,
+}: CreateTodoModalProps) => {
   const [isCreating, setIsCreating] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<{ name?: string; description?: string }>({});
+  const [validationErrors, setValidationErrors] = useState<{
+    name?: string;
+    description?: string;
+  }>({});
   const [nameLength, setNameLength] = useState(0);
   const [descriptionLength, setDescriptionLength] = useState(0);
 
-  const handleCreate = (event: any) => {
+  const handleCreate = async (event: any) => {
     event.preventDefault();
     setValidationErrors({});
     const formData = new FormData(event.currentTarget);
@@ -29,7 +35,8 @@ export const CreateTodoModal = ({ onCreate, onClose }: CreateTodoModalProps) => 
     }
 
     if (description.length > 500) {
-      newErrors.description = "Description cannot be longer than 500 characters.";
+      newErrors.description =
+        "Description cannot be longer than 500 characters.";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -38,15 +45,14 @@ export const CreateTodoModal = ({ onCreate, onClose }: CreateTodoModalProps) => 
     }
 
     setIsCreating(true);
-
-    onCreate({ name, description });
-
+    await onClickCreateAsync({ name, description });
     setIsCreating(false);
+    onClose();
   };
 
   const handleClose = () => {
     if (isCreating === false) {
-      onClose(false);
+      onClose();
     }
   };
 
