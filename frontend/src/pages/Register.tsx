@@ -6,19 +6,19 @@ import { getErrorMessage } from "../utils/errorUtils";
 
 export const Register = () => {
   const navigate = useNavigate();
-  
+
   const [error, setError] = useState<string>("");
 
   const registerUserAsync = async (username: string, password: string) => {
     try {
-      await apiClient.post("/api/users/register", {
+      await apiClient.post("/api/auth/register", {
         username,
         password,
       });
 
       navigate("/login");
-    } catch (err: any) {
-      setError(getErrorMessage(err));
+    } catch (error: any) {
+      setError(getErrorMessage(error));
     }
   };
 

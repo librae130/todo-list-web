@@ -28,9 +28,10 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork<ApplicationDBContext>>();
-builder.Services.AddScoped<JwtService>();
+builder.Services.AddSingleton<TokenService>();
 builder.Services.AddScoped<TodoService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<UserService>();
 
 var allowedOriginsString = builder.Configuration["ALLOWED_ORIGINS"] ?? "http://localhost:3000";
 var origins = allowedOriginsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
@@ -38,7 +39,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod();
+        policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 
@@ -62,6 +63,18 @@ builder
                         )
                 )
             ),
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (context.Request.Cookies.ContainsKey("accessToken"))
+                {
+                    context.Token = context.Request.Cookies["accessToken"];
+                }
+                return Task.CompletedTask;
+            },
         };
     });
 

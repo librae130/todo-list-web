@@ -5,16 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace backend.Controllers;
 
 [ApiController]
-[Route("api/users")]
+[Route("api/auth")]
 public class AuthController : ControllerBase
 {
     private readonly AuthService _authService;
-    private readonly JwtService _jwtService;
 
-    public AuthController(AuthService authService, JwtService jwtService)
+    public AuthController(AuthService authService)
     {
         _authService = authService;
-        _jwtService = jwtService;
     }
 
     [HttpPost("register")]
@@ -24,8 +22,7 @@ public class AuthController : ControllerBase
     )
     {
         var user = await _authService.RegisterUserAsync(registerUserDto, ct);
-        return Ok(user);
-        ;
+        return Ok();
     }
 
     [HttpPost("login")]
@@ -34,14 +31,81 @@ public class AuthController : ControllerBase
         CancellationToken ct
     )
     {
-        var user = await _authService.LoginUserAsync(loginUserDto, ct);
+        var authResult = await _authService.LoginUserAsync(loginUserDto, ct);
 
-        if (user == null)
+        if (authResult == null)
         {
             return Unauthorized("Invalid credentials");
         }
 
-        var token = _jwtService.GenerateJwtToken(user);
-        return Ok(new { token });
+        Response.Cookies.Append(
+            "accessToken",
+            authResult.AccessToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
+            }
+        );
+
+        Response.Cookies.Append(
+            "refreshToken",
+            authResult.RefreshToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/api/auth/refresh",
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
+            }
+        );
+
+        return Ok();
+    }
+
+    [HttpPost("refresh")]
+    public async Task<IActionResult> RefreshTokenAsync(CancellationToken ct)
+    {
+        if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
+        {
+            return Unauthorized("No refresh token found.");
+        }
+
+        var authResult = await _authService.RefreshTokenAsync(refreshToken, ct);
+
+        if (authResult == null)
+        {
+            return Unauthorized("Failed to renew refresh token");
+        }
+
+        Response.Cookies.Append(
+            "accessToken",
+            authResult.AccessToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
+            }
+        );
+
+        Response.Cookies.Append(
+            "refreshToken",
+            authResult.RefreshToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/api/auth/refresh",
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
+            }
+        );
+
+        return Ok(authResult);
     }
 }

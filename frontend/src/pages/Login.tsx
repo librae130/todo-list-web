@@ -2,8 +2,6 @@ import { useState } from "react";
 import { LoginForm } from "../components/user-authentication/LoginForm";
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "../utils/apiClient";
-import { getErrorMessage } from "../utils/errorUtils";
-import { setJwtToken } from "../utils/JwtUtils";
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -12,16 +10,14 @@ export const Login = () => {
 
   const loginUserAsync = async (username: string, password: string) => {
     try {
-      const response = await apiClient.post("/api/users/login", {
+      const _response = await apiClient.post("/api/auth/login", {
         username,
         password,
       });
 
-      setJwtToken(response.data.token);
-
       navigate("/");
-    } catch (err: any) {
-      setError(getErrorMessage(err));
+    } catch (error: any) {
+      setError("Incorrect");
     }
   };
 

@@ -10,11 +10,11 @@
         "projectUniqueName": "/home/shared/Projects/todo-list-web/backend.tests/backend.tests.csproj",
         "projectName": "backend.tests",
         "projectPath": "/home/shared/Projects/todo-list-web/backend.tests/backend.tests.csproj",
-        "packagesPath": "/home/mask/.nuget/packages/",
+        "packagesPath": "/home/librae/.nuget/packages/",
         "outputPath": "/home/shared/Projects/todo-list-web/backend.tests/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/mask/.nuget/NuGet/NuGet.Config"
+          "/home/librae/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -369,11 +369,11 @@
         "projectUniqueName": "/home/shared/Projects/todo-list-web/backend/backend.csproj",
         "projectName": "backend",
         "projectPath": "/home/shared/Projects/todo-list-web/backend/backend.csproj",
-        "packagesPath": "/home/mask/.nuget/packages/",
+        "packagesPath": "/home/librae/.nuget/packages/",
         "outputPath": "/home/shared/Projects/todo-list-web/backend/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/mask/.nuget/NuGet/NuGet.Config"
+          "/home/librae/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -436,6 +436,10 @@
             "Scalar.AspNetCore": {
               "target": "Package",
               "version": "[2.16.15, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.22.0, )"
             }
           },
           "imports": [
