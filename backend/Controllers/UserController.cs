@@ -1,0 +1,39 @@
+using System.Security.Claims;
+using backend.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace backend.Controllers;
+
+[Authorize]
+[ApiController]
+[Route("api/users")]
+public class UserController : ControllerBase
+{
+    private readonly UserService _userService;
+
+    public UserController(UserService userService)
+    {
+        _userService = userService;
+    }
+
+    [HttpGet("me")]
+    public async Task<IActionResult> GetCurrentUserAsync(CancellationToken ct)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized("Invalid or missing user ID in token.");
+        }
+
+        var user = await _userService.GetUserByIdAsync(userId, ct);
+
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        return Ok(user);
+    }
+}

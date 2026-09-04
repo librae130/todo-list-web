@@ -1,6 +1,5 @@
-using System.Security.Claims;
-using backend.DTOs;
-using backend.Mappers;
+using backend.Dtos;
+using backend.Helpers;
 using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +8,7 @@ namespace backend.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/todo-list")]
+[Route("api/todos")]
 public class TodoController : ControllerBase
 {
     private readonly TodoService _todoService;
@@ -19,97 +18,78 @@ public class TodoController : ControllerBase
         _todoService = todoService;
     }
 
-    private Guid GetCurrentUserId()
-    {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-
-        if (userIdClaim == null)
-        {
-            throw new UnauthorizedAccessException("User ID not found in token.");
-        }
-
-        return Guid.Parse(userIdClaim.Value);
-    }
-
     [HttpGet]
-    public async Task<IActionResult> GetList(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllTodosAsync(CancellationToken ct)
     {
-        var userId = GetCurrentUserId();
-        var todos = await _todoService.GetList(userId, cancellationToken);
-        return Ok(todos.Select(todo => todo.ToDTO()));
+        var userId = AccessTokenParser.GetCurrentUserId(User);
+        var todos = await _todoService.GetAllTodosAsync(userId, ct);
+        return Ok(todos);
     }
 
-    [HttpGet("search")]
-    public async Task<IActionResult> SearchList(
-        [FromQuery] string? search,
-        [FromQuery] string? filter,
-        CancellationToken cancellationToken
-    )
+    [HttpGet("{id}", Name = "GetTodoByIdAsync")]
+    public async Task<IActionResult> GetTodoByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        var userId = GetCurrentUserId();
-        var todos = await _todoService.SearchList(userId, search, filter, cancellationToken);
-        return Ok(todos.Select(todo => todo.ToDTO()));
-    }
+        var userId = AccessTokenParser.GetCurrentUserId(User);
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(
-        [FromRoute] Guid id,
-        CancellationToken cancellationToken
-    )
-    {
-        var userId = GetCurrentUserId();
-
-        var foundTodo = await _todoService.GetById(id, userId, cancellationToken);
+        var foundTodo = await _todoService.GetTodoByIdAsync(id, userId, ct);
 
         if (foundTodo == null)
         {
             return NotFound($"To-do with id {id} of user with id {userId} not found");
         }
 
-        return Ok(foundTodo.ToDTO());
+        return Ok(foundTodo);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(
-        [FromBody] CreateTodoDTO createTodoDTO,
-        CancellationToken cancellationToken
+    public async Task<IActionResult> AddTodoAsync(
+        [FromBody] AddTodoDto addTodoDto,
+        CancellationToken ct
     )
     {
-        var userId = GetCurrentUserId();
+        var userId = AccessTokenParser.GetCurrentUserId(User);
 
-        var createdTodo = await _todoService.Create(createTodoDTO, userId, cancellationToken);
+        var addedTodo = await _todoService.AddTodoAsync(userId, addTodoDto, ct);
 
-        return CreatedAtAction(nameof(GetById), new { id = createdTodo.Id }, createdTodo.ToDTO());
+        return CreatedAtRoute("GetTodoByIdAsync", new { id = addedTodo.Id }, addedTodo);
+    }
+
+    [HttpPost("search")]
+    public async Task<IActionResult> SearchTodosAsync(
+        [FromBody] SearchTodoDto searchTodoDto,
+        CancellationToken ct
+    )
+    {
+        var userId = AccessTokenParser.GetCurrentUserId(User);
+        var todos = await _todoService.SearchTodosAsync(userId, searchTodoDto, ct);
+        return Ok(todos);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(
+    public async Task<IActionResult> UpdateTodoAsync(
         [FromRoute] Guid id,
-        [FromBody] UpdateTodoDTO updateTodoDTO,
-        CancellationToken cancellationToken
+        [FromBody] UpdateTodoDto updateTodoDto,
+        CancellationToken ct
     )
     {
-        var userId = GetCurrentUserId();
+        var userId = AccessTokenParser.GetCurrentUserId(User);
 
-        var updatedTodo = await _todoService.Update(id, updateTodoDTO, userId, cancellationToken);
+        var updatedTodo = await _todoService.UpdateTodoAsync(userId, id, updateTodoDto, ct);
 
         if (updatedTodo == null)
         {
             return NotFound($"To-do with id {id} of user with id {userId} not found");
         }
 
-        return Ok(updatedTodo.ToDTO());
+        return Ok(updatedTodo);
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(
-        [FromRoute] Guid id,
-        CancellationToken cancellationToken
-    )
-  {
-        var userId = GetCurrentUserId();
-      
-        var deleted = await _todoService.Delete(id, userId, cancellationToken);
+    public async Task<IActionResult> RemoveTodoAsync([FromRoute] Guid id, CancellationToken ct)
+    {
+        var userId = AccessTokenParser.GetCurrentUserId(User);
+
+        var deleted = await _todoService.RemoveTodoAsync(userId, id, ct);
 
         if (!deleted)
         {

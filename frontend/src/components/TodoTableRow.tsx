@@ -1,21 +1,21 @@
 import { useState } from "react";
-import type { UpdateTodoDTO } from "../dtos/UpdateTodoDTO.tsx";
-import type { TodoDTO } from "../dtos/TodoDTO.tsx";
+import type { UpdateTodoDto } from "../dtos/UpdateTodoDto.tsx";
+import type { TodoDto } from "../dtos/TodoDto.tsx";
 
 type TodoTableRowProps = {
-  todo: TodoDTO;
+  todo: TodoDto;
   // onEdit: (editMode: boolean, id: string | null) => void;
-  onClickEdit: (
+  onClickEditAsync: (
     editingTodoId: string,
-    updateTodoDTO: UpdateTodoDTO,
+    updateTodoDto: UpdateTodoDto,
   ) => Promise<void>;
-  onClickDelete: (id: string) => Promise<void>;
+  onClickRemoveAsync: (id: string) => Promise<void>;
 };
 
 export const TodoTableRow = ({
   todo,
-  onClickEdit,
-  onClickDelete,
+  onClickEditAsync,
+  onClickRemoveAsync,
 }: TodoTableRowProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(todo.name);
@@ -51,7 +51,7 @@ export const TodoTableRow = ({
     }
 
     setIsSaving(true);
-    await onClickEdit(todo.id, {
+    await onClickEditAsync(todo.id, {
       name: editedName,
       description: editedDescription,
     });
@@ -65,8 +65,8 @@ export const TodoTableRow = ({
     setIsEditing(false);
   };
 
-  const handleDelete = async () => {
-    await onClickDelete(todo.id);
+  const handleRemove = async () => {
+    await onClickRemoveAsync(todo.id);
   };
 
   const handleEdit = () => {
@@ -157,9 +157,9 @@ export const TodoTableRow = ({
             </button>
             <button
               className="todo-table__action-button todo-table__action-button--delete"
-              onClick={handleDelete}
+              onClick={handleRemove}
             >
-              Delete
+              Remove
             </button>
           </div>
         </td>

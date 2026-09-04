@@ -1,6 +1,10 @@
 import axios from "axios";
 
 export const getErrorMessage = (error: unknown): string => {
+  if (axios.isCancel(error)) {
+    return "";
+  }
+
   if (axios.isAxiosError(error)) {
     const serverMessage = error.response?.data?.detail;
     if (serverMessage) {

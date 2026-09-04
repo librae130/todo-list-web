@@ -1,56 +1,111 @@
-using System;
-using System.Threading.Tasks;
-using backend.DTOs;
-using backend.Mappers;
+using backend.Dtos;
 using backend.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers;
 
 [ApiController]
-[Route("api/users")]
+[Route("api/auth")]
 public class AuthController : ControllerBase
 {
     private readonly AuthService _authService;
-    private readonly JWTService _jwtService;
 
-    public AuthController(AuthService authService, JWTService jwtService)
+    public AuthController(AuthService authService)
     {
         _authService = authService;
-        _jwtService = jwtService;
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(
-        [FromBody] RegisterUserDTO registerUserDTO,
-        CancellationToken cancellationToken
+    public async Task<IActionResult> RegisterUserAsync(
+        [FromBody] RegisterUserDto registerUserDto,
+        CancellationToken ct
     )
     {
-        try
-        {
-            var user = await _authService.Register(registerUserDTO, cancellationToken);
-            return CreatedAtAction(nameof(Register), new { id = user.Id }, user.ToDTO());
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var user = await _authService.RegisterUserAsync(registerUserDto, ct);
+        return Ok();
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(
-        [FromBody] LoginUserDTO loginUserDTO,
-        CancellationToken cancellationToken
+    public async Task<IActionResult> LoginUserAsync(
+        [FromBody] LoginUserDto loginUserDto,
+        CancellationToken ct
     )
     {
-        var user = await _authService.Login(loginUserDTO, cancellationToken);
+        var authResult = await _authService.LoginUserAsync(loginUserDto, ct);
 
-        if (user == null)
+        if (authResult == null)
         {
             return Unauthorized("Invalid credentials");
         }
 
-        var token = _jwtService.GenerateJWTToken(user.ToDTO());
-        return Ok(new { token });
+        Response.Cookies.Append(
+            "accessToken",
+            authResult.AccessToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
+            }
+        );
+
+        Response.Cookies.Append(
+            "refreshToken",
+            authResult.RefreshToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/api/auth/refresh",
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
+            }
+        );
+
+        return Ok();
+    }
+
+    [HttpPost("refresh")]
+    public async Task<IActionResult> RefreshTokenAsync(CancellationToken ct)
+    {
+        if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
+        {
+            return Unauthorized("No refresh token found.");
+        }
+
+        var authResult = await _authService.RefreshTokenAsync(refreshToken, ct);
+
+        if (authResult == null)
+        {
+            return Unauthorized("Failed to renew refresh token");
+        }
+
+        Response.Cookies.Append(
+            "accessToken",
+            authResult.AccessToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
+            }
+        );
+
+        Response.Cookies.Append(
+            "refreshToken",
+            authResult.RefreshToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/api/auth/refresh",
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
+            }
+        );
+
+        return Ok(authResult);
     }
 }

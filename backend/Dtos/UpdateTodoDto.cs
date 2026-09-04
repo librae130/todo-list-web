@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace backend.DTOs;
+namespace backend.Dtos;
 
-public class UpdateTodoDTO
+public class UpdateTodoDto
 {
     [Required]
     [StringLength(100, ErrorMessage = "Name cannot be longer than 100 characters.")]
