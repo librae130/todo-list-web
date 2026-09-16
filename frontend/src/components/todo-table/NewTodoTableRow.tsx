@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { RefObject } from "react";
-import type { AddTodoDto } from "../dtos/AddTodoDto.tsx";
+import type { AddTodoDto } from "../../dtos/AddTodoDto";
 
 type NewTodoTableRowProps = {
   // onEdit: (editMode: boolean, id: string | null) => void;

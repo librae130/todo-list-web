@@ -11,7 +11,7 @@ internal class GlobalExceptionHandler : IExceptionHandler
         CancellationToken cancellationToken
     )
     {
-        var problemDetails = new ProblemDetails
+        ProblemDetails problemDetails = new ProblemDetails
         {
             Status = StatusCodes.Status500InternalServerError,
             Title = "An error occurred",

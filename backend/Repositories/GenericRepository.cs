@@ -18,13 +18,13 @@ public class GenericRepository<T, TContext> : IGenericRepository<T>
 
     public async Task<T?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        var todo = await _dbSet.FindAsync(id, ct);
+        T? todo = await _dbSet.FindAsync(id, ct);
         return todo;
     }
 
     public async Task<List<T>> GetAllAsync(CancellationToken ct = default)
     {
-        var todos = await _dbSet.ToListAsync(ct);
+        List<T> todos = await _dbSet.ToListAsync(ct);
         return todos;
     }
 
@@ -33,7 +33,7 @@ public class GenericRepository<T, TContext> : IGenericRepository<T>
         CancellationToken ct = default
     )
     {
-        var foundTodos = await _dbSet.Where(predicate).ToListAsync(ct);
+        List<T> foundTodos = await _dbSet.Where(predicate).ToListAsync(ct);
         return foundTodos;
     }
 
@@ -42,7 +42,7 @@ public class GenericRepository<T, TContext> : IGenericRepository<T>
         CancellationToken ct = default
     )
     {
-        var foundTodo = await _dbSet.FirstOrDefaultAsync(predicate, ct);
+        T? foundTodo = await _dbSet.FirstOrDefaultAsync(predicate, ct);
         return foundTodo;
     }
 

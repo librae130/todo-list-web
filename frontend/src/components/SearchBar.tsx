@@ -1,10 +1,11 @@
-import { useDebounceFunction } from "../../utils/debounce";
+import { useDebounceFunction } from "../utils/debounce";
 
-type SearchTodoProps = {
+type SearchBarProps = {
+  placeholder: string
   onSearchChange: (query: string) => void;
 };
 
-export const SearchTodo = ({ onSearchChange }: SearchTodoProps) => {
+export const SearchBar = ({ placeholder ,onSearchChange }: SearchBarProps) => {
   const debouncedOnSearchChange = useDebounceFunction(onSearchChange, 500);
 
   const onChange = (e: any) => {
@@ -13,10 +14,10 @@ export const SearchTodo = ({ onSearchChange }: SearchTodoProps) => {
 
   return (
     <input
-      className="search-todo__input"
+      className="search-bar__input"
       type="text"
       onChange={onChange}
-      placeholder="Search by Name, Description, Created date..."
+      placeholder={placeholder}
     />
   );
 };
