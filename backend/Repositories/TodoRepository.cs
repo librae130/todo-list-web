@@ -16,19 +16,19 @@ public class TodoRepository<TContext> : GenericRepository<Todo, TContext>, ITodo
         CancellationToken cancellationToken
     )
     {
-        var query = _dbSet.AsQueryable();
+        IQueryable<Todo> query = _dbSet.AsQueryable();
 
         query = query.Where(x => x.UserId == userId);
 
-        var hasName = !string.IsNullOrWhiteSpace(searchTodoDto.Name);
-        var nameSearch = hasName ? searchTodoDto.Name.Trim().ToLower() : "";
+        bool hasName = !string.IsNullOrWhiteSpace(searchTodoDto.Name);
+        string nameSearch = hasName ? searchTodoDto.Name.Trim().ToLower() : "";
 
-        var hasDescription = !string.IsNullOrWhiteSpace(searchTodoDto.Description);
-        var descriptionSearch = hasDescription ? searchTodoDto.Description.Trim().ToLower() : "";
+        bool hasDescription = !string.IsNullOrWhiteSpace(searchTodoDto.Description);
+        string descriptionSearch = hasDescription ? searchTodoDto.Description.Trim().ToLower() : "";
 
-        var hasDate = DateTime.TryParse(searchTodoDto.CreatedAt, out var parsedDate);
-        var startDate = hasDate ? parsedDate.Date : default;
-        var endDate = hasDate ? parsedDate.Date.AddDays(1) : default;
+        bool hasDate = DateTime.TryParse(searchTodoDto.CreatedAt, out DateTime parsedDate);
+        DateTime startDate = hasDate ? parsedDate.Date : default;
+        DateTime endDate = hasDate ? parsedDate.Date.AddDays(1) : default;
 
         if (hasName || hasDescription || hasDate)
         {

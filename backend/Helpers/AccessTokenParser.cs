@@ -6,7 +6,7 @@ internal static class AccessTokenParser
 {
     public static Guid GetCurrentUserId(ClaimsPrincipal user)
     {
-        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+        Claim? userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
 
         if (userIdClaim == null)
         {

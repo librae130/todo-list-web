@@ -23,10 +23,10 @@ public class AuthService
         CancellationToken ct
     )
     {
-        var newAccessToken = _tokenService.GenerateJwtToken(userDto);
-        var newRefreshTokenString = _tokenService.GenerateRefreshToken();
+        string newAccessToken = _tokenService.GenerateJwtToken(userDto);
+        string newRefreshTokenString = _tokenService.GenerateRefreshToken();
 
-        var newRefreshTokenEntity = new RefreshToken
+        RefreshToken newRefreshTokenEntity = new RefreshToken
         {
             Token = newRefreshTokenString,
             UserId = userDto.Id,
@@ -50,7 +50,7 @@ public class AuthService
         CancellationToken ct
     )
     {
-        var existingUser = await _unitOfWork
+        User? existingUser = await _unitOfWork
             .GetRepository<User>()
             .FirstOrDefaultAsync(u => u.Username == registerUserDto.Username, ct);
 
@@ -59,7 +59,7 @@ public class AuthService
             throw new Exception("Username already exists");
         }
 
-        var user = new User
+        User user = new User
         {
             Username = registerUserDto.Username,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerUserDto.Password),
@@ -77,7 +77,7 @@ public class AuthService
         CancellationToken ct
     )
     {
-        var user = await _unitOfWork
+        User? user = await _unitOfWork
             .GetRepository<User>()
             .FirstOrDefaultAsync(u => u.Username == loginUserDto.Username, ct);
 
@@ -91,7 +91,7 @@ public class AuthService
 
     public async Task<AuthResultDto?> RefreshTokenAsync(string refreshToken, CancellationToken ct)
     {
-        var foundRefreshToken = await _unitOfWork
+        RefreshToken? foundRefreshToken = await _unitOfWork
             .GetRepository<RefreshToken>()
             .FirstOrDefaultAsync(x => x.Token == refreshToken, ct);
 
@@ -100,8 +100,8 @@ public class AuthService
             return null;
         }
 
-        var user = await _unitOfWork.GetRepository<User>().GetByIdAsync(foundRefreshToken.UserId);
-        var refreshResult = await AddRefreshTokenForUserAsync(_mapper.Map<UserDto>(user), ct);
+        User? user = await _unitOfWork.GetRepository<User>().GetByIdAsync(foundRefreshToken.UserId);
+        AuthResultDto? refreshResult = await AddRefreshTokenForUserAsync(_mapper.Map<UserDto>(user), ct);
 
         _unitOfWork.GetRepository<RefreshToken>().Remove(foundRefreshToken);
         await _unitOfWork.SaveAsync();

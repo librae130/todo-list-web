@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
 // builder.
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
@@ -33,8 +33,8 @@ builder.Services.AddScoped<TodoService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 
-var allowedOriginsString = builder.Configuration["ALLOWED_ORIGINS"] ?? "http://localhost:3000";
-var origins = allowedOriginsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
+string allowedOriginsString = builder.Configuration["ALLOWED_ORIGINS"] ?? "http://localhost:3000";
+string[] origins = allowedOriginsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -43,6 +43,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+IConfigurationSection jwtOptions = builder.Configuration.GetSection("Jwt");
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -81,7 +82,7 @@ builder
 builder.Services.AddAuthorization();
 
 // app
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {

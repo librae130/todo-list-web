@@ -19,7 +19,7 @@ public class TodoService
 
     public async Task<List<TodoDto>> GetAllTodosAsync(Guid userId, CancellationToken ct)
     {
-        var todos = await _unitOfWork.GetRepository<Todo>().FindAsync(x => x.UserId == userId, ct);
+        List<Todo> todos = await _unitOfWork.GetRepository<Todo>().FindAsync(x => x.UserId == userId, ct);
         return todos.ConvertAll(x => _mapper.Map<TodoDto>(x));
     }
 
@@ -29,7 +29,7 @@ public class TodoService
         CancellationToken ct
     )
     {
-        var searchedTodos = await (
+        List<Todo> searchedTodos = await (
             (ITodoRepository)_unitOfWork.GetRepository<Todo>()
         ).SearchTodosAsync(userId, searchTodoDto, ct);
         return searchedTodos.ConvertAll(x => _mapper.Map<TodoDto>(x));
@@ -37,7 +37,7 @@ public class TodoService
 
     public async Task<TodoDto?> GetTodoByIdAsync(Guid userId, Guid id, CancellationToken ct)
     {
-        var foundTodo = await _unitOfWork
+        Todo? foundTodo = await _unitOfWork
             .GetRepository<Todo>()
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
         return _mapper.Map<TodoDto>(foundTodo);
@@ -49,7 +49,7 @@ public class TodoService
         CancellationToken ct
     )
     {
-        var todo = _mapper.Map<Todo>(addTodoDto);
+        Todo todo = _mapper.Map<Todo>(addTodoDto);
         todo.CreatedAt = DateTime.UtcNow;
         todo.UserId = userId;
 
@@ -66,7 +66,7 @@ public class TodoService
         CancellationToken ct
     )
     {
-        var foundTodo = await _unitOfWork
+        Todo? foundTodo = await _unitOfWork
             .GetRepository<Todo>()
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
 
@@ -86,7 +86,7 @@ public class TodoService
 
     public async Task<bool> RemoveTodoAsync(Guid userId, Guid id, CancellationToken ct)
     {
-        var foundTodo = await _unitOfWork
+        Todo? foundTodo = await _unitOfWork
             .GetRepository<Todo>()
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
 

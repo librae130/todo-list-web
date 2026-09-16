@@ -18,7 +18,7 @@ public class UserService
 
     public async Task<UserDto?> GetUserByIdAsync(Guid userId, CancellationToken ct)
     {
-        var user = await _unitOfWork.GetRepository<User>().GetByIdAsync(userId);
+        User? user = await _unitOfWork.GetRepository<User>().GetByIdAsync(userId);
 
         if (user == null)
         {

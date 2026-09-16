@@ -150,3 +150,14 @@
 /home/librae/Projects/todo-list-web/backend.tests/obj/Debug/net10.0/backend.tests.pdb
 /home/librae/Projects/todo-list-web/backend.tests/obj/Debug/net10.0/backend.tests.genruntimeconfig.cache
 /home/librae/Projects/todo-list-web/backend.tests/obj/Debug/net10.0/ref/backend.tests.dll
+C:\Users\librae\Projects\todo-list-web\backend.tests\bin\Debug\net10.0\.msCoverageSourceRootsMapping_backend.tests
+C:\Users\librae\Projects\todo-list-web\backend.tests\bin\Debug\net10.0\CoverletSourceRootsMapping_backend.tests
+C:\Users\librae\Projects\todo-list-web\backend.tests\obj\Debug\net10.0\backend.tests.csproj.AssemblyReference.cache
+C:\Users\librae\Projects\todo-list-web\backend.tests\obj\Debug\net10.0\backend.tests.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\librae\Projects\todo-list-web\backend.tests\obj\Debug\net10.0\backend.tests.AssemblyInfoInputs.cache
+C:\Users\librae\Projects\todo-list-web\backend.tests\obj\Debug\net10.0\backend.tests.AssemblyInfo.cs
+C:\Users\librae\Projects\todo-list-web\backend.tests\obj\Debug\net10.0\backend.tests.csproj.CoreCompileInputs.cache
+C:\Users\librae\Projects\todo-list-web\backend.tests\obj\Debug\net10.0\backend.tests.sourcelink.json
+C:\Users\librae\Projects\todo-list-web\backend.tests\obj\Debug\net10.0\backend.tests.dll
+C:\Users\librae\Projects\todo-list-web\backend.tests\obj\Debug\net10.0\refint\backend.tests.dll
+C:\Users\librae\Projects\todo-list-web\backend.tests\obj\Debug\net10.0\backend.tests.pdb
