@@ -9,10 +9,6 @@ public class UnitOfWork<TContext> : IUnitOfWork
 {
     private readonly TContext _context;
     private Dictionary<Type, object> _repoCache { get; set; }
-    private static readonly Dictionary<Type, Func<TContext, object>> _customRepoBuilder = new()
-    {
-        { typeof(Todo), context => new TodoRepository<TContext>(context) },
-    };
 
     public UnitOfWork(TContext context)
     {
@@ -28,13 +24,6 @@ public class UnitOfWork<TContext> : IUnitOfWork
         if (_repoCache.TryGetValue(type, out object? repo))
         {
             return (IGenericRepository<T>)repo;
-        }
-
-        if (_customRepoBuilder.TryGetValue(type, out Func<TContext, object>? builder))
-        {
-            object newCustomRepo = builder(_context);
-            _repoCache[type] = newCustomRepo;
-            return (IGenericRepository<T>)newCustomRepo;
         }
 
         GenericRepository<T, TContext> newRepo = new GenericRepository<T, TContext>(_context);
