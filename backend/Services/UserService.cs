@@ -17,7 +17,7 @@ public class UserService
         _mapper = mapper;
     }
 
-    public async Task<UserDto?> GetUserByIdAsync(Guid userId, CancellationToken ct)
+    public async Task<UserDto?> GetUserByIdAsync(Guid userId, CancellationToken ct = default)
     {
         User? user = await _userRepo.GetByIdAsync(userId, ct);
 

@@ -32,7 +32,7 @@ public class AuthService
 
     private async Task<AuthResultDto?> AddRefreshTokenForUserAsync(
         UserDto userDto,
-        CancellationToken ct
+        CancellationToken ct = default
     )
     {
         string newAccessToken = _tokenService.GenerateJwtToken(userDto);
@@ -59,7 +59,7 @@ public class AuthService
 
     public async Task<UserDto> RegisterUserAsync(
         RegisterUserDto registerUserDto,
-        CancellationToken ct
+        CancellationToken ct = default
     )
     {
         User? existingUser = await _userRepo
@@ -85,7 +85,7 @@ public class AuthService
 
     public async Task<AuthResultDto?> LoginUserAsync(
         LoginUserDto loginUserDto,
-        CancellationToken ct
+        CancellationToken ct = default
     )
     {
         User? user = await _userRepo
@@ -99,7 +99,7 @@ public class AuthService
         return await AddRefreshTokenForUserAsync(_mapper.Map<UserDto>(user), ct);
     }
 
-    public async Task<AuthResultDto?> RefreshTokenAsync(string refreshToken, CancellationToken ct)
+    public async Task<AuthResultDto?> RefreshTokenAsync(string refreshToken, CancellationToken ct = default)
     {
         RefreshToken? foundRefreshToken = await _refreshTokenRepo
             .FirstOrDefaultAsync(x => x.Token == refreshToken, ct);
