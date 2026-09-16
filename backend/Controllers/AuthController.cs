@@ -1,6 +1,9 @@
 using backend.Dtos;
+using backend.Helpers;
+using backend.Options;
 using backend.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace backend.Controllers;
 
@@ -9,10 +12,12 @@ namespace backend.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly AuthService _authService;
+    private readonly JwtOptions _jwtOptions;
 
-    public AuthController(AuthService authService)
+    public AuthController(AuthService authService, IOptions<JwtOptions> jwtOptions)
     {
         _authService = authService;
+        _jwtOptions = jwtOptions.Value;
     }
 
     [HttpPost("register")]
@@ -38,30 +43,7 @@ public class AuthController : ControllerBase
             return Unauthorized("Invalid credentials");
         }
 
-        Response.Cookies.Append(
-            "accessToken",
-            authResult.AccessToken,
-            new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
-                Expires = DateTimeOffset.UtcNow.AddDays(7),
-            }
-        );
-
-        Response.Cookies.Append(
-            "refreshToken",
-            authResult.RefreshToken,
-            new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
-                Path = "/api/auth/refresh",
-                Expires = DateTimeOffset.UtcNow.AddDays(7),
-            }
-        );
+        CookieHelper.AppendAuthCookies(Response, authResult, _jwtOptions);
 
         return Ok();
     }
@@ -81,30 +63,7 @@ public class AuthController : ControllerBase
             return Unauthorized("Failed to renew refresh token");
         }
 
-        Response.Cookies.Append(
-            "accessToken",
-            authResult.AccessToken,
-            new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
-                Expires = DateTimeOffset.UtcNow.AddDays(7),
-            }
-        );
-
-        Response.Cookies.Append(
-            "refreshToken",
-            authResult.RefreshToken,
-            new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
-                Path = "/api/auth/refresh",
-                Expires = DateTimeOffset.UtcNow.AddDays(7),
-            }
-        );
+        CookieHelper.AppendAuthCookies(Response, authResult, _jwtOptions);
 
         return Ok(authResult);
     }

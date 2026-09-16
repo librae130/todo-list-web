@@ -2,6 +2,8 @@ using AutoMapper;
 using backend.Data;
 using backend.Dtos;
 using backend.Entities;
+using backend.Options;
+using Microsoft.Extensions.Options;
 
 namespace backend.Services;
 
@@ -10,12 +12,19 @@ public class AuthService
     private readonly TokenService _tokenService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly JwtOptions _jwtOptions;
 
-    public AuthService(TokenService tokenService, IUnitOfWork unitOfWork, IMapper mapper)
+    public AuthService(
+        TokenService tokenService,
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        IOptions<JwtOptions> jwtOptions
+    )
     {
         _tokenService = tokenService;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _jwtOptions = jwtOptions.Value;
     }
 
     private async Task<AuthResultDto?> AddRefreshTokenForUserAsync(
@@ -30,7 +39,7 @@ public class AuthService
         {
             Token = newRefreshTokenString,
             UserId = userDto.Id,
-            ExpiresAtUtc = DateTime.UtcNow.AddDays(7),
+            ExpiresAtUtc = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenDurationInDay),
             CreatedAt = DateTime.UtcNow,
         };
 
