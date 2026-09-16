@@ -2,6 +2,7 @@ using System.Text;
 using backend.Data;
 using backend.Helpers;
 using backend.Services;
+using backend.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -26,6 +27,7 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 );
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.Section));
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork<ApplicationDBContext>>();
 builder.Services.AddSingleton<TokenService>();
@@ -43,7 +45,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-IConfigurationSection jwtOptions = builder.Configuration.GetSection("Jwt");
+
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
