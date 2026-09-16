@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { LoginForm } from "../components/user-authentication/LoginForm";
+import { LoginForm } from "../components/authentication-forms/LoginForm";
 import { useNavigate } from "react-router-dom";
-import { apiClient } from "../utils/apiClient";
+import { AuthService } from "../services/AuthService";
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -10,10 +10,7 @@ export const Login = () => {
 
   const loginUserAsync = async (username: string, password: string) => {
     try {
-      await apiClient.post("/api/auth/login", {
-        username,
-        password,
-      });
+      await AuthService.login(username, password);
 
       navigate("/");
     } catch (error: any) {

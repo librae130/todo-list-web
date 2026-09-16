@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { apiClient } from "../utils/apiClient.tsx";
+import { TodoService } from "../services/TodoService.tsx";
+import { UserService } from "../services/UserService.tsx";
 import type { TodoDto } from "../dtos/TodoDto.tsx";
 import type { UpdateTodoDto } from "../dtos/UpdateTodoDto.tsx";
 import type { AddTodoDto } from "../dtos/AddTodoDto.tsx";
@@ -36,10 +37,8 @@ export const TodoDashboard = () => {
 
     const fetchUser = async () => {
       try {
-        const response = await apiClient.get("/api/users/me", {
-          signal: controller.signal,
-        });
-        setUser(response.data);
+        const currentUser = await UserService.getCurrentUser(controller.signal);
+        setUser(currentUser);
       } catch (error) {
         if (axios.isCancel(error)) return;
 
@@ -78,12 +77,10 @@ export const TodoDashboard = () => {
           searchTodoDto.createdAt = searchQuery;
         }
 
-        const response = await apiClient.post("/api/todos/search", searchTodoDto, {
-          signal: abortController.signal,
-        });
+        const todos = await TodoService.search(searchTodoDto, abortController.signal);
 
         const todosData =
-          response.data.map((todo: any) => ({
+          todos.map((todo) => ({
             ...todo,
             createdAt: formatDateTime(todo.createdAt),
           })) ?? [];
@@ -121,16 +118,16 @@ export const TodoDashboard = () => {
     }
 
     try {
-      const response = await apiClient.put(`/api/todos/${editingTodoId}`, updatedTodo);
-      if (response.data != null) {
+      const updatedTodoResponse = await TodoService.update(editingTodoId, updatedTodo);
+      if (updatedTodoResponse != null) {
         // After a successful API call, update the specific item in the local tableData state.
         setTableData(
           tableData.map((todo) => {
             if (todo.id === editingTodoId) {
               return {
                 ...todo,
-                name: response.data.name,
-                description: response.data.description,
+                name: updatedTodoResponse.name,
+                description: updatedTodoResponse.description,
               };
             }
             return todo;
@@ -151,7 +148,7 @@ export const TodoDashboard = () => {
     setLoading(true);
     try {
       setTableData(tableData.filter((todo) => todo.id !== id));
-      await apiClient.delete(`/api/todos/${id}`);
+      await TodoService.remove(id);
     } catch (error: any) {
       setError(getErrorMessage(error));
     } finally {
@@ -166,10 +163,10 @@ export const TodoDashboard = () => {
 
   const addTodoAsync = async (newTodo: AddTodoDto) => {
     try {
-      const response = await apiClient.post(`/api/todos`, newTodo);
-      if (response.data != null) {
+      const createdTodo = await TodoService.create(newTodo);
+      if (createdTodo != null) {
         setTableData([
-          { ...response.data, createdAt: formatDateTime(response.data.createdAt) },
+          { ...createdTodo, createdAt: formatDateTime(createdTodo.createdAt) },
           ...tableData,
         ]);
       } else {
