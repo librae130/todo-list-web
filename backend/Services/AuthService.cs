@@ -2,40 +2,52 @@ using AutoMapper;
 using backend.Data;
 using backend.Dtos;
 using backend.Entities;
+using backend.Options;
+using backend.Repositories;
+using Microsoft.Extensions.Options;
 
 namespace backend.Services;
 
 public class AuthService
 {
     private readonly TokenService _tokenService;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
+  private readonly IGenericRepository<RefreshToken> _refreshTokenRepo;
+  private readonly IGenericRepository<User> _userRepo;
+  private readonly IMapper _mapper;
+    private readonly JwtOptions _jwtOptions;
 
-    public AuthService(TokenService tokenService, IUnitOfWork unitOfWork, IMapper mapper)
+    public AuthService(
+        TokenService tokenService,
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        IOptions<JwtOptions> jwtOptions
+    )
     {
         _tokenService = tokenService;
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
+    _refreshTokenRepo = unitOfWork.GetRepository<RefreshToken>();
+    _userRepo = unitOfWork.GetRepository<User>();
+    _mapper = mapper;
+        _jwtOptions = jwtOptions.Value;
     }
 
     private async Task<AuthResultDto?> AddRefreshTokenForUserAsync(
         UserDto userDto,
-        CancellationToken ct
+        CancellationToken ct = default
     )
     {
-        var newAccessToken = _tokenService.GenerateJwtToken(userDto);
-        var newRefreshTokenString = _tokenService.GenerateRefreshToken();
+        string newAccessToken = _tokenService.GenerateJwtToken(userDto);
+        string newRefreshTokenString = _tokenService.GenerateRefreshToken();
 
-        var newRefreshTokenEntity = new RefreshToken
+        RefreshToken newRefreshTokenEntity = new RefreshToken
         {
             Token = newRefreshTokenString,
             UserId = userDto.Id,
-            ExpiresAtUtc = DateTime.UtcNow.AddDays(7),
+            ExpiresAtUtc = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenDurationInDay),
             CreatedAt = DateTime.UtcNow,
         };
 
-        await _unitOfWork.GetRepository<RefreshToken>().AddAsync(newRefreshTokenEntity, ct);
-        await _unitOfWork.SaveAsync(ct);
+        await _refreshTokenRepo.AddAsync(newRefreshTokenEntity, ct);
+        await _refreshTokenRepo.SaveAsync(ct);
 
         return new AuthResultDto
         {
@@ -47,11 +59,10 @@ public class AuthService
 
     public async Task<UserDto> RegisterUserAsync(
         RegisterUserDto registerUserDto,
-        CancellationToken ct
+        CancellationToken ct = default
     )
     {
-        var existingUser = await _unitOfWork
-            .GetRepository<User>()
+        User? existingUser = await _userRepo
             .FirstOrDefaultAsync(u => u.Username == registerUserDto.Username, ct);
 
         if (existingUser != null)
@@ -59,26 +70,25 @@ public class AuthService
             throw new Exception("Username already exists");
         }
 
-        var user = new User
+        User user = new User
         {
             Username = registerUserDto.Username,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerUserDto.Password),
             CreatedAt = DateTime.UtcNow,
         };
 
-        await _unitOfWork.GetRepository<User>().AddAsync(user);
-        await _unitOfWork.SaveAsync(ct);
+        await _userRepo.AddAsync(user);
+        await _userRepo.SaveAsync(ct);
 
         return _mapper.Map<UserDto>(user);
     }
 
     public async Task<AuthResultDto?> LoginUserAsync(
         LoginUserDto loginUserDto,
-        CancellationToken ct
+        CancellationToken ct = default
     )
     {
-        var user = await _unitOfWork
-            .GetRepository<User>()
+        User? user = await _userRepo
             .FirstOrDefaultAsync(u => u.Username == loginUserDto.Username, ct);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(loginUserDto.Password, user.PasswordHash))
@@ -89,10 +99,9 @@ public class AuthService
         return await AddRefreshTokenForUserAsync(_mapper.Map<UserDto>(user), ct);
     }
 
-    public async Task<AuthResultDto?> RefreshTokenAsync(string refreshToken, CancellationToken ct)
+    public async Task<AuthResultDto?> RefreshTokenAsync(string refreshToken, CancellationToken ct = default)
     {
-        var foundRefreshToken = await _unitOfWork
-            .GetRepository<RefreshToken>()
+        RefreshToken? foundRefreshToken = await _refreshTokenRepo
             .FirstOrDefaultAsync(x => x.Token == refreshToken, ct);
 
         if (foundRefreshToken == null || foundRefreshToken.ExpiresAtUtc <= DateTime.UtcNow)
@@ -100,11 +109,11 @@ public class AuthService
             return null;
         }
 
-        var user = await _unitOfWork.GetRepository<User>().GetByIdAsync(foundRefreshToken.UserId);
-        var refreshResult = await AddRefreshTokenForUserAsync(_mapper.Map<UserDto>(user), ct);
+        User? user = await _userRepo.GetByIdAsync(foundRefreshToken.UserId);
+        AuthResultDto? refreshResult = await AddRefreshTokenForUserAsync(_mapper.Map<UserDto>(user), ct);
 
-        _unitOfWork.GetRepository<RefreshToken>().Remove(foundRefreshToken);
-        await _unitOfWork.SaveAsync();
+        _refreshTokenRepo.Remove(foundRefreshToken);
+        await _refreshTokenRepo.SaveAsync();
 
         return refreshResult;
     }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { TodoDto } from "../dtos/TodoDto.tsx";
-import type { UpdateTodoDto } from "../dtos/UpdateTodoDto.tsx";
+import type { TodoDto } from "../../dtos/TodoDto.tsx";
+import type { UpdateTodoDto } from "../../dtos/UpdateTodoDto.tsx";
 
 type EditTodoModalProps = {
   todo: TodoDto;

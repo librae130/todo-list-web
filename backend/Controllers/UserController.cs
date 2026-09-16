@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using backend.Dtos;
 using backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,14 +21,14 @@ public class UserController : ControllerBase
     [HttpGet("me")]
     public async Task<IActionResult> GetCurrentUserAsync(CancellationToken ct)
     {
-        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        string? userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (!Guid.TryParse(userIdString, out var userId))
+        if (!Guid.TryParse(userIdString, out Guid userId))
         {
             return Unauthorized("Invalid or missing user ID in token.");
         }
 
-        var user = await _userService.GetUserByIdAsync(userId, ct);
+        UserDto? user = await _userService.GetUserByIdAsync(userId, ct);
 
         if (user == null)
         {

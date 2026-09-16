@@ -3,33 +3,35 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using backend.Dtos;
+using backend.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
 
 namespace backend.Services;
 
 public class TokenService
 {
-    private readonly IConfiguration _config;
+    private readonly JwtOptions _jwtOptions;
 
-    public TokenService(IConfiguration config)
+    public TokenService(IOptions<JwtOptions> jwtOptions)
     {
-        _config = config;
+        _jwtOptions = jwtOptions.Value;
     }
 
     public string GenerateJwtToken(UserDto user)
     {
-        var claims = new[] { new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()) };
+        Claim[] claims = new[] { new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()) };
 
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? "this-jwtkey-is-32-character-long")
+        SymmetricSecurityKey key = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(_jwtOptions.Key)
         );
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        SigningCredentials credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
+        JwtSecurityToken token = new JwtSecurityToken(
+            issuer: _jwtOptions.Issuer,
+            audience: _jwtOptions.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["Jwt:DurationInMinutes"])),
+            expires: DateTime.UtcNow.AddMinutes(_jwtOptions.AccessTokenDurationInMinute),
             signingCredentials: credentials
         );
 

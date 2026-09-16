@@ -2,13 +2,14 @@ using System.Text;
 using backend.Data;
 using backend.Helpers;
 using backend.Services;
+using backend.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
 // builder.
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
@@ -26,6 +27,7 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 );
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.Section));
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork<ApplicationDBContext>>();
 builder.Services.AddSingleton<TokenService>();
@@ -33,8 +35,8 @@ builder.Services.AddScoped<TodoService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 
-var allowedOriginsString = builder.Configuration["ALLOWED_ORIGINS"] ?? "http://localhost:3000";
-var origins = allowedOriginsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
+string allowedOriginsString = builder.Configuration["ALLOWED_ORIGINS"] ?? "http://localhost:3000";
+string[] origins = allowedOriginsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -42,6 +44,7 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
+
 
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -81,7 +84,7 @@ builder
 builder.Services.AddAuthorization();
 
 // app
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {

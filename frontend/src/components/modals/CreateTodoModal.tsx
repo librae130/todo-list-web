@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { AddTodoDto } from "../dtos/AddTodoDto.tsx";
+import type { AddTodoDto } from "../../dtos/AddTodoDto.tsx";
 
 type CreateTodoModalProps = {
   onClickCreateAsync: (newTodo: AddTodoDto) => Promise<void>;

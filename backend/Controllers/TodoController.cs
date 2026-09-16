@@ -21,17 +21,17 @@ public class TodoController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllTodosAsync(CancellationToken ct)
     {
-        var userId = AccessTokenParser.GetCurrentUserId(User);
-        var todos = await _todoService.GetAllTodosAsync(userId, ct);
+        Guid userId = AccessTokenParser.GetCurrentUserId(User);
+        List<TodoDto> todos = await _todoService.GetAllTodosAsync(userId, ct);
         return Ok(todos);
     }
 
     [HttpGet("{id}", Name = "GetTodoByIdAsync")]
     public async Task<IActionResult> GetTodoByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        var userId = AccessTokenParser.GetCurrentUserId(User);
+        Guid userId = AccessTokenParser.GetCurrentUserId(User);
 
-        var foundTodo = await _todoService.GetTodoByIdAsync(id, userId, ct);
+        TodoDto? foundTodo = await _todoService.GetTodoByIdAsync(id, userId, ct);
 
         if (foundTodo == null)
         {
@@ -47,9 +47,9 @@ public class TodoController : ControllerBase
         CancellationToken ct
     )
     {
-        var userId = AccessTokenParser.GetCurrentUserId(User);
+        Guid userId = AccessTokenParser.GetCurrentUserId(User);
 
-        var addedTodo = await _todoService.AddTodoAsync(userId, addTodoDto, ct);
+        TodoDto addedTodo = await _todoService.AddTodoAsync(userId, addTodoDto, ct);
 
         return CreatedAtRoute("GetTodoByIdAsync", new { id = addedTodo.Id }, addedTodo);
     }
@@ -60,8 +60,8 @@ public class TodoController : ControllerBase
         CancellationToken ct
     )
     {
-        var userId = AccessTokenParser.GetCurrentUserId(User);
-        var todos = await _todoService.SearchTodosAsync(userId, searchTodoDto, ct);
+        Guid userId = AccessTokenParser.GetCurrentUserId(User);
+        List<TodoDto> todos = await _todoService.SearchTodosAsync(userId, searchTodoDto, ct);
         return Ok(todos);
     }
 
@@ -72,9 +72,9 @@ public class TodoController : ControllerBase
         CancellationToken ct
     )
     {
-        var userId = AccessTokenParser.GetCurrentUserId(User);
+        Guid userId = AccessTokenParser.GetCurrentUserId(User);
 
-        var updatedTodo = await _todoService.UpdateTodoAsync(userId, id, updateTodoDto, ct);
+        TodoDto? updatedTodo = await _todoService.UpdateTodoAsync(userId, id, updateTodoDto, ct);
 
         if (updatedTodo == null)
         {
@@ -87,9 +87,9 @@ public class TodoController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> RemoveTodoAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        var userId = AccessTokenParser.GetCurrentUserId(User);
+        Guid userId = AccessTokenParser.GetCurrentUserId(User);
 
-        var deleted = await _todoService.RemoveTodoAsync(userId, id, ct);
+        bool deleted = await _todoService.RemoveTodoAsync(userId, id, ct);
 
         if (!deleted)
         {

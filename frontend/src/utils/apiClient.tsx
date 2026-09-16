@@ -1,5 +1,4 @@
 import axios from "axios";
-import { redirect } from "react-router-dom";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || undefined;
 let failedRequestQueue: Array<{ resolve: Function; reject: Function }> = [];
