@@ -1,5 +1,7 @@
+using AutoMapper;
 using backend.Data;
-using backend.Models;
+using backend.Entities;
+using backend.Mappings;
 using backend.Services;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -8,54 +10,97 @@ namespace backend.tests;
 
 public class TodoServiceTests
 {
-    private readonly DbContextOptions<ApplicationDBContext> _options;
+  private static TodoService CreateService(ApplicationDBContext context)
+  {
+    var unitOfWork = new UnitOfWork<ApplicationDBContext>(context);
 
-    public TodoServiceTests()
+    var mapperConfig = new MapperConfiguration(config =>
     {
-        _options = new DbContextOptionsBuilder<ApplicationDBContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-    }
+      config.AddProfile<TodoProfile>();
+    });
 
-    private async Task<ApplicationDBContext> GetDbContextWithData()
+    var mapper = mapperConfig.CreateMapper();
+
+    return new TodoService(unitOfWork, mapper);
+  }
+
+  [Fact]
+  public async Task GetTodoByIdAsync_ReturnsTodo_ForMatchingUser()
+  {
+    // Arrange
+    var options = new DbContextOptionsBuilder<ApplicationDBContext>()
+        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+        .Options;
+
+    await using var context = new ApplicationDBContext(options);
+
+    var ownerUserId = Guid.NewGuid();
+    var otherUserId = Guid.NewGuid();
+
+    var todoId = Guid.NewGuid();
+
+    context.Todos.Add(new Todo
     {
-        var context = new ApplicationDBContext(_options);
-        await context.Database.EnsureCreatedAsync();
+      Id = todoId,
+      UserId = ownerUserId,
+      Name = "My todo",
+      Description = "Owned by me",
+      CreatedAt = DateTime.UtcNow
+    });
 
-        if (!await context.Todos.AnyAsync())
-        {
-            context.Todos.AddRange(
-                new Todo { Id = Guid.NewGuid(), Name = "Test Todo 1", Description = "Description 1", CreatedAt = DateTime.UtcNow },
-                new Todo { Id = Guid.NewGuid(), Name = "Test Todo 2", Description = "Description 2", CreatedAt = DateTime.UtcNow }
-            );
-            await context.SaveChangesAsync();
-        }
-        return context;
-    }
-
-    [Fact]
-    public async Task GetById_ShouldReturnTodo_WhenTodoExists()
+    context.Todos.Add(new Todo
     {
-        await using var context = await GetDbContextWithData();
-        var service = new TodoService(context);
-        var expectedTodo = await context.Todos.FirstAsync(); 
+      Id = Guid.NewGuid(),
+      UserId = otherUserId,
+      Name = "Other user todo",
+      Description = "Should not be returned",
+      CreatedAt = DateTime.UtcNow
+    });
 
-        var result = await service.GetById(expectedTodo.Id);
+    await context.SaveChangesAsync();
 
-        Assert.NotNull(result);
-        Assert.Equal(expectedTodo.Id, result.Id);
-        Assert.Equal(expectedTodo.Name, result.Name);
-    }
+    var service = CreateService(context);
 
-    [Fact]
-    public async Task GetById_ShouldReturnNull_WhenTodoDoesNotExist()
+    // Act
+    var result = await service.GetTodoByIdAsync(ownerUserId, todoId);
+
+    // Assert
+    Assert.NotNull(result);
+    Assert.Equal("My todo", result!.Name);
+  }
+
+  [Fact]
+  public async Task GetTodoByIdAsync_ReturnsNull_WhenTodoBelongsToAnotherUser()
+  {
+    // Arrange
+    var options = new DbContextOptionsBuilder<ApplicationDBContext>()
+        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+        .Options;
+
+    await using var context = new ApplicationDBContext(options);
+
+    var ownerUserId = Guid.NewGuid();
+    var otherUserId = Guid.NewGuid();
+
+    var todoId = Guid.NewGuid();
+
+    context.Todos.Add(new Todo
     {
-        await using var context = await GetDbContextWithData();
-        var service = new TodoService(context);
-        var nonExistentId = Guid.NewGuid();
+      Id = todoId,
+      UserId = otherUserId,
+      Name = "Other user todo",
+      Description = "Not mine",
+      CreatedAt = DateTime.UtcNow
+    });
 
-        var result = await service.GetById(nonExistentId);
+    await context.SaveChangesAsync();
 
-        Assert.Null(result);
-    }
+    var service = CreateService(context);
+
+    // Act
+    var result = await service.GetTodoByIdAsync(ownerUserId, todoId);
+
+    // Assert
+    Assert.Null(result);
+  }
 }

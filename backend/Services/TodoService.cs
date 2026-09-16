@@ -17,7 +17,7 @@ public class TodoService
         _mapper = mapper;
     }
 
-  public async Task<List<TodoDto>> GetAllTodosAsync(Guid userId, CancellationToken ct)
+  public async Task<List<TodoDto>> GetAllTodosAsync(Guid userId, CancellationToken ct = default)
   {
     List<Todo> todos = await _todoRepo.FindAsync(x => x.UserId == userId, ct);
     return todos.ConvertAll(x => _mapper.Map<TodoDto>(x));
@@ -26,7 +26,7 @@ public class TodoService
   public async Task<List<TodoDto>> SearchTodosAsync(
         Guid userId,
         SearchTodoDto searchTodoDto,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken = default
     )
   {
     bool hasName = !string.IsNullOrWhiteSpace(searchTodoDto.Name);
@@ -57,7 +57,7 @@ public class TodoService
         return searchedTodos.ConvertAll(x => _mapper.Map<TodoDto>(x));
     }
 
-    public async Task<TodoDto?> GetTodoByIdAsync(Guid userId, Guid id, CancellationToken ct)
+    public async Task<TodoDto?> GetTodoByIdAsync(Guid userId, Guid id, CancellationToken ct = default)
     {
         Todo? foundTodo = await _todoRepo.FirstOrDefaultAsync(
             x => x.Id == id && x.UserId == userId,
@@ -69,7 +69,7 @@ public class TodoService
     public async Task<TodoDto> AddTodoAsync(
         Guid userId,
         AddTodoDto addTodoDto,
-        CancellationToken ct
+        CancellationToken ct = default
     )
     {
         Todo todo = _mapper.Map<Todo>(addTodoDto);
@@ -86,7 +86,7 @@ public class TodoService
         Guid userId,
         Guid id,
         UpdateTodoDto updateTodoDto,
-        CancellationToken ct
+        CancellationToken ct = default
     )
     {
         Todo? foundTodo = await _todoRepo.FirstOrDefaultAsync(
@@ -108,7 +108,7 @@ public class TodoService
         return _mapper.Map<TodoDto>(foundTodo);
     }
 
-    public async Task<bool> RemoveTodoAsync(Guid userId, Guid id, CancellationToken ct)
+    public async Task<bool> RemoveTodoAsync(Guid userId, Guid id, CancellationToken ct = default)
     {
         Todo? foundTodo = await _todoRepo.FirstOrDefaultAsync(
             x => x.Id == id && x.UserId == userId,
