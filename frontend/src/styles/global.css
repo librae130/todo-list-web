@@ -196,7 +196,7 @@ textarea {
   flex-shrink: 0;
 }
 
-.search-todo__input {
+.search-bar__input {
   width: 100%;
   border: solid 2px black;
   padding: 10px 8px;

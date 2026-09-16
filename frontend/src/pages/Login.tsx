@@ -10,7 +10,7 @@ export const Login = () => {
 
   const loginUserAsync = async (username: string, password: string) => {
     try {
-      const _response = await apiClient.post("/api/auth/login", {
+      await apiClient.post("/api/auth/login", {
         username,
         password,
       });

@@ -5,7 +5,7 @@ import type { UpdateTodoDto } from "../dtos/UpdateTodoDto.tsx";
 import type { AddTodoDto } from "../dtos/AddTodoDto.tsx";
 import type { UserDto } from "../dtos/UserDto.tsx";
 import type { TodoFilterOption } from "../components/todo-dashboard-controls/TodoFilterSelect.tsx";
-import { TodoTable } from "../components/TodoTable.tsx";
+import { TodoTable } from "../components/todo-table/TodoTable.tsx";
 import { TodoDashboardControls } from "../components/todo-dashboard-controls/TodoDashboardControls.tsx";
 //import { EditTodoModal } from "../components/EditTodoModal.tsx";
 //import { CreateTodoModal } from "../components/CreateTodoModal.tsx";

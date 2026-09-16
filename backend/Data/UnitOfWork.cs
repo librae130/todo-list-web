@@ -23,21 +23,21 @@ public class UnitOfWork<TContext> : IUnitOfWork
     public IGenericRepository<T> GetRepository<T>()
         where T : class
     {
-        var type = typeof(T);
+        Type type = typeof(T);
 
-        if (_repoCache.TryGetValue(type, out var repo))
+        if (_repoCache.TryGetValue(type, out object? repo))
         {
             return (IGenericRepository<T>)repo;
         }
 
-        if (_customRepoBuilder.TryGetValue(type, out var builder))
+        if (_customRepoBuilder.TryGetValue(type, out Func<TContext, object>? builder))
         {
-            var newCustomRepo = builder(_context);
+            object newCustomRepo = builder(_context);
             _repoCache[type] = newCustomRepo;
             return (IGenericRepository<T>)newCustomRepo;
         }
 
-        var newRepo = new GenericRepository<T, TContext>(_context);
+        GenericRepository<T, TContext> newRepo = new GenericRepository<T, TContext>(_context);
         _repoCache[type] = newRepo;
         return newRepo;
     }

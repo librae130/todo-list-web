@@ -21,7 +21,7 @@ public class AuthController : ControllerBase
         CancellationToken ct
     )
     {
-        var user = await _authService.RegisterUserAsync(registerUserDto, ct);
+        await _authService.RegisterUserAsync(registerUserDto, ct);
         return Ok();
     }
 
@@ -31,7 +31,7 @@ public class AuthController : ControllerBase
         CancellationToken ct
     )
     {
-        var authResult = await _authService.LoginUserAsync(loginUserDto, ct);
+        AuthResultDto? authResult = await _authService.LoginUserAsync(loginUserDto, ct);
 
         if (authResult == null)
         {
@@ -69,12 +69,12 @@ public class AuthController : ControllerBase
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshTokenAsync(CancellationToken ct)
     {
-        if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
+        if (!Request.Cookies.TryGetValue("refreshToken", out string? refreshToken))
         {
             return Unauthorized("No refresh token found.");
         }
 
-        var authResult = await _authService.RefreshTokenAsync(refreshToken, ct);
+        AuthResultDto? authResult = await _authService.RefreshTokenAsync(refreshToken, ct);
 
         if (authResult == null)
         {

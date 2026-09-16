@@ -1,7 +1,7 @@
-import type { TodoDto } from "../dtos/TodoDto.tsx";
+import type { TodoDto } from "../../dtos/TodoDto.tsx";
 import type { RefObject } from "react";
-import type { UpdateTodoDto } from "../dtos/UpdateTodoDto.tsx";
-import type { AddTodoDto } from "../dtos/AddTodoDto.tsx";
+import type { UpdateTodoDto } from "../../dtos/UpdateTodoDto.tsx";
+import type { AddTodoDto } from "../../dtos/AddTodoDto.tsx";
 import { TodoTableRow } from "./TodoTableRow.tsx";
 import { NewTodoTableRow } from "./NewTodoTableRow.tsx";
 

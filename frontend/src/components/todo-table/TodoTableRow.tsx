@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { UpdateTodoDto } from "../dtos/UpdateTodoDto.tsx";
-import type { TodoDto } from "../dtos/TodoDto.tsx";
+import type { UpdateTodoDto } from "../../dtos/UpdateTodoDto.tsx";
+import type { TodoDto } from "../../dtos/TodoDto.tsx";
 
 type TodoTableRowProps = {
   todo: TodoDto;
