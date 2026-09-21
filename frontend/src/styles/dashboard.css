@@ -4,7 +4,7 @@
   align-items: center;
   min-height: 100%;
   flex-direction: column;
-  margin: 50px 0px;
+  margin: 50px 0;
 }
 
 .todo-dashboard__container {
@@ -33,32 +33,35 @@
 .search-bar__input {
   width: 100%;
   border: solid 2px black;
-  padding: 10px 8px;
-  height: 45px;
+  padding: 10px 12px;
+  height: 42px;
 }
 
 .todo-filter-select {
-  height: 45px;
-  min-width: 140px;
+  height: 42px;
+  min-width: 170px;
   border: solid 2px black;
   padding: 10px 12px;
   background-color: black;
   color: white;
   font-size: 14px;
   cursor: pointer;
+  line-height: 1;
+  box-sizing: border-box;
 }
+
 .todo-filter-select:hover {
   background-color: white;
   color: black;
 }
 
 .todo-dashboard-controls__create .create-button {
-  padding: 10px 8px;
-  height: 45px;
+  padding: 10px 12px;
+  height: 42px;
 }
 
 .login-button,
 .logout-button {
-  width: 70px;
-  height: 45px;
+  min-width: 70px;
+  height: 42px;
 }

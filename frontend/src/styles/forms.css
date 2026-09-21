@@ -7,18 +7,18 @@
 }
 
 .form-register__error-message,
-.form-login__error-message  {
-  color: red;
+.form-login__error-message {
+  color: var(--color-error);
   font-size: 15px;
   margin: 0;
 }
 
 .form-register__submit-button,
-.form-login__submit-button  {
+.form-login__submit-button {
   border: solid 2px black;
   background-color: black;
   color: white;
-  padding: 10px 8px;
+  padding: 10px 12px;
 }
 
 .form-register__submit-button:hover,
@@ -29,6 +29,8 @@
 
 .form-register,
 .form-login {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
   padding: 20px;
   border: 3px black solid;
@@ -38,4 +40,5 @@
 .form-login h1 {
   text-align: center;
   font-size: x-large;
+  margin: 0;
 }

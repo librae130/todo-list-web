@@ -5,13 +5,13 @@
 }
 
 .todo-table__footer-error-message {
-  color: red;
+  color: var(--color-error);
   font-size: 15px;
 }
 
 .todo-table__footer-char-counter {
   font-size: 15px;
-  color: grey;
+  color: var(--color-muted);
   text-align: right;
   flex: 1;
 }
@@ -19,7 +19,7 @@
 .todo-table__textarea {
   width: 100%;
   border: solid 2px black;
-  padding: 10px 8px;
+  padding: 10px 12px;
 }
 
 .todo-table {
@@ -73,5 +73,5 @@
 .todo-table__action-button {
   width: 50%;
   font-size: 12px;
-  padding: 10px 0px;
+  padding: 10px 0;
 }
