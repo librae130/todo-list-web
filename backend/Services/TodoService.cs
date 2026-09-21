@@ -4,6 +4,7 @@ using backend.Dtos;
 using backend.Entities;
 using backend.Helpers;
 using backend.Repositories;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace backend.Services;
@@ -12,11 +13,13 @@ public class TodoService
 {
   private readonly IGenericRepository<Todo> _todoRepo;
   private readonly IMapper _mapper;
+  private readonly ILogger<TodoService> _logger;
 
-  public TodoService(IUnitOfWork unitOfWork, IMapper mapper)
+  public TodoService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<TodoService> logger)
   {
     _todoRepo = unitOfWork.GetRepository<Todo>();
     _mapper = mapper;
+    _logger = logger;
   }
 
   public async Task<List<TodoDto>> GetAllTodosAsync(Guid userId, CancellationToken ct = default)
@@ -79,6 +82,8 @@ public class TodoService
     await _todoRepo.AddAsync(todo, ct);
     await _todoRepo.SaveAsync(ct);
 
+    _logger.LogInformation("Todo created: {TodoId} for user {UserId}", todo.Id, userId);
+
     return _mapper.Map<TodoDto>(todo);
   }
 
@@ -105,6 +110,8 @@ public class TodoService
     _todoRepo.Update(foundTodo);
     await _todoRepo.SaveAsync(ct);
 
+    _logger.LogInformation("Todo updated: {TodoId} for user {UserId}", id, userId);
+
     return _mapper.Map<TodoDto>(foundTodo);
   }
 
@@ -122,6 +129,8 @@ public class TodoService
 
     _todoRepo.Remove(foundTodo);
     await _todoRepo.SaveAsync(ct);
+
+    _logger.LogInformation("Todo deleted: {TodoId} for user {UserId}", id, userId);
 
     return true;
   }
