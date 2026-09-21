@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { TodoDto } from "../../dtos/TodoDto.tsx";
 import type { UpdateTodoDto } from "../../dtos/UpdateTodoDto.tsx";
 
@@ -20,12 +20,6 @@ export const EditTodoModal = ({
     name?: string;
     description?: string;
   }>({});
-
-  useEffect(() => {
-    setName(todo.name);
-    setDescription(todo.description);
-    setValidationErrors({});
-  }, [todo]);
 
   const handleSave = async (event: any) => {
     event.preventDefault();

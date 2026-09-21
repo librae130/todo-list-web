@@ -10,97 +10,103 @@ namespace backend.tests;
 
 public class TodoServiceTests
 {
-  private static TodoService CreateService(ApplicationDBContext context)
-  {
-    var unitOfWork = new UnitOfWork<ApplicationDBContext>(context);
-
-    var mapperConfig = new MapperConfiguration(config =>
+    private static TodoService CreateService(ApplicationDBContext context)
     {
-      config.AddProfile<TodoProfile>();
-    });
+        var unitOfWork = new UnitOfWork<ApplicationDBContext>(context);
 
-    var mapper = mapperConfig.CreateMapper();
+        var mapperConfig = new MapperConfiguration(config =>
+        {
+            config.AddProfile<TodoProfile>();
+        });
 
-    return new TodoService(unitOfWork, mapper);
-  }
+        var mapper = mapperConfig.CreateMapper();
 
-  [Fact]
-  public async Task GetTodoByIdAsync_ReturnsTodo_ForMatchingUser()
-  {
-    // Arrange
-    var options = new DbContextOptionsBuilder<ApplicationDBContext>()
-        .UseInMemoryDatabase(Guid.NewGuid().ToString())
-        .Options;
+        return new TodoService(unitOfWork, mapper);
+    }
 
-    await using var context = new ApplicationDBContext(options);
-
-    var ownerUserId = Guid.NewGuid();
-    var otherUserId = Guid.NewGuid();
-
-    var todoId = Guid.NewGuid();
-
-    context.Todos.Add(new Todo
+    [Fact]
+    public async Task GetTodoByIdAsync_ReturnsTodo_ForMatchingUser()
     {
-      Id = todoId,
-      UserId = ownerUserId,
-      Name = "My todo",
-      Description = "Owned by me",
-      CreatedAt = DateTime.UtcNow
-    });
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApplicationDBContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
 
-    context.Todos.Add(new Todo
+        await using var context = new ApplicationDBContext(options);
+
+        var ownerUserId = Guid.NewGuid();
+        var otherUserId = Guid.NewGuid();
+
+        var todoId = Guid.NewGuid();
+
+        context.Todos.Add(
+            new Todo
+            {
+                Id = todoId,
+                UserId = ownerUserId,
+                Name = "My todo",
+                Description = "Owned by me",
+                CreatedAt = DateTime.UtcNow,
+            }
+        );
+
+        context.Todos.Add(
+            new Todo
+            {
+                Id = Guid.NewGuid(),
+                UserId = otherUserId,
+                Name = "Other user todo",
+                Description = "Should not be returned",
+                CreatedAt = DateTime.UtcNow,
+            }
+        );
+
+        await context.SaveChangesAsync();
+
+        var service = CreateService(context);
+
+        // Act
+        var result = await service.GetTodoByIdAsync(ownerUserId, todoId);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("My todo", result!.Name);
+    }
+
+    [Fact]
+    public async Task GetTodoByIdAsync_ReturnsNull_WhenTodoBelongsToAnotherUser()
     {
-      Id = Guid.NewGuid(),
-      UserId = otherUserId,
-      Name = "Other user todo",
-      Description = "Should not be returned",
-      CreatedAt = DateTime.UtcNow
-    });
+        // Arrange
+        var options = new DbContextOptionsBuilder<ApplicationDBContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
 
-    await context.SaveChangesAsync();
+        await using var context = new ApplicationDBContext(options);
 
-    var service = CreateService(context);
+        var ownerUserId = Guid.NewGuid();
+        var otherUserId = Guid.NewGuid();
 
-    // Act
-    var result = await service.GetTodoByIdAsync(ownerUserId, todoId);
+        var todoId = Guid.NewGuid();
 
-    // Assert
-    Assert.NotNull(result);
-    Assert.Equal("My todo", result!.Name);
-  }
+        context.Todos.Add(
+            new Todo
+            {
+                Id = todoId,
+                UserId = otherUserId,
+                Name = "Other user todo",
+                Description = "Not mine",
+                CreatedAt = DateTime.UtcNow,
+            }
+        );
 
-  [Fact]
-  public async Task GetTodoByIdAsync_ReturnsNull_WhenTodoBelongsToAnotherUser()
-  {
-    // Arrange
-    var options = new DbContextOptionsBuilder<ApplicationDBContext>()
-        .UseInMemoryDatabase(Guid.NewGuid().ToString())
-        .Options;
+        await context.SaveChangesAsync();
 
-    await using var context = new ApplicationDBContext(options);
+        var service = CreateService(context);
 
-    var ownerUserId = Guid.NewGuid();
-    var otherUserId = Guid.NewGuid();
+        // Act
+        var result = await service.GetTodoByIdAsync(ownerUserId, todoId);
 
-    var todoId = Guid.NewGuid();
-
-    context.Todos.Add(new Todo
-    {
-      Id = todoId,
-      UserId = otherUserId,
-      Name = "Other user todo",
-      Description = "Not mine",
-      CreatedAt = DateTime.UtcNow
-    });
-
-    await context.SaveChangesAsync();
-
-    var service = CreateService(context);
-
-    // Act
-    var result = await service.GetTodoByIdAsync(ownerUserId, todoId);
-
-    // Assert
-    Assert.Null(result);
-  }
+        // Assert
+        Assert.Null(result);
+    }
 }

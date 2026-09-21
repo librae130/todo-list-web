@@ -26,7 +26,13 @@ public class AuthController : ControllerBase
         CancellationToken ct
     )
     {
-        await _authService.RegisterUserAsync(registerUserDto, ct);
+        UserDto? user = await _authService.RegisterUserAsync(registerUserDto, ct);
+
+        if (user == null)
+        {
+            return Conflict("Username already exists");
+        }
+
         return Ok();
     }
 
@@ -40,11 +46,23 @@ public class AuthController : ControllerBase
 
         if (authResult == null)
         {
-            return Unauthorized("Invalid credentials");
+            return Unauthorized("Incorrect username or password");
         }
 
         CookieHelper.AppendAuthCookies(Response, authResult, _jwtOptions);
 
+        return Ok();
+    }
+
+    [HttpGet("logout")]
+    public async Task<IActionResult> LogoutUserAsync(CancellationToken ct)
+    {
+        if (Request.Cookies.TryGetValue("refreshToken", out string? refreshToken))
+        {
+            await _authService.RemoveRefreshTokenAsync(refreshToken, ct);
+        }
+
+        CookieHelper.DeleteAuthCookies(Response);
         return Ok();
     }
 

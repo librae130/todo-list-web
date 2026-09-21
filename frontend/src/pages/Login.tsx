@@ -2,6 +2,7 @@ import { useState } from "react";
 import { LoginForm } from "../components/authentication-forms/LoginForm";
 import { useNavigate } from "react-router-dom";
 import { AuthService } from "../services/AuthService";
+import { getErrorMessage } from "../utils/errorUtils";
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -14,14 +15,15 @@ export const Login = () => {
 
       navigate("/");
     } catch (error: any) {
-      setError("Incorrect");
+      setError(getErrorMessage(error));
     }
   };
 
   return (
-    <div>
-      {error && <p className="status-message status-message--error">{error}</p>}
-      <LoginForm onClickLoginAsync={loginUserAsync} />
+    <div className="login-page">
+      <div className="login-form">
+        <LoginForm onClickLoginAsync={loginUserAsync} errorMessage={error} />
+      </div>
     </div>
   );
 };
