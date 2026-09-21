@@ -1,0 +1,60 @@
+.todo-dashboard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100%;
+  flex-direction: column;
+  margin: 50px 0px;
+}
+
+.todo-dashboard__container {
+  width: 100%;
+  max-width: 1300px;
+}
+
+.todo-dashboard-controls {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  padding: 30px 0;
+}
+
+.todo-dashboard-controls__search {
+  flex: 1;
+}
+
+.todo-dashboard-controls__create {
+  flex-shrink: 0;
+}
+
+.search-bar__input {
+  width: 100%;
+  border: solid 2px black;
+  padding: 10px 8px;
+}
+
+.todo-filter-select {
+  border: solid 2px black;
+  padding: 10px 8px;
+  background-color: black;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.todo-filter-select:hover {
+  background-color: white;
+  color: black;
+}
+
+.todo-dashboard-controls__create-button {
+  padding: 10px 8px;
+}
+
+.login-button,
+.logout-button {
+  width: 70px;
+}
