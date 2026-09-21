@@ -11,9 +11,9 @@ namespace backend.Services;
 public class AuthService
 {
     private readonly TokenService _tokenService;
-  private readonly IGenericRepository<RefreshToken> _refreshTokenRepo;
-  private readonly IGenericRepository<User> _userRepo;
-  private readonly IMapper _mapper;
+    private readonly IGenericRepository<RefreshToken> _refreshTokenRepo;
+    private readonly IGenericRepository<User> _userRepo;
+    private readonly IMapper _mapper;
     private readonly JwtOptions _jwtOptions;
 
     public AuthService(
@@ -24,9 +24,9 @@ public class AuthService
     )
     {
         _tokenService = tokenService;
-    _refreshTokenRepo = unitOfWork.GetRepository<RefreshToken>();
-    _userRepo = unitOfWork.GetRepository<User>();
-    _mapper = mapper;
+        _refreshTokenRepo = unitOfWork.GetRepository<RefreshToken>();
+        _userRepo = unitOfWork.GetRepository<User>();
+        _mapper = mapper;
         _jwtOptions = jwtOptions.Value;
     }
 
@@ -57,17 +57,19 @@ public class AuthService
         };
     }
 
-    public async Task<UserDto> RegisterUserAsync(
+    public async Task<UserDto?> RegisterUserAsync(
         RegisterUserDto registerUserDto,
         CancellationToken ct = default
     )
     {
-        User? existingUser = await _userRepo
-            .FirstOrDefaultAsync(u => u.Username == registerUserDto.Username, ct);
+        User? existingUser = await _userRepo.FirstOrDefaultAsync(
+            u => u.Username == registerUserDto.Username,
+            ct
+        );
 
         if (existingUser != null)
         {
-            throw new Exception("Username already exists");
+            return null;
         }
 
         User user = new User
@@ -88,8 +90,10 @@ public class AuthService
         CancellationToken ct = default
     )
     {
-        User? user = await _userRepo
-            .FirstOrDefaultAsync(u => u.Username == loginUserDto.Username, ct);
+        User? user = await _userRepo.FirstOrDefaultAsync(
+            u => u.Username == loginUserDto.Username,
+            ct
+        );
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(loginUserDto.Password, user.PasswordHash))
         {
@@ -99,22 +103,57 @@ public class AuthService
         return await AddRefreshTokenForUserAsync(_mapper.Map<UserDto>(user), ct);
     }
 
-    public async Task<AuthResultDto?> RefreshTokenAsync(string refreshToken, CancellationToken ct = default)
+    public async Task<AuthResultDto?> RefreshTokenAsync(
+        string refreshToken,
+        CancellationToken ct = default
+    )
     {
-        RefreshToken? foundRefreshToken = await _refreshTokenRepo
-            .FirstOrDefaultAsync(x => x.Token == refreshToken, ct);
+        RefreshToken? foundRefreshToken = await _refreshTokenRepo.FirstOrDefaultAsync(
+            x => x.Token == refreshToken,
+            ct
+        );
 
-        if (foundRefreshToken == null || foundRefreshToken.ExpiresAtUtc <= DateTime.UtcNow)
+        if (foundRefreshToken == null)
         {
             return null;
         }
 
+        if (foundRefreshToken.ExpiresAtUtc <= DateTime.UtcNow)
+        {
+            _refreshTokenRepo.Remove(foundRefreshToken);
+            await _refreshTokenRepo.SaveAsync(ct);
+            return null;
+        }
+
         User? user = await _userRepo.GetByIdAsync(foundRefreshToken.UserId);
-        AuthResultDto? refreshResult = await AddRefreshTokenForUserAsync(_mapper.Map<UserDto>(user), ct);
+        AuthResultDto? refreshResult = await AddRefreshTokenForUserAsync(
+            _mapper.Map<UserDto>(user),
+            ct
+        );
 
         _refreshTokenRepo.Remove(foundRefreshToken);
-        await _refreshTokenRepo.SaveAsync();
+        await _refreshTokenRepo.SaveAsync(ct);
 
         return refreshResult;
+    }
+
+    public async Task<bool> RemoveRefreshTokenAsync(
+        string refreshToken,
+        CancellationToken ct = default
+    )
+    {
+        RefreshToken? foundRefreshToken = await _refreshTokenRepo.FirstOrDefaultAsync(
+            x => x.Token == refreshToken,
+            ct
+        );
+
+        if (foundRefreshToken == null)
+        {
+            return false;
+        }
+
+        _refreshTokenRepo.Remove(foundRefreshToken);
+        await _refreshTokenRepo.SaveAsync(ct);
+        return true;
     }
 }

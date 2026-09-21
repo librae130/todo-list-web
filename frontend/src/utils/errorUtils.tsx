@@ -6,7 +6,9 @@ export const getErrorMessage = (error: unknown): string => {
   }
 
   if (axios.isAxiosError(error)) {
-    const serverMessage = error.response?.data?.detail;
+    const responseData = error.response?.data;
+    const serverMessage =
+      typeof responseData === "string" ? responseData : responseData?.detail;
     if (serverMessage) {
       return serverMessage;
     }
