@@ -41,7 +41,7 @@ npm run fe
 
 The frontend runs at `http://localhost:5173`.
 
-## Tests and Checks
+## Tests and Checks (WIP)
 
 Run backend tests:
 
