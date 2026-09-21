@@ -15,6 +15,7 @@ import { getErrorMessage } from "../utils/errorUtils.tsx";
 import { useNavigate } from "react-router-dom";
 import type { SearchTodoDto } from "../dtos/SearchTodoDto.tsx";
 import axios from "axios";
+import { AuthService } from "../services/AuthService.tsx";
 
 export const TodoDashboard = () => {
   const navigate = useNavigate();
@@ -190,16 +191,29 @@ export const TodoDashboard = () => {
     });
   };
 
+  const handleLogoutClick = async () => {
+    try {
+      await AuthService.logout();
+      setUser(null);
+      setTableData([]);
+      setError("");
+    } catch (error) {
+      setError(getErrorMessage(error));
+    }
+  };
+
   return (
     <div className="todo-dashboard">
       {error && <p className="status-message status-message--error">{error}</p>}
       {loading && <p className="status-message status-message--loading"></p>}
       <div className="todo-dashboard__container">
         <TodoDashboardControls
+          user={user}
           onSearchChange={setSearchQuery}
           onFilterChange={setFilterType}
           onClickCreate={handleCreateClick}
           onClickLogin={() => navigate("/login")}
+          onClickLogout={handleLogoutClick}
         />
 
         <TodoTable

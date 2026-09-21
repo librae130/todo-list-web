@@ -1,0 +1,77 @@
+.todo-table__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.todo-table__footer-error-message {
+  color: red;
+  font-size: 15px;
+}
+
+.todo-table__footer-char-counter {
+  font-size: 15px;
+  color: grey;
+  text-align: right;
+  flex: 1;
+}
+
+.todo-table__textarea {
+  width: 100%;
+  border: solid 2px black;
+  padding: 10px 8px;
+}
+
+.todo-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  overflow-y: auto;
+}
+
+.todo-table__header-cell {
+  background-color: black;
+  border: solid 2px black;
+  color: white;
+  position: sticky;
+  top: 105px;
+  padding: 10px 8px;
+  z-index: 999;
+}
+
+.todo-table__cell {
+  border: solid 2px black;
+  padding: 10px 8px;
+  word-break: break-word;
+  vertical-align: top;
+  white-space: pre-wrap;
+}
+
+.todo-table__header-cell--name {
+  width: 28.57%;
+}
+
+.todo-table__header-cell--description {
+  width: 42.85%;
+}
+
+.todo-table__header-cell--date {
+  width: 14.28%;
+}
+
+.todo-table__cell--actions {
+  white-space: nowrap;
+}
+
+.todo-table__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.todo-table__action-button {
+  width: 50%;
+  font-size: 12px;
+  padding: 10px 0px;
+}

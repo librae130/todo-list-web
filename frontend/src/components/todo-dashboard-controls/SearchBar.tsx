@@ -1,11 +1,11 @@
-import { useDebounceFunction } from "../utils/debounce";
+import { useDebounceFunction } from "../../utils/debounce";
 
 type SearchBarProps = {
-  placeholder: string
+  placeholder: string;
   onSearchChange: (query: string) => void;
 };
 
-export const SearchBar = ({ placeholder ,onSearchChange }: SearchBarProps) => {
+export const SearchBar = ({ placeholder, onSearchChange }: SearchBarProps) => {
   const debouncedOnSearchChange = useDebounceFunction(onSearchChange, 500);
 
   const onChange = (e: any) => {
