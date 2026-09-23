@@ -23,7 +23,7 @@ export const TodoDashboard = () => {
 
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [tableData, setTableData] = useState<TodoDto[]>([]);
+  const [todos, setTodos] = useState<TodoDto[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<TodoFilterOption>("all");
   //const [isEditing, setIsEditing] = useState(false);
@@ -79,18 +79,14 @@ export const TodoDashboard = () => {
           searchTodoDto.createdAt = searchQuery;
         }
 
-        const todos = await TodoService.search(
-          searchTodoDto,
-          abortController.signal,
-        );
-
-        const todosData =
-          todos.map((todo) => ({
+        const searchedTodos = await TodoService.search(searchTodoDto, abortController.signal);
+        const formattedTodos =
+          searchedTodos.map((todo) => ({
             ...todo,
             createdAt: formatDateTime(todo.createdAt),
           })) ?? [];
         setError("");
-        setTableData(todosData);
+        setTodos(formattedTodos);
       } catch (error: any) {
         setError(getErrorMessage(error));
       } finally {
@@ -117,23 +113,17 @@ export const TodoDashboard = () => {
   //   }
   // };
 
-  const editTodoAsync = async (
-    editingTodoId: string,
-    updatedTodo: UpdateTodoDto,
-  ) => {
+  const editTodoAsync = async (editingTodoId: string, updatedTodo: UpdateTodoDto) => {
     if (editingTodoId == null) {
       return;
     }
 
     try {
-      const updatedTodoResponse = await TodoService.update(
-        editingTodoId,
-        updatedTodo,
-      );
+      const updatedTodoResponse = await TodoService.update(editingTodoId, updatedTodo);
       if (updatedTodoResponse != null) {
         // After a successful API call, update the specific item in the local tableData state.
-        setTableData(
-          tableData.map((todo) => {
+        setTodos(
+          todos.map((todo) => {
             if (todo.id === editingTodoId) {
               return {
                 ...todo,
@@ -158,7 +148,7 @@ export const TodoDashboard = () => {
   const removeTodoAsync = async (id: string) => {
     setLoading(true);
     try {
-      setTableData(tableData.filter((todo) => todo.id !== id));
+      setTodos(todos.filter((todo) => todo.id !== id));
       await TodoService.remove(id);
     } catch (error: any) {
       setError(getErrorMessage(error));
@@ -176,10 +166,7 @@ export const TodoDashboard = () => {
     try {
       const createdTodo = await TodoService.create(newTodo);
       if (createdTodo != null) {
-        setTableData([
-          { ...createdTodo, createdAt: formatDateTime(createdTodo.createdAt) },
-          ...tableData,
-        ]);
+        setTodos([{ ...createdTodo, createdAt: formatDateTime(createdTodo.createdAt) }, ...todos]);
       } else {
         throw new Error("Malformed data.");
       }
@@ -205,7 +192,7 @@ export const TodoDashboard = () => {
     try {
       await AuthService.logout();
       setUser(null);
-      setTableData([]);
+      setTodos([]);
       setError("");
     } catch (error) {
       setError(getErrorMessage(error));
@@ -214,11 +201,7 @@ export const TodoDashboard = () => {
 
   return (
     <div className="todo-dashboard">
-      <NavigationBar
-        user={user}
-        onLogin={() => navigate("/login")}
-        onLogout={handleLogoutClick}
-      />
+      <NavigationBar user={user} onLogin={() => navigate("/login")} onLogout={handleLogoutClick} />
       {error && <p className="status-message status-message--error">{error}</p>}
       {loading && <p className="status-message status-message--loading"></p>}
       <div className="todo-dashboard__container">
@@ -229,7 +212,7 @@ export const TodoDashboard = () => {
         />
 
         <TodoTable
-          data={tableData}
+          todos={todos}
           showCreateRow={showCreateRow}
           onCloseCreateRow={() => setShowCreateRow(false)}
           onClickCreateAsync={addTodoAsync}
@@ -238,7 +221,7 @@ export const TodoDashboard = () => {
           createRowRef={createRowRef}
         />
       </div>
-      {tableData.length > 0 || showCreateRow || user == null || (
+      {todos.length > 0 || showCreateRow || user == null || (
         <span className="status-message status-message--info">
           No to-do items found. Start by creating a new one!
         </span>
