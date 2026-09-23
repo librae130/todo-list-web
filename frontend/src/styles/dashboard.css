@@ -7,6 +7,27 @@
   margin: 50px 0;
 }
 
+.navigation-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1300px;
+  padding: 16px 0 24px;
+  border-bottom: 2px solid black;
+  margin-bottom: 24px;
+}
+
+.navigation-bar__brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.navigation-bar__actions {
+  display: flex;
+  align-items: center;
+}
+
 .todo-dashboard__container {
   width: 100%;
   max-width: 1300px;

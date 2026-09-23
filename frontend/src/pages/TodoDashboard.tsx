@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import type { SearchTodoDto } from "../dtos/SearchTodoDto.tsx";
 import axios from "axios";
 import { AuthService } from "../services/AuthService.tsx";
+import { NavigationBar } from "../components/NavigationBar.tsx";
 
 export const TodoDashboard = () => {
   const navigate = useNavigate();
@@ -78,7 +79,10 @@ export const TodoDashboard = () => {
           searchTodoDto.createdAt = searchQuery;
         }
 
-        const todos = await TodoService.search(searchTodoDto, abortController.signal);
+        const todos = await TodoService.search(
+          searchTodoDto,
+          abortController.signal,
+        );
 
         const todosData =
           todos.map((todo) => ({
@@ -113,13 +117,19 @@ export const TodoDashboard = () => {
   //   }
   // };
 
-  const editTodoAsync = async (editingTodoId: string, updatedTodo: UpdateTodoDto) => {
+  const editTodoAsync = async (
+    editingTodoId: string,
+    updatedTodo: UpdateTodoDto,
+  ) => {
     if (editingTodoId == null) {
       return;
     }
 
     try {
-      const updatedTodoResponse = await TodoService.update(editingTodoId, updatedTodo);
+      const updatedTodoResponse = await TodoService.update(
+        editingTodoId,
+        updatedTodo,
+      );
       if (updatedTodoResponse != null) {
         // After a successful API call, update the specific item in the local tableData state.
         setTableData(
@@ -204,16 +214,18 @@ export const TodoDashboard = () => {
 
   return (
     <div className="todo-dashboard">
+      <NavigationBar
+        user={user}
+        onLogin={() => navigate("/login")}
+        onLogout={handleLogoutClick}
+      />
       {error && <p className="status-message status-message--error">{error}</p>}
       {loading && <p className="status-message status-message--loading"></p>}
       <div className="todo-dashboard__container">
         <TodoDashboardControls
-          user={user}
           onSearchChange={setSearchQuery}
           onFilterChange={setFilterType}
           onClickCreate={handleCreateClick}
-          onClickLogin={() => navigate("/login")}
-          onClickLogout={handleLogoutClick}
         />
 
         <TodoTable
