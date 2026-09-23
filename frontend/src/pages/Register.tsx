@@ -22,7 +22,10 @@ export const Register = () => {
   return (
     <div className="register-page">
       <div className="register-form">
-        <RegisterForm onClickRegisterAsync={registerUserAsync} errorMessage={error} />
+        <RegisterForm
+          onRegisterAsync={registerUserAsync}
+          errorMessage={error}
+        />
       </div>
     </div>
   );

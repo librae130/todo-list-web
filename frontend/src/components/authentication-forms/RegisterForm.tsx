@@ -2,11 +2,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 type RegisterFormProps = {
-  onClickRegisterAsync: (username: string, password: string) => Promise<void>;
+  onRegisterAsync: (username: string, password: string) => Promise<void>;
   errorMessage?: string;
 };
 
-export const RegisterForm = ({ onClickRegisterAsync, errorMessage }: RegisterFormProps) => {
+export const RegisterForm = ({
+  onRegisterAsync,
+  errorMessage,
+}: RegisterFormProps) => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isRegistering, setIsRegistering] = useState<boolean>(false);
@@ -33,7 +36,7 @@ export const RegisterForm = ({ onClickRegisterAsync, errorMessage }: RegisterFor
     }
 
     setIsRegistering(true);
-    await onClickRegisterAsync(username, password);
+    await onRegisterAsync(username, password);
     setIsRegistering(false);
   };
 
@@ -62,10 +65,16 @@ export const RegisterForm = ({ onClickRegisterAsync, errorMessage }: RegisterFor
       />
       <div className="form-register__input-footer">
         {(validationError || errorMessage) && (
-          <p className="form-register__error-message">{validationError || errorMessage}</p>
+          <p className="form-register__error-message">
+            {validationError || errorMessage}
+          </p>
         )}
       </div>
-      <button className="form-register__submit-button" type="submit" disabled={isRegistering}>
+      <button
+        className="form-register__submit-button"
+        type="submit"
+        disabled={isRegistering}
+      >
         {isRegistering ? "Registering..." : "Confirm"}
       </button>
       <p className="form-register__register-link">

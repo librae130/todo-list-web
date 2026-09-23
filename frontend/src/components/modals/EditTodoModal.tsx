@@ -4,13 +4,13 @@ import type { UpdateTodoDto } from "../../dtos/UpdateTodoDto.tsx";
 
 type EditTodoModalProps = {
   todo: TodoDto;
-  onClickSaveAsync: (updatedTodo: UpdateTodoDto) => Promise<void>;
+  onSaveAsync: (updatedTodo: UpdateTodoDto) => Promise<void>;
   onClose: () => void;
 };
 
 export const EditTodoModal = ({
   todo,
-  onClickSaveAsync,
+  onSaveAsync,
   onClose,
 }: EditTodoModalProps) => {
   const [isSaving, setIsSaving] = useState(false);
@@ -43,7 +43,7 @@ export const EditTodoModal = ({
     }
 
     setIsSaving(true);
-    await onClickSaveAsync({ name: name, description });
+    await onSaveAsync({ name: name, description });
     setIsSaving(false);
     onClose();
   };

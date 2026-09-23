@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 type LoginFormProps = {
-  onClickLoginAsync: (username: string, password: string) => Promise<void>;
+  onLoginAsync: (username: string, password: string) => Promise<void>;
   errorMessage?: string;
 };
 
-export const LoginForm = ({ onClickLoginAsync, errorMessage }: LoginFormProps) => {
+export const LoginForm = ({ onLoginAsync, errorMessage }: LoginFormProps) => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
@@ -33,7 +33,7 @@ export const LoginForm = ({ onClickLoginAsync, errorMessage }: LoginFormProps) =
     }
 
     setIsLoggingIn(true);
-    await onClickLoginAsync(username, password);
+    await onLoginAsync(username, password);
     setIsLoggingIn(false);
   };
 
@@ -62,10 +62,16 @@ export const LoginForm = ({ onClickLoginAsync, errorMessage }: LoginFormProps) =
       />
       <div className="form-login__input-footer">
         {(validationError || errorMessage) && (
-          <p className="form-login__error-message">{validationError || errorMessage}</p>
+          <p className="form-login__error-message">
+            {validationError || errorMessage}
+          </p>
         )}
       </div>
-      <button className="form-login__submit-button" type="submit" disabled={isLoggingIn}>
+      <button
+        className="form-login__submit-button"
+        type="submit"
+        disabled={isLoggingIn}
+      >
         {isLoggingIn ? "Logging In..." : "Confirm"}
       </button>
       <p className="form-login__register-link">

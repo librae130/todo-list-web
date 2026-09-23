@@ -22,7 +22,7 @@ export const Login = () => {
   return (
     <div className="login-page">
       <div className="login-form">
-        <LoginForm onClickLoginAsync={loginUserAsync} errorMessage={error} />
+        <LoginForm onLoginAsync={loginUserAsync} errorMessage={error} />
       </div>
     </div>
   );

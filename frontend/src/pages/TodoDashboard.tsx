@@ -17,21 +17,23 @@ import type { SearchTodoDto } from "../dtos/SearchTodoDto.tsx";
 import axios from "axios";
 import { AuthService } from "../services/AuthService.tsx";
 import { NavigationBar } from "../components/NavigationBar.tsx";
-
+import type { TodoDraft } from "../types/TodoDraft.tsx";
 export const TodoDashboard = () => {
   const navigate = useNavigate();
 
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+
   const [todos, setTodos] = useState<TodoDto[]>([]);
+  const [todoDrafts, setTodoDrafts] = useState<TodoDraft[]>([]);
+  const [user, setUser] = useState<UserDto | null>(null);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<TodoFilterOption>("all");
-  //const [isEditing, setIsEditing] = useState(false);
-  //const [editingTodoId, setEditingTodoId] = useState<string | null>(null);
-  //const [editingTodo, setEditingTodo] = useState<TodoDto | null>(null);
+
   const [showCreateRow, setShowCreateRow] = useState(false);
   const createRowRef = useRef<HTMLTableRowElement | null>(null);
-  const [user, setUser] = useState<UserDto | null>(null);
 
   // This hook is for fetching current user if logged in.
   useEffect(() => {
@@ -79,7 +81,10 @@ export const TodoDashboard = () => {
           searchTodoDto.createdAt = searchQuery;
         }
 
-        const searchedTodos = await TodoService.search(searchTodoDto, abortController.signal);
+        const searchedTodos = await TodoService.search(
+          searchTodoDto,
+          abortController.signal,
+        );
         const formattedTodos =
           searchedTodos.map((todo) => ({
             ...todo,
@@ -99,27 +104,19 @@ export const TodoDashboard = () => {
     return () => abortController.abort();
   }, [user, searchQuery, filterType]);
 
-  // // Manages the state for the editing modal.
-  // const setEditMode = (editMode: boolean, id: string | null) => {
-  //   setIsEditing(editMode);
-  //   setEditingTodoId(id);
-
-  //   // When entering edit mode, find the corresponding to-do from the table data
-  //   // to populate the modal. When exiting, clear the editing state.
-  //   if (editMode && id != null) {
-  //     setEditingTodo(tableData.find((todo) => todo.id === id) ?? null);
-  //   } else {
-  //     setEditingTodo(null);
-  //   }
-  // };
-
-  const editTodoAsync = async (editingTodoId: string, updatedTodo: UpdateTodoDto) => {
+  const editTodoAsync = async (
+    editingTodoId: string,
+    updatedTodo: UpdateTodoDto,
+  ) => {
     if (editingTodoId == null) {
       return;
     }
 
     try {
-      const updatedTodoResponse = await TodoService.update(editingTodoId, updatedTodo);
+      const updatedTodoResponse = await TodoService.update(
+        editingTodoId,
+        updatedTodo,
+      );
       if (updatedTodoResponse != null) {
         // After a successful API call, update the specific item in the local tableData state.
         setTodos(
@@ -157,16 +154,14 @@ export const TodoDashboard = () => {
     }
   };
 
-  // Manages the state for the creating modal.
-  // const setCreateMode = (createMode: boolean) => {
-  //   setIsCreating(createMode);
-  // };
-
   const addTodoAsync = async (newTodo: AddTodoDto) => {
     try {
       const createdTodo = await TodoService.create(newTodo);
       if (createdTodo != null) {
-        setTodos([{ ...createdTodo, createdAt: formatDateTime(createdTodo.createdAt) }, ...todos]);
+        setTodos([
+          { ...createdTodo, createdAt: formatDateTime(createdTodo.createdAt) },
+          ...todos,
+        ]);
       } else {
         throw new Error("Malformed data.");
       }
@@ -201,23 +196,26 @@ export const TodoDashboard = () => {
 
   return (
     <div className="todo-dashboard">
-      <NavigationBar user={user} onLogin={() => navigate("/login")} onLogout={handleLogoutClick} />
+      <NavigationBar
+        user={user}
+        onLogin={() => navigate("/login")}
+        onLogout={handleLogoutClick}
+      />
       {error && <p className="status-message status-message--error">{error}</p>}
       {loading && <p className="status-message status-message--loading"></p>}
       <div className="todo-dashboard__container">
         <TodoDashboardControls
           onSearchChange={setSearchQuery}
           onFilterChange={setFilterType}
-          onClickCreate={handleCreateClick}
+          onCreate={handleCreateClick}
         />
-
         <TodoTable
           todos={todos}
           showCreateRow={showCreateRow}
           onCloseCreateRow={() => setShowCreateRow(false)}
-          onClickCreateAsync={addTodoAsync}
-          onClickEditAsync={editTodoAsync}
-          onClickRemoveAsync={removeTodoAsync}
+          onCreateAsync={addTodoAsync}
+          onEditAsync={editTodoAsync}
+          onRemoveAsync={removeTodoAsync}
           createRowRef={createRowRef}
         />
       </div>
@@ -231,17 +229,6 @@ export const TodoDashboard = () => {
           Please log in to manage your to-do list.
         </p>
       )}
-      {/* {isEditing && editingTodo && (
-        <EditTodoModal
-          todo={editingTodo}
-          onSave={editTodo}
-          onClose={setEditMode}
-        />
-      )} */}
-
-      {/* {isCreating && (
-        <CreateTodoModal onCreate={createTodo} onClose={setCreateMode} />
-      )} */}
     </div>
   );
 };
