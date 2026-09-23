@@ -32,7 +32,6 @@ export const TodoDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<TodoFilterOption>("all");
 
-  const [showCreateRow, setShowCreateRow] = useState(false);
   const createRowRef = useRef<HTMLTableRowElement | null>(null);
 
   // This hook is for fetching current user if logged in.
@@ -61,7 +60,7 @@ export const TodoDashboard = () => {
 
     const abortController = new AbortController();
 
-    const fetchTableData = async () => {
+    const fetchTodosFiltered = async () => {
       setLoading(true);
       try {
         const searchTodoDto: SearchTodoDto = {
@@ -99,7 +98,7 @@ export const TodoDashboard = () => {
       }
     };
 
-    fetchTableData();
+    fetchTodosFiltered();
 
     return () => abortController.abort();
   }, [user, searchQuery, filterType]);
@@ -172,9 +171,7 @@ export const TodoDashboard = () => {
     }
   };
 
-  const handleCreateClick = () => {
-    setShowCreateRow(true);
-
+  const handleTodoCreate = () => {
     requestAnimationFrame(() => {
       createRowRef.current?.scrollIntoView({
         behavior: "smooth",
@@ -183,7 +180,7 @@ export const TodoDashboard = () => {
     });
   };
 
-  const handleLogoutClick = async () => {
+  const handleLogout = async () => {
     try {
       await AuthService.logout();
       setUser(null);
@@ -194,32 +191,44 @@ export const TodoDashboard = () => {
     }
   };
 
+  const handleAddDraft = (todo: TodoDto, action: TodoDraft["action"]) => {
+    setTodoDrafts((drafts) => [
+      ...drafts,
+      {
+        ...todo,
+        clientId: crypto.randomUUID(),
+        action: action,
+      },
+    ]);
+  };
+
+  const handleSaveEdit = () => {};
+
   return (
     <div className="todo-dashboard">
       <NavigationBar
         user={user}
         onLogin={() => navigate("/login")}
-        onLogout={handleLogoutClick}
+        onLogout={handleLogout}
       />
       {error && <p className="status-message status-message--error">{error}</p>}
       {loading && <p className="status-message status-message--loading"></p>}
       <div className="todo-dashboard__container">
         <TodoDashboardControls
+          isEditing={isEditing}
+          onSave={handleSaveEdit}
+          onCancel={() => setIsEditing(false)}
           onSearchChange={setSearchQuery}
           onFilterChange={setFilterType}
-          onCreate={handleCreateClick}
+          onCreate={handleTodoCreate}
         />
         <TodoTable
           todos={todos}
-          showCreateRow={showCreateRow}
-          onCloseCreateRow={() => setShowCreateRow(false)}
-          onCreateAsync={addTodoAsync}
-          onEditAsync={editTodoAsync}
-          onRemoveAsync={removeTodoAsync}
-          createRowRef={createRowRef}
+          todoDrafts={todoDrafts}
+          onRemoveRow={handleAddDraft}
         />
       </div>
-      {todos.length > 0 || showCreateRow || user == null || (
+      {todos.length > 0 || todoDrafts.length > 0 || user == null || (
         <span className="status-message status-message--info">
           No to-do items found. Start by creating a new one!
         </span>

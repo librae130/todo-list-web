@@ -1,32 +1,18 @@
 import type { TodoDto } from "../../dtos/TodoDto.tsx";
-import type { RefObject } from "react";
-import type { UpdateTodoDto } from "../../dtos/UpdateTodoDto.tsx";
-import type { AddTodoDto } from "../../dtos/AddTodoDto.tsx";
 import { TodoTableRow } from "./TodoTableRow.tsx";
-import { NewTodoTableRow } from "./NewTodoTableRow.tsx";
+import type { TodoDraft } from "../../types/TodoDraft.tsx";
+import { TodoTableDraftRow } from "./TodoTableDraftRow.tsx";
 
 type TodoTableProps = {
   todos: TodoDto[];
-  showCreateRow: boolean;
-  //onEdit: (editMode: boolean, id: string | null) => void;
-  onCreateAsync: (newTodo: AddTodoDto) => Promise<void>;
-  onCloseCreateRow: () => void;
-  onEditAsync: (
-    editingTodoId: string,
-    updatedTodo: UpdateTodoDto,
-  ) => Promise<void>;
-  onRemoveAsync: (id: string) => Promise<void>;
-  createRowRef: RefObject<HTMLTableRowElement | null>;
+  todoDrafts: TodoDraft[];
+  onRemoveRow: (todo: TodoDto, action: TodoDraft["action"]) => void;
 };
 
 export const TodoTable = ({
   todos,
-  showCreateRow,
-  onCloseCreateRow,
-  onCreateAsync,
-  onEditAsync,
-  onRemoveAsync,
-  createRowRef,
+  todoDrafts,
+  onRemoveRow,
 }: TodoTableProps) => {
   return (
     <table className="todo-table">
@@ -47,21 +33,52 @@ export const TodoTable = ({
         </tr>
       </thead>
       <tbody className="todo-table__body">
-        {showCreateRow && (
-          <NewTodoTableRow
-            onCreateAsync={onCreateAsync}
-            onCloseCreateRow={onCloseCreateRow}
-            ref={createRowRef}
-          />
-        )}
-        {todos.map((todo: TodoDto) => (
-          <TodoTableRow
-            key={todo.id}
-            todo={todo}
-            onEditAsync={onEditAsync}
-            onRemoveAsync={onRemoveAsync}
-          />
-        ))}
+        {todoDrafts.map((draft: TodoDraft) => {
+          switch (draft.action) {
+            case "add": {
+              return (
+                <TodoTableDraftRow
+                  key={draft.clientId}
+                  draft={draft}
+                  isUpdating={true}
+                />
+              );
+            }
+            case "update": {
+              return (
+                <TodoTableDraftRow
+                  key={draft.clientId}
+                  draft={draft}
+                  isUpdating={true}
+                />
+              );
+            }
+            case "remove": {
+              return (
+                <TodoTableDraftRow
+                  key={draft.clientId}
+                  draft={draft}
+                  isRemoving={true}
+                />
+              );
+            }
+          }
+        })}
+
+        {todos.map((todo: TodoDto) => {
+          const draft = todoDrafts.find((draft) => draft.id === todo.id);
+
+          if (!draft) {
+            return (
+              <TodoTableRow
+                key={todo.id}
+                todo={todo}
+                onEdit={() => {}}
+                onRemove={onRemoveRow}
+              />
+            );
+          }
+        })}
       </tbody>
     </table>
   );

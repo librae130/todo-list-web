@@ -3,6 +3,6 @@ export type TodoDraft = {
   clientId: string;
   name: string;
   description: string;
-  createdAt?: string;
-  action: "add" | "update" | "remove";
+  createdAt: string;
+  action?: "add" | "update" | "remove";
 };
