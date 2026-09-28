@@ -6,8 +6,8 @@ type TodoDashboardControlsProps = {
   isEditing: boolean;
   onSave: () => void;
   onCancel: () => void;
-  onSearchChange: (query: string) => void;
-  onFilterChange: (filter: TodoFilterOption) => void;
+  onSearch: (query: string) => void;
+  onFilter: (filter: TodoFilterOption) => void;
   onCreate: () => void;
 };
 
@@ -15,8 +15,8 @@ export const TodoDashboardControls = ({
   isEditing,
   onSave,
   onCancel,
-  onSearchChange,
-  onFilterChange,
+  onSearch,
+  onFilter,
   onCreate,
 }: TodoDashboardControlsProps) => {
   return (
@@ -24,11 +24,11 @@ export const TodoDashboardControls = ({
       <div className="todo-dashboard-controls__search">
         <SearchBar
           placeholder={"Search by Name, Description, Created date..."}
-          onSearchChange={onSearchChange}
+          onSearch={onSearch}
         />
       </div>
       <div className="todo-dashboard-controls__filter">
-        <TodoFilterSelect onFilterChange={onFilterChange} />
+        <TodoFilterSelect onFilter={onFilter} />
       </div>
       <div className="todo-dashboard-controls__create">
         <button className="create-button" type="button" onClick={onCreate}>

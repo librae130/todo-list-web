@@ -6,7 +6,11 @@ type NavigationBarProps = {
   onLogout: () => void;
 };
 
-export const NavigationBar = ({ user, onLogin, onLogout }: NavigationBarProps) => {
+export const NavigationBar = ({
+  user,
+  onLogin,
+  onLogout,
+}: NavigationBarProps) => {
   return (
     <nav className="navigation-bar" aria-label="Main navigation">
       <div className="navigation-bar__brand">Todo List</div>

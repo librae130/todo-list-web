@@ -1,10 +1,9 @@
 import type { TodoDto } from "../../dtos/TodoDto.tsx";
-import type { TodoDraft } from "../../types/TodoDraft.tsx";
 
 type TodoTableRowProps = {
   todo: TodoDto;
   onEdit: () => void;
-  onRemove: (todo: TodoDto, action: TodoDraft["action"]) => void;
+  onRemove: () => void;
 };
 
 export const TodoTableRow = ({ todo, onEdit, onRemove }: TodoTableRowProps) => {
@@ -21,7 +20,7 @@ export const TodoTableRow = ({ todo, onEdit, onRemove }: TodoTableRowProps) => {
         <div className="todo-table__actions">
           <button
             className="todo-table__action-button todo-table__action-button--remove"
-            onClick={() => onRemove(todo, "remove")}
+            onClick={onRemove}
           >
             Remove
           </button>

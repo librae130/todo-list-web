@@ -1,18 +1,22 @@
 import type { TodoDto } from "../../dtos/TodoDto.tsx";
 import { TodoTableRow } from "./TodoTableRow.tsx";
-import type { TodoDraft } from "../../types/TodoDraft.tsx";
+import type { TodoDraft, TodoDraftChanges } from "../../types/TodoDraft.tsx";
 import { TodoTableDraftRow } from "./TodoTableDraftRow.tsx";
 
 type TodoTableProps = {
   todos: TodoDto[];
   todoDrafts: TodoDraft[];
-  onRemoveRow: (todo: TodoDto, action: TodoDraft["action"]) => void;
+  onDraftAdd: (todo: TodoDto | null, action: TodoDraft["action"]) => void;
+  onDraftUpdate: (clientId: string, changes: TodoDraftChanges) => void;
+  onDraftCancel: (clientId: string) => void;
 };
 
 export const TodoTable = ({
   todos,
   todoDrafts,
-  onRemoveRow,
+  onDraftAdd,
+  onDraftUpdate,
+  onDraftCancel,
 }: TodoTableProps) => {
   return (
     <table className="todo-table">
@@ -33,51 +37,41 @@ export const TodoTable = ({
         </tr>
       </thead>
       <tbody className="todo-table__body">
-        {todoDrafts.map((draft: TodoDraft) => {
-          switch (draft.action) {
-            case "add": {
-              return (
-                <TodoTableDraftRow
-                  key={draft.clientId}
-                  draft={draft}
-                  isUpdating={true}
-                />
-              );
-            }
-            case "update": {
-              return (
-                <TodoTableDraftRow
-                  key={draft.clientId}
-                  draft={draft}
-                  isUpdating={true}
-                />
-              );
-            }
-            case "remove": {
-              return (
-                <TodoTableDraftRow
-                  key={draft.clientId}
-                  draft={draft}
-                  isRemoving={true}
-                />
-              );
-            }
-          }
-        })}
+        {/* Render drafts for adding todos*/}
+        {todoDrafts
+          .filter((draft) => draft.action === "add")
+          .map((draft) => (
+            <TodoTableDraftRow
+              key={draft.clientId}
+              draft={draft}
+              onDraftUpdate={onDraftUpdate}
+              onCancel={onDraftCancel}
+            />
+          ))}
 
+        {/* Render drafts for updating/removing todos*/}
         {todos.map((todo: TodoDto) => {
           const draft = todoDrafts.find((draft) => draft.id === todo.id);
 
-          if (!draft) {
+          if (draft) {
             return (
-              <TodoTableRow
-                key={todo.id}
-                todo={todo}
-                onEdit={() => {}}
-                onRemove={onRemoveRow}
+              <TodoTableDraftRow
+                key={draft.clientId}
+                draft={draft}
+                onDraftUpdate={onDraftUpdate}
+                onCancel={onDraftCancel}
               />
             );
           }
+
+          return (
+            <TodoTableRow
+              key={todo.id}
+              todo={todo}
+              onEdit={() => onDraftAdd(todo, "update")}
+              onRemove={() => onDraftAdd(todo, "remove")}
+            />
+          );
         })}
       </tbody>
     </table>

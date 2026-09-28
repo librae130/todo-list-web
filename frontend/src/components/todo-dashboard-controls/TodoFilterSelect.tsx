@@ -1,14 +1,14 @@
 export type TodoFilterOption = "all" | "name" | "description" | "createdDate";
 
 type TodoFilterSelectProps = {
-  onFilterChange: (filter: TodoFilterOption) => void;
+  onFilter: (filter: TodoFilterOption) => void;
 };
 
-export const TodoFilterSelect = ({ onFilterChange }: TodoFilterSelectProps) => {
+export const TodoFilterSelect = ({ onFilter }: TodoFilterSelectProps) => {
   return (
     <select
       className="todo-filter-select"
-      onChange={(e) => onFilterChange(e.target.value as TodoFilterOption)}
+      onChange={(event) => onFilter(event.target.value as TodoFilterOption)}
       defaultValue="all"
     >
       <option value="all">All Fields</option>

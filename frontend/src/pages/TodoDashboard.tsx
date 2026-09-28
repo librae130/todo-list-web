@@ -17,12 +17,12 @@ import type { SearchTodoDto } from "../dtos/SearchTodoDto.tsx";
 import axios from "axios";
 import { AuthService } from "../services/AuthService.tsx";
 import { NavigationBar } from "../components/NavigationBar.tsx";
-import type { TodoDraft } from "../types/TodoDraft.tsx";
+import type { TodoDraft, TodoDraftChanges } from "../types/TodoDraft.tsx";
 export const TodoDashboard = () => {
   const navigate = useNavigate();
 
   const [error, setError] = useState<string>("");
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
 
   const [todos, setTodos] = useState<TodoDto[]>([]);
@@ -61,7 +61,7 @@ export const TodoDashboard = () => {
     const abortController = new AbortController();
 
     const fetchTodosFiltered = async () => {
-      setLoading(true);
+      setIsLoading(true);
       try {
         const searchTodoDto: SearchTodoDto = {
           name: "",
@@ -90,11 +90,16 @@ export const TodoDashboard = () => {
             createdAt: formatDateTime(todo.createdAt),
           })) ?? [];
         setError("");
-        setTodos(formattedTodos);
+
+        setTodos(
+          formattedTodos.sort((left, right) =>
+            left.name.localeCompare(right.name),
+          ),
+        );
       } catch (error: any) {
         setError(getErrorMessage(error));
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -103,84 +108,7 @@ export const TodoDashboard = () => {
     return () => abortController.abort();
   }, [user, searchQuery, filterType]);
 
-  const editTodoAsync = async (
-    editingTodoId: string,
-    updatedTodo: UpdateTodoDto,
-  ) => {
-    if (editingTodoId == null) {
-      return;
-    }
-
-    try {
-      const updatedTodoResponse = await TodoService.update(
-        editingTodoId,
-        updatedTodo,
-      );
-      if (updatedTodoResponse != null) {
-        // After a successful API call, update the specific item in the local tableData state.
-        setTodos(
-          todos.map((todo) => {
-            if (todo.id === editingTodoId) {
-              return {
-                ...todo,
-                name: updatedTodoResponse.name,
-                description: updatedTodoResponse.description,
-              };
-            }
-            return todo;
-          }),
-        );
-      } else {
-        throw new Error("Malformed data.");
-      }
-    } catch (error: any) {
-      setError(getErrorMessage(error));
-    } finally {
-      setLoading(false);
-      //setEditMode(false, null);
-    }
-  };
-
-  const removeTodoAsync = async (id: string) => {
-    setLoading(true);
-    try {
-      setTodos(todos.filter((todo) => todo.id !== id));
-      await TodoService.remove(id);
-    } catch (error: any) {
-      setError(getErrorMessage(error));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const addTodoAsync = async (newTodo: AddTodoDto) => {
-    try {
-      const createdTodo = await TodoService.create(newTodo);
-      if (createdTodo != null) {
-        setTodos([
-          { ...createdTodo, createdAt: formatDateTime(createdTodo.createdAt) },
-          ...todos,
-        ]);
-      } else {
-        throw new Error("Malformed data.");
-      }
-    } catch (error: any) {
-      setError(getErrorMessage(error));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleTodoCreate = () => {
-    requestAnimationFrame(() => {
-      createRowRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "end",
-      });
-    });
-  };
-
-  const handleLogout = async () => {
+  const handleLogoutUser = async () => {
     try {
       await AuthService.logout();
       setUser(null);
@@ -191,44 +119,150 @@ export const TodoDashboard = () => {
     }
   };
 
-  const handleAddDraft = (todo: TodoDto, action: TodoDraft["action"]) => {
+  const handleAddTodoDraft = (
+    todo: TodoDto | null,
+    action: TodoDraft["action"],
+  ) => {
     setTodoDrafts((drafts) => [
       ...drafts,
       {
         ...todo,
         clientId: crypto.randomUUID(),
-        action: action,
+        action,
+        name: todo?.name ?? "",
+        description: todo?.description ?? "",
       },
+    ]);
+
+    setIsEditing(true);
+  };
+
+  const handleUpdateTodoDraft = (
+    clientId: string,
+    changes: TodoDraftChanges,
+  ) => {
+    setTodoDrafts((drafts) =>
+      drafts.map((draft) =>
+        draft.clientId === clientId ? { ...draft, ...changes } : draft,
+      ),
+    );
+  };
+
+  const handleRemoveTodoDraft = (clientId: string) => {
+    setTodoDrafts((drafts) =>
+      drafts.filter((draft) => draft.clientId !== clientId),
+    );
+  };
+
+  const saveAddedTodo = async (draft: TodoDraft) => {
+    const newTodo: AddTodoDto = {
+      name: draft.name ?? "",
+      description: draft.description ?? "",
+    };
+    const createdTodo = await TodoService.create(newTodo);
+    setTodos((currentTodos) => [
+      { ...createdTodo, createdAt: formatDateTime(createdTodo.createdAt) },
+      ...currentTodos,
     ]);
   };
 
-  const handleSaveEdit = () => {};
+  const saveUpdatedTodo = async (draft: TodoDraft) => {
+    if (!draft.id)
+      throw new Error("Unable to update a to-do item without an ID.");
+
+    const updatedTodo: UpdateTodoDto = {
+      name: draft.name ?? "",
+      description: draft.description ?? "",
+    };
+    const updatedTodoResponse = await TodoService.update(draft.id, updatedTodo);
+    setTodos((currentTodos) =>
+      currentTodos.map((todo) =>
+        todo.id === draft.id
+          ? {
+              ...todo,
+              name: updatedTodoResponse.name,
+              description: updatedTodoResponse.description,
+            }
+          : todo,
+      ),
+    );
+  };
+
+  const saveRemovedTodo = async (draft: TodoDraft) => {
+    if (!draft.id)
+      throw new Error("Unable to remove a to-do item without an ID.");
+
+    await TodoService.remove(draft.id);
+    setTodos((currentTodos) =>
+      currentTodos.filter((todo) => todo.id !== draft.id),
+    );
+  };
+
+  const handleSaveEdit = async () => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      for (const draft of todoDrafts) {
+        switch (draft.action) {
+          case "add":
+            await saveAddedTodo(draft);
+            break;
+          case "update":
+            await saveUpdatedTodo(draft);
+            break;
+          case "remove":
+            await saveRemovedTodo(draft);
+            break;
+        }
+      }
+
+      setTodos((currentTodos) =>
+        currentTodos.toSorted((left, right) =>
+          left.name.localeCompare(right.name),
+        ),
+      );
+      setTodoDrafts([]);
+      setIsEditing(false);
+    } catch (error: any) {
+      setError(getErrorMessage(error));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setTodoDrafts([]);
+    setIsEditing(false);
+  };
 
   return (
     <div className="todo-dashboard">
       <NavigationBar
         user={user}
         onLogin={() => navigate("/login")}
-        onLogout={handleLogout}
+        onLogout={handleLogoutUser}
       />
       {error && <p className="status-message status-message--error">{error}</p>}
-      {loading && <p className="status-message status-message--loading"></p>}
+      {!isLoading &&
       <div className="todo-dashboard__container">
         <TodoDashboardControls
           isEditing={isEditing}
           onSave={handleSaveEdit}
-          onCancel={() => setIsEditing(false)}
-          onSearchChange={setSearchQuery}
-          onFilterChange={setFilterType}
-          onCreate={handleTodoCreate}
+          onCancel={handleCancelEdit}
+          onSearch={setSearchQuery}
+          onFilter={setFilterType}
+          onCreate={() => handleAddTodoDraft(null, "add")}
         />
         <TodoTable
           todos={todos}
           todoDrafts={todoDrafts}
-          onRemoveRow={handleAddDraft}
+          onDraftAdd={handleAddTodoDraft}
+          onDraftUpdate={handleUpdateTodoDraft}
+          onDraftCancel={handleRemoveTodoDraft}
         />
-      </div>
-      {todos.length > 0 || todoDrafts.length > 0 || user == null || (
+      </div>}
+      {todos.length > 0 || todoDrafts.length > 0 || user == null || isLoading || (
         <span className="status-message status-message--info">
           No to-do items found. Start by creating a new one!
         </span>
