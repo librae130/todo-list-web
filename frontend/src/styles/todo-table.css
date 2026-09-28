@@ -26,7 +26,7 @@
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-  overflow-y: auto;
+  overflow-y: scroll;
 }
 
 .todo-table__header-cell {
@@ -57,6 +57,15 @@
 
 .todo-table__header-cell--date {
   width: 14.28%;
+}
+
+.todo-table__row--remove {
+  background-color: var(--color-light-grey);
+}
+
+.todo-table__row--remove td {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
 }
 
 .todo-table__cell--actions {

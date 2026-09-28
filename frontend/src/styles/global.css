@@ -1,7 +1,9 @@
 @import "./base.css";
-@import "./forms.css";
-@import "./modals.css";
-@import "./dashboard.css";
-@import "./todo-table.css";
 @import "./status-messages.css";
-@import "./pages.css";
+@import "./todo-dashboard.css";
+@import "./navigation-bar.css";
+@import "./todo-dashboard-controls.css";
+@import "./todo-table.css";
+@import "./authentication-pages.css";
+@import "./authentication-forms.css";
+@import "./modals.css";

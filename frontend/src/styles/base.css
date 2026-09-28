@@ -1,7 +1,8 @@
 :root {
   --color-black: #000000;
   --color-white: #ffffff;
-  --color-muted: #666666;
+  --color-light-grey: #bbbbbb;
+  --color-grey: #666666;
   --color-error: #d32f2f;
   --border-width: 2px;
   --control-padding-y: 10px;
@@ -50,7 +51,13 @@ button {
     border-color 0.2s ease;
 }
 
-button:hover {
+button:disabled {
+  background-color: var(--color-grey);
+  border-color: var(--color-grey);
+  cursor: default;
+}
+
+button:not(:disabled):hover {
   background-color: var(--color-white);
   color: var(--color-black);
 }
