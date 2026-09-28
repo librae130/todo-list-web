@@ -34,24 +34,34 @@ public class TodoService
   )
   {
     Expression<Func<Todo, bool>> filter = x => x.UserId == userId;
+    Expression<Func<Todo, bool>> filterBuilder = x => false;
+    bool useFilterBuilder = false;
 
     if (!string.IsNullOrWhiteSpace(searchTodoDto.Name))
     {
       string name = searchTodoDto.Name.Trim().ToLower();
-      filter = filter.AndAlso(x => x.Name.ToLower().Contains(name));
+      filterBuilder = filterBuilder.Or(x => x.Name.ToLower().Contains(name));
+      useFilterBuilder = true;
     }
 
     if (!string.IsNullOrWhiteSpace(searchTodoDto.Description))
     {
       string description = searchTodoDto.Description.Trim().ToLower();
-      filter = filter.AndAlso(x => x.Description.ToLower().Contains(description));
+      filterBuilder = filterBuilder.Or(x => x.Description.ToLower().Contains(description));
+      useFilterBuilder = true;
     }
 
     if (DateTime.TryParse(searchTodoDto.CreatedAt, out DateTime parsedDate))
     {
       DateTime startDate = parsedDate.Date;
       DateTime endDate = startDate.AddDays(1);
-      filter = filter.AndAlso(x => x.CreatedAt >= startDate && x.CreatedAt < endDate);
+      filterBuilder = filterBuilder.Or(x => x.CreatedAt >= startDate && x.CreatedAt < endDate);
+      useFilterBuilder = true;
+    }
+
+    if (useFilterBuilder)
+    {
+      filter = filter.And(filterBuilder);
     }
 
     List<Todo> searchedTodos = await _todoRepo.FindAsync(filter, cancellationToken);
