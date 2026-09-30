@@ -6,16 +6,18 @@
 }
 
 .todo-dashboard__container {
-  max-width: 1300px;
+  max-width: 1500px;
   display: flex;
   flex-direction:column;
   min-height: 0;
 }
 
 .todo-table__container {
-  flex: 1;
   overflow-y: auto;
   overscroll-behavior-y: none;
-  margin: 0 0 50px 0;
+  margin: 0 0 20px 0;
+  border-top: 2px solid black;
   border-bottom: 2px solid black;
+  max-width: 100%;
+  padding-right: 4px;
 }

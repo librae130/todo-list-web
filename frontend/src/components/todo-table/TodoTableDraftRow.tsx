@@ -28,8 +28,8 @@ export const TodoTableDraftRow = ({ draft, onDraftUpdate, onCancel }: TodoTableD
         <td className="todo-table__cell todo-table__cell--name">{draft.name}</td>
         <td className="todo-table__cell todo-table__cell--description">{draft.description}</td>
         <td className="todo-table__cell todo-table__cell--date">{draft.createdAt}</td>
-        <td className="todo-table__cell todo-table__cell--actions">
-          <div className="todo-table__actions">
+        <td className="todo-table__cell todo-table__cell--action">
+          <div className="todo-table__action">
             <button
               className="todo-table__action-button todo-table__action-button--cancel"
               type="button"
@@ -76,8 +76,8 @@ export const TodoTableDraftRow = ({ draft, onDraftUpdate, onCancel }: TodoTableD
         </div>
       </td>
       <td className="todo-table__cell todo-table__cell--date">{draft.createdAt ?? "-"}</td>
-      <td className="todo-table__cell todo-table__cell--actions">
-        <div className="todo-table__actions">
+      <td className="todo-table__cell todo-table__cell--action">
+        <div className="todo-table__action">
           <button
             className="todo-table__action-button todo-table__action-button--cancel"
             type="button"

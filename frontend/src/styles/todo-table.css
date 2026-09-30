@@ -24,42 +24,55 @@
 
 .todo-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: seperate;
   table-layout: fixed;
+  border-spacing: 0 10px;
 }
 
-.todo-table__header-cell {
-  background-color: black;
-  color: white;
-  position: sticky;
-  top: 0px;
-  padding: 10px 8px;
-  z-index: 2;
-  border-left: solid 2px black;
-  border-right: solid 2px black;
+.todo-table__row {
+  box-shadow: 4px 4px;
+  border-radius: 12px;
+}
+
+@keyframes row-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.todo-table__row td {
+  animation: row-in 0.5s ease-out;
+}
+
+.todo-table__header-row {
+  display: none;
 }
 
 .todo-table__cell {
-  border-top: solid 2px black;
-  border-left: solid 2px black;
-  border-right: solid 2px black;
+  border: solid 2px black;
   padding: 10px 8px;
   word-break: break-word;
   vertical-align: top;
   white-space: pre-wrap;
   font-size: 16px;
+  border-right: none;
 }
 
-.todo-table__header-cell--name {
+.todo-table__cell--name {
+  border-radius: 12px 0 0 12px;
   width: 28.57%;
 }
 
-.todo-table__header-cell--description {
+.todo-table__cell--description {
   width: 42.85%;
 }
 
-.todo-table__header-cell--date {
+.todo-table__cell--date {
   width: 14.28%;
+}
+
+.todo-table__cell--action {
+  border-radius: 0 12px 12px 0;
+  border-right: solid 2px black;
 }
 
 .todo-table__row--remove {
@@ -73,11 +86,12 @@
   text-decoration-thickness: 2px;
 }
 
-.todo-table__actions {
+.todo-table__action {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 10px;
+  padding: 0 4px 0 0;
 }
 
 .todo-table__action-button {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { TodoFilterOption } from "../components/todo-dashboard-controls/TodoFilterSelect.tsx";
+import type { TodoFilter } from "../types/TodoFilter.tsx";
 import { TodoTable } from "../components/todo-table/TodoTable.tsx";
 import { TodoDashboardControls } from "../components/todo-dashboard-controls/TodoDashboardControls.tsx";
 import { NavigationBar } from "../components/NavigationBar.tsx";
@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 export const TodoDashboard = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState<TodoFilterOption>("all");
+  const [filterType, setFilterType] = useState<TodoFilter>("all");
 
   const { user, isLoading: isUserLoading, error: authError, logout } = useUser();
 
