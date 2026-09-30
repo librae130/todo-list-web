@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { USER_RESTRAINTS } from "../../constants/user";
 
 type LoginFormProps = {
-  onClickLoginAsync: (username: string, password: string) => Promise<void>;
+  onLogin: (username: string, password: string) => Promise<void>;
   errorMessage?: string;
 };
 
-export const LoginForm = ({ onClickLoginAsync, errorMessage }: LoginFormProps) => {
+export const LoginForm = ({ onLogin, errorMessage }: LoginFormProps) => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
@@ -22,7 +23,6 @@ export const LoginForm = ({ onClickLoginAsync, errorMessage }: LoginFormProps) =
     if (password.trim() === "") {
       newError = "Password can not be blank";
     }
-
     if (username.trim() === "") {
       newError = "Name can not be blank";
     }
@@ -33,7 +33,7 @@ export const LoginForm = ({ onClickLoginAsync, errorMessage }: LoginFormProps) =
     }
 
     setIsLoggingIn(true);
-    await onClickLoginAsync(username, password);
+    await onLogin(username, password);
     setIsLoggingIn(false);
   };
 
@@ -43,11 +43,11 @@ export const LoginForm = ({ onClickLoginAsync, errorMessage }: LoginFormProps) =
       <label className="form-login__label">Username:</label>
       <input
         className="form-login__input form-login__input--name"
-        name="name"
         type="text"
-        maxLength={50}
         placeholder="Required"
         value={username}
+        maxLength={USER_RESTRAINTS.NAME_MAX_LENGTH}
+
         onChange={(e) => setUsername(e.target.value)}
       />
       <label className="form-login__label">Password:</label>
@@ -55,9 +55,9 @@ export const LoginForm = ({ onClickLoginAsync, errorMessage }: LoginFormProps) =
         className="form-login__input form-login__input--password"
         name="password"
         type="password"
-        maxLength={50}
         placeholder="Required"
         value={password}
+        maxLength={USER_RESTRAINTS.PASSWORD_MAX_LENGTH}
         onChange={(e) => setPassword(e.target.value)}
       />
       <div className="form-login__input-footer">

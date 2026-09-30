@@ -1,11 +1,12 @@
 import axios from "axios";
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || undefined;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || undefined;
+const REFRESH_TOKEN_URL = "/api/auth/refresh";
 let failedRequestQueue: Array<{ resolve: Function; reject: Function }> = [];
 let isRefreshingToken = false;
 
 export const apiClient = axios.create({
-  baseURL: baseURL,
+  baseURL: BASE_URL,
   timeout: 5000,
   withCredentials: true,
 });
@@ -24,7 +25,7 @@ apiClient.interceptors.response.use(
     if (
       error.response.status == 401 &&
       !originalRequest._hasRetried &&
-      !originalRequest.url?.includes("/api/auth/refresh") //prevent infinite refresh loop
+      !originalRequest.url?.includes(REFRESH_TOKEN_URL) //prevent infinite refresh loop
     ) {
       // Queue subsequent failed requests
       if (isRefreshingToken) {
@@ -44,7 +45,7 @@ apiClient.interceptors.response.use(
       isRefreshingToken = true;
 
       try {
-        await apiClient.post("/api/auth/refresh");
+        await apiClient.post(REFRESH_TOKEN_URL);
 
         for (let request of failedRequestQueue) {
           request.resolve();

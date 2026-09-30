@@ -29,13 +29,11 @@ public class TodoController : ControllerBase
     [HttpGet("{id}", Name = "GetTodoByIdAsync")]
     public async Task<IActionResult> GetTodoByIdAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        Guid userId = AccessTokenParser.GetCurrentUserId(User);
-
-        TodoDto? foundTodo = await _todoService.GetTodoByIdAsync(id, userId, ct);
+        TodoDto? foundTodo = await _todoService.GetTodoByIdAsync(id, ct);
 
         if (foundTodo == null)
         {
-            return NotFound($"To-do with id {id} of user with id {userId} not found");
+            return NotFound($"To-do with id {id} not found");
         }
 
         return Ok(foundTodo);
@@ -48,9 +46,7 @@ public class TodoController : ControllerBase
     )
     {
         Guid userId = AccessTokenParser.GetCurrentUserId(User);
-
         TodoDto addedTodo = await _todoService.AddTodoAsync(userId, addTodoDto, ct);
-
         return CreatedAtRoute("GetTodoByIdAsync", new { id = addedTodo.Id }, addedTodo);
     }
 
@@ -72,13 +68,11 @@ public class TodoController : ControllerBase
         CancellationToken ct
     )
     {
-        Guid userId = AccessTokenParser.GetCurrentUserId(User);
-
-        TodoDto? updatedTodo = await _todoService.UpdateTodoAsync(userId, id, updateTodoDto, ct);
+        TodoDto? updatedTodo = await _todoService.UpdateTodoAsync( id, updateTodoDto, ct);
 
         if (updatedTodo == null)
         {
-            return NotFound($"To-do with id {id} of user with id {userId} not found");
+            return NotFound($"To-do with id {id} not found");
         }
 
         return Ok(updatedTodo);
@@ -87,13 +81,11 @@ public class TodoController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> RemoveTodoAsync([FromRoute] Guid id, CancellationToken ct)
     {
-        Guid userId = AccessTokenParser.GetCurrentUserId(User);
-
-        bool deleted = await _todoService.RemoveTodoAsync(userId, id, ct);
+        bool deleted = await _todoService.RemoveTodoAsync(id, ct);
 
         if (!deleted)
         {
-            return NotFound($"To-do with id {id} of user with id {userId} not found");
+            return NotFound($"To-do with id {id} not found");
         }
 
         return NoContent();

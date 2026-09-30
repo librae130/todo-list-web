@@ -21,7 +21,7 @@ public sealed class ParameterReplacer : ExpressionVisitor
 
 public static class ExpressionExtensions
 {
-  public static Expression<Func<T, bool>> AndAlso<T>(
+  public static Expression<Func<T, bool>> Or<T>(
       this Expression<Func<T, bool>> first,
       Expression<Func<T, bool>> second
   )
@@ -32,7 +32,23 @@ public static class ExpressionExtensions
     ).Visit(second.Body)!;
 
     return Expression.Lambda<Func<T, bool>>(
-        Expression.AndAlso(first.Body, secondBody),
+        Expression.Or(first.Body, secondBody),
+        first.Parameters[0]
+    );
+  }
+
+  public static Expression<Func<T, bool>> And<T>(
+      this Expression<Func<T, bool>> first,
+      Expression<Func<T, bool>> second
+  )
+  {
+    Expression secondBody = new ParameterReplacer(
+        second.Parameters[0],
+        first.Parameters[0]
+    ).Visit(second.Body)!;
+
+    return Expression.Lambda<Func<T, bool>>(
+        Expression.And(first.Body, secondBody),
         first.Parameters[0]
     );
   }

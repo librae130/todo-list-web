@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { USER_RESTRAINTS } from "../../constants/user";
 
 type RegisterFormProps = {
-  onClickRegisterAsync: (username: string, password: string) => Promise<void>;
+  onRegister: (username: string, password: string) => Promise<void>;
   errorMessage?: string;
 };
 
-export const RegisterForm = ({ onClickRegisterAsync, errorMessage }: RegisterFormProps) => {
+export const RegisterForm = ({ onRegister, errorMessage }: RegisterFormProps) => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isRegistering, setIsRegistering] = useState<boolean>(false);
@@ -19,8 +20,8 @@ export const RegisterForm = ({ onClickRegisterAsync, errorMessage }: RegisterFor
 
     var newError: string = "";
 
-    if (password.trim().length < 8) {
-      newError = "Password must be longer than 8 characters";
+    if (password.trim().length < USER_RESTRAINTS.PASSWORD_MIN_LENGTH) {
+      newError = `Password must be longer than ${USER_RESTRAINTS.PASSWORD_MIN_LENGTH} characters`;
     }
 
     if (username.trim() === "") {
@@ -33,7 +34,7 @@ export const RegisterForm = ({ onClickRegisterAsync, errorMessage }: RegisterFor
     }
 
     setIsRegistering(true);
-    await onClickRegisterAsync(username, password);
+    await onRegister(username, password);
     setIsRegistering(false);
   };
 
@@ -45,9 +46,9 @@ export const RegisterForm = ({ onClickRegisterAsync, errorMessage }: RegisterFor
         className="form-register__input form-register__input--name"
         name="name"
         type="text"
-        maxLength={50}
         placeholder="Required"
         value={username}
+        maxLength={USER_RESTRAINTS.NAME_MAX_LENGTH}
         onChange={(e) => setUsername(e.target.value)}
       />
       <label className="form-register__label">Password:</label>
@@ -55,9 +56,9 @@ export const RegisterForm = ({ onClickRegisterAsync, errorMessage }: RegisterFor
         className="form-register__input form-register__input--password"
         name="password"
         type="password"
-        maxLength={50}
         placeholder="Required"
         value={password}
+        maxLength={USER_RESTRAINTS.PASSWORD_MAX_LENGTH}
         onChange={(e) => setPassword(e.target.value)}
       />
       <div className="form-register__input-footer">

@@ -3,7 +3,6 @@ using backend.Data;
 using backend.Dtos;
 using backend.Entities;
 using backend.Repositories;
-using Microsoft.Extensions.Logging;
 
 namespace backend.Services;
 

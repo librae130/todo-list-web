@@ -16,7 +16,7 @@
   border: solid 2px black;
   width: 30%;
   height: 66%;
-  overflow: scroll;
+  overflow: auto;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -29,19 +29,19 @@
 }
 
 .modal__input-footer-error-message {
-  color: red;
+  color: var(--color-error);
   font-size: 15px;
 }
 
 .modal__input-footer-char-counter {
   font-size: 15px;
-  color: grey;
+  color: var(--color-muted);
   text-align: right;
   flex: 1;
 }
 
 .modal__label {
-  margin: 6px 0px;
+  margin: 6px 0;
   font-weight: bold;
 }
 
@@ -54,7 +54,7 @@
   font-weight: bold;
   background-color: black;
   border: solid 2px black;
-  padding: 0px 7px;
+  padding: 0 7px;
   user-select: none;
 }
 

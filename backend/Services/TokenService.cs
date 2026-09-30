@@ -5,7 +5,6 @@ using System.Text;
 using backend.Dtos;
 using backend.Options;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace backend.Services;
