@@ -26,25 +26,28 @@
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-  overflow-y: scroll;
 }
 
 .todo-table__header-cell {
   background-color: black;
-  border: solid 2px black;
   color: white;
   position: sticky;
-  top: 105px;
+  top: 0px;
   padding: 10px 8px;
-  z-index: 999;
+  z-index: 2;
+  border-left: solid 2px black;
+  border-right: solid 2px black;
 }
 
 .todo-table__cell {
-  border: solid 2px black;
+  border-top: solid 2px black;
+  border-left: solid 2px black;
+  border-right: solid 2px black;
   padding: 10px 8px;
   word-break: break-word;
   vertical-align: top;
   white-space: pre-wrap;
+  font-size: 16px;
 }
 
 .todo-table__header-cell--name {
@@ -63,13 +66,11 @@
   background-color: var(--color-light-grey);
 }
 
-.todo-table__row--remove td {
+.todo-table__row--remove .todo-table__cell--name,
+.todo-table__row--remove .todo-table__cell--description,
+.todo-table__row--remove .todo-table__cell--date {
   text-decoration: line-through;
   text-decoration-thickness: 2px;
-}
-
-.todo-table__cell--actions {
-  white-space: nowrap;
 }
 
 .todo-table__actions {
@@ -81,6 +82,5 @@
 
 .todo-table__action-button {
   width: 50%;
-  font-size: 12px;
   padding: 10px 0;
 }

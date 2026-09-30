@@ -6,6 +6,7 @@
   position: sticky;
   top: 0;
   padding: 30px 0;
+  background-color: white;
 }
 
 .todo-dashboard-controls__search {
@@ -16,6 +17,8 @@
   flex-shrink: 0;
 }
 
+.todo-dashboard-controls
+
 .search-bar__input {
   width: 100%;
   border: solid 2px black;
@@ -25,7 +28,7 @@
 
 .todo-filter-select {
   height: 42px;
-  min-width: 170px;
+  max-width: 200px;
   border: solid 2px black;
   padding: 10px 12px;
   background-color: black;
@@ -41,7 +44,3 @@
   color: black;
 }
 
-.todo-dashboard-controls__create .create-button {
-  padding: 10px 12px;
-  height: 42px;
-}

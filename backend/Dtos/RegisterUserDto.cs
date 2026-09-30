@@ -10,9 +10,9 @@ public class RegisterUserDto
 
     [Required]
     [StringLength(
-        50,
+        256,
         MinimumLength = 8,
-        ErrorMessage = "Password must be between 8 and 50 characters."
+        ErrorMessage = "Password must be between 8 and 256 characters."
     )]
     public string Password { get; set; } = string.Empty;
 }

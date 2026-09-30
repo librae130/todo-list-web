@@ -1,0 +1,4 @@
+export const TODO_RESTRAINTS = {
+  NAME_MAX_LENGTH: 100,
+  DESCRIPTION_MAX_LENGTH: 500,
+} as const;

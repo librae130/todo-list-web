@@ -1,13 +1,21 @@
 .todo-dashboard {
   display: flex;
-  justify-content: center;
   align-items: center;
-  min-height: 100%;
+  height: 100vh;
   flex-direction: column;
-  margin: 50px 0;
 }
 
 .todo-dashboard__container {
-  width: 100%;
   max-width: 1300px;
+  display: flex;
+  flex-direction:column;
+  min-height: 0;
+}
+
+.todo-table__container {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior-y: none;
+  margin: 0 0 50px 0;
+  border-bottom: 2px solid black;
 }

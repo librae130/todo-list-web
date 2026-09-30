@@ -2,12 +2,12 @@ import { useState } from "react";
 import type { AddTodoDto } from "../../dtos/AddTodoDto.tsx";
 
 type CreateTodoModalProps = {
-  onCreateAsync: (newTodo: AddTodoDto) => Promise<void>;
+  onCreate: (newTodo: AddTodoDto) => Promise<void>;
   onClose: () => void;
 };
 
 export const CreateTodoModal = ({
-  onCreateAsync,
+  onCreate,
   onClose,
 }: CreateTodoModalProps) => {
   const [isCreating, setIsCreating] = useState(false);
@@ -45,7 +45,7 @@ export const CreateTodoModal = ({
     }
 
     setIsCreating(true);
-    await onCreateAsync({ name, description });
+    await onCreate({ name, description });
     setIsCreating(false);
     onClose();
   };

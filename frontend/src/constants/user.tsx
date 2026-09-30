@@ -1,0 +1,5 @@
+export const USER_RESTRAINTS = {
+  NAME_MAX_LENGTH: 50,
+  PASSWORD_MIN_LENGTH: 8,
+  PASSWORD_MAX_LENGTH: 256,
+} as const;

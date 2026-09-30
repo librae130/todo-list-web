@@ -36,18 +36,13 @@ export const TodoDashboardControls = ({
         </button>
       </div>
       <div className="todo-dashboard-controls__save-edit">
-        <button
-          className="save-edit-button"
-          type="button"
-          disabled={!isEditing}
-          onClick={onSave}
-        >
+        <button className="save-edit-button" type="button" disabled={!isEditing} onClick={onSave}>
           Save
         </button>
       </div>
-      <div className="todo-dashboard-controls__save-edit">
+      <div className="todo-dashboard-controls__cancel-edit">
         <button
-          className="save-edit-button"
+          className="cancel-edit-button"
           type="button"
           disabled={!isEditing}
           onClick={onCancel}

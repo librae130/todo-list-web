@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { TodoDraft, TodoDraftChanges } from "../../types/TodoDraft.tsx";
+import { TODO_RESTRAINTS } from "../../constants/todo.tsx";
 
 type TodoTableDraftRowProps = {
   draft: TodoDraft;
@@ -50,9 +51,14 @@ export const TodoTableDraftRow = ({ draft, onDraftUpdate, onCancel }: TodoTableD
           value={name}
           name="name"
           placeholder="Required"
-          maxLength={100}
+          maxLength={TODO_RESTRAINTS.NAME_MAX_LENGTH}
           onChange={(event) => handleNameChange(event.target.value)}
         />
+        <div className="todo-table__footer">
+          <p className="todo-table__footer-char-counter">
+            {name.length}/{TODO_RESTRAINTS.NAME_MAX_LENGTH}
+          </p>
+        </div>
       </td>
       <td className="todo-table__cell todo-table__cell--description">
         <textarea
@@ -60,9 +66,14 @@ export const TodoTableDraftRow = ({ draft, onDraftUpdate, onCancel }: TodoTableD
           value={description}
           name="description"
           placeholder="Optional"
-          maxLength={500}
+          maxLength={TODO_RESTRAINTS.DESCRIPTION_MAX_LENGTH}
           onChange={(event) => handleDescriptionChange(event.target.value)}
         />
+        <div className="todo-table__footer">
+          <p className="todo-table__footer-char-counter">
+            {description.length}/{TODO_RESTRAINTS.DESCRIPTION_MAX_LENGTH}
+          </p>
+        </div>
       </td>
       <td className="todo-table__cell todo-table__cell--date">{draft.createdAt ?? "-"}</td>
       <td className="todo-table__cell todo-table__cell--actions">

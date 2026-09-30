@@ -1,14 +1,9 @@
 :root {
   --color-black: #000000;
   --color-white: #ffffff;
-  --color-light-grey: #bbbbbb;
+  --color-light-grey: #e3e3e3;
   --color-grey: #666666;
   --color-error: #d32f2f;
-  --border-width: 2px;
-  --control-padding-y: 10px;
-  --control-padding-x: 12px;
-  --control-height: 42px;
-  --control-font-size: 16px;
 }
 
 * {
@@ -19,7 +14,7 @@ body {
   margin: 0;
   background-color: var(--color-white);
   color: var(--color-black);
-  font-size: var(--control-font-size);
+  font-size: 16px;
   font-family: "Times New Roman", Times, serif;
 }
 
@@ -34,17 +29,17 @@ input,
 select,
 textarea {
   width: 100%;
-  border: var(--border-width) solid var(--color-black);
-  padding: var(--control-padding-y) var(--control-padding-x);
+  border: 2px solid var(--color-black);
+  padding: 10px 12px;
 }
 
 button {
-  border: var(--border-width) solid var(--color-black);
+  border: 2px solid var(--color-black);
   background-color: var(--color-black);
   color: var(--color-white);
-  padding: var(--control-padding-y) var(--control-padding-x);
-  min-height: var(--control-height);
+  padding: 10px 12px;
   cursor: pointer;
+  height: 42px;
   transition:
     background-color 0.2s ease,
     color 0.2s ease,
@@ -71,7 +66,7 @@ textarea:focus-visible {
 }
 
 select {
-  height: var(--control-height);
+  height: 42px;
   font-weight: bold;
   appearance: none;
   background-color: var(--color-black);

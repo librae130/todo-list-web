@@ -1,4 +1,5 @@
-import { useDebounceFunction } from "../../utils/debounce";
+import { SEARCH_DELAY } from "../../constants/delay";
+import { useDebounce } from "../../hooks/useDebounce";
 
 type SearchBarProps = {
   placeholder: string;
@@ -6,10 +7,10 @@ type SearchBarProps = {
 };
 
 export const SearchBar = ({ placeholder, onSearch }: SearchBarProps) => {
-  const debouncedOnSearchChange = useDebounceFunction(onSearch, 500);
+  const onSearchDebounced = useDebounce(onSearch, SEARCH_DELAY);
 
   const handleSearch = (event: any) => {
-    debouncedOnSearchChange(event.target.value);
+    onSearchDebounced(event.target.value);
   };
 
   return (
