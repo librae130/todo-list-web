@@ -12,8 +12,8 @@ export const TodoTableRow = ({ todo, onEdit, onRemove }: TodoTableRowProps) => {
       <td className="todo-table__cell todo-table__cell--name">{todo.name}</td>
       <td className="todo-table__cell todo-table__cell--description">{todo.description}</td>
       <td className="todo-table__cell todo-table__cell--date">{todo.createdAt}</td>
-      <td className="todo-table__cell todo-table__cell--actions">
-        <div className="todo-table__actions">
+      <td className="todo-table__cell todo-table__cell--action">
+        <div className="todo-table__action">
           <button
             className="todo-table__action-button todo-table__action-button--edit"
             onClick={onEdit}

@@ -2,15 +2,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  max-width: 1300px;
-  padding: 16px 0 24px;
+  width: 100vw;
+  padding: 20px 20px;
   border-bottom: 2px solid black;
 }
 
 .navigation-bar__brand {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: x-large;
+  font-weight: bold;
 }
 
 .navigation-bar__actions {

@@ -20,16 +20,6 @@ export const TodoTable = ({
 }: TodoTableProps) => {
   return (
     <table className="todo-table">
-      <thead className="todo-table__header">
-        <tr className="todo-table__header-row">
-          <th className="todo-table__header-cell todo-table__header-cell--name">Name</th>
-          <th className="todo-table__header-cell todo-table__header-cell--description">
-            Description
-          </th>
-          <th className="todo-table__header-cell todo-table__header-cell--date">Created Date</th>
-          <th className="todo-table__header-cell todo-table__header-cell--action">Action</th>
-        </tr>
-      </thead>
       <tbody className="todo-table__body">
         {/* Render drafts for adding todos*/}
         {todoDrafts
