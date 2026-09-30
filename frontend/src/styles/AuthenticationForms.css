@@ -1,0 +1,44 @@
+.form-login__input-footer,
+.form-register__input-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 23px;
+}
+
+.form-login__error-message,
+.form-register__error-message {
+  margin: 0;
+  color: var(--color-error);
+  font-size: 15px;
+}
+
+.form-login__submit-button,
+.form-register__submit-button {
+  border: var(--border-width) solid var(--color-black);
+  background-color: var(--color-black);
+  color: var(--color-white);
+  padding: var(--space-control);
+}
+
+.form-login__submit-button:hover,
+.form-register__submit-button:hover {
+  background-color: var(--color-white);
+  color: var(--color-black);
+}
+
+.form-login,
+.form-register {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 3px solid var(--color-border);
+}
+
+.form-login h1,
+.form-register h1 {
+  margin: 0;
+  text-align: center;
+  font-size: x-large;
+}

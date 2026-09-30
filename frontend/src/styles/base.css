@@ -3,8 +3,19 @@
   --color-white: #ffffff;
   --color-light-grey: #e3e3e3;
   --color-grey: #888888;
+  --color-muted: var(--color-grey);
   --color-blue: #4169e1;
   --color-error: #d32f2f;
+  --color-border: var(--color-black);
+  --color-surface: var(--color-white);
+  --space-control: 10px 12px;
+  --space-1: 8px;
+  --space-2: 12px;
+  --space-3: 20px;
+  --border-width: 2px;
+  --radius-control: 10px;
+  --radius-surface: 12px;
+  --shadow-offset: 4px;
 }
 
 * {
@@ -13,7 +24,7 @@
 
 body {
   margin: 0;
-  background-color: var(--color-white);
+  background-color: var(--color-surface);
   color: var(--color-black);
   font-size: 16px;
   font-family: "Times New Roman", Times, serif;
@@ -24,11 +35,11 @@ select,
 button,
 textarea {
   width: 100%;
-  border: 2px solid var(--color-black);
-  padding: 10px 12px;
-  border-radius: 10px;
-  box-shadow: 4px 4px black;
-  background-color: white;
+  border: var(--border-width) solid var(--color-border);
+  padding: var(--space-control);
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) var(--color-black);
+  background-color: var(--color-surface);
   height: 42px;
   transition:
     background-color 0.2s,
@@ -37,9 +48,9 @@ textarea {
 
 button:disabled {
   background-color: var(--color-grey);
-  border-color: var(--color-black);
+  border-color: var(--color-border);
   cursor: default;
-  color: white;
+  color: var(--color-white);
 }
 
 button:not(:disabled):hover,
