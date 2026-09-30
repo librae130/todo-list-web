@@ -9,13 +9,17 @@ import { formatDateTime } from "../utils/stringUtils.tsx";
 import { getErrorMessage } from "../utils/errorUtils.tsx";
 import { compareTodo } from "../utils/todoUtils.tsx";
 
-const saveAddedTodo = async (draft: TodoDraft): Promise<TodoDto> => {
-  const newTodo: AddTodoDto = { name: draft.name ?? "", description: draft.description ?? "" };
+const saveAddedTodo = async (draft: TodoDraft) => {
+  if (draft.name.trim().length <= 0) return null;
+
+  const newTodo: AddTodoDto = { name: draft.name, description: draft.description };
   const createdTodo = await TodoService.create(newTodo);
   return { ...createdTodo, createdAt: formatDateTime(createdTodo.createdAt) };
 };
 
-const saveUpdatedTodo = async (draft: TodoDraft): Promise<TodoDto> => {
+const saveUpdatedTodo = async (draft: TodoDraft) => {
+  if (draft.name.trim().length <= 0) return null;
+
   if (!draft.id) {
     throw new Error("Unable to update a to-do item without an ID.");
   }
@@ -27,7 +31,7 @@ const saveUpdatedTodo = async (draft: TodoDraft): Promise<TodoDto> => {
   return await TodoService.update(draft.id, updatedTodo);
 };
 
-const saveRemovedTodo = async (draft: TodoDraft): Promise<string> => {
+const saveRemovedTodo = async (draft: TodoDraft) => {
   if (!draft.id) {
     throw new Error("Unable to remove a to-do item without an ID.");
   }
@@ -63,14 +67,22 @@ export const useSaveTodoDrafts = ({
         switch (draft.action) {
           case "add": {
             const createdTodo = await saveAddedTodo(draft);
-            updatedTodos = [createdTodo, ...updatedTodos];
+
+            if (createdTodo !== null) {
+              updatedTodos = [createdTodo, ...updatedTodos];
+            }
+
             break;
           }
           case "update": {
             const updatedTodo = await saveUpdatedTodo(draft);
-            updatedTodos = updatedTodos.map((todo) =>
-              todo.id === draft.id ? { ...todo, ...updatedTodo } : todo,
-            );
+
+            if (updatedTodo !== null) {
+              updatedTodos = updatedTodos.map((todo) =>
+                todo.id === draft.id ? { ...todo, ...updatedTodo } : todo,
+              );
+            }
+
             break;
           }
           case "remove": {
