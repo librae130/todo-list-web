@@ -1,0 +1,6 @@
+.todo-filter-select {
+  max-width: 200px;
+  cursor: pointer;
+  line-height: 1;
+  font-weight: bold;
+}

@@ -4,9 +4,10 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
+  padding: var(--space-3);
 }
 
 .login-form,
 .register-form {
-  width: 450px;
+  width: min(450px, 100%);
 }
