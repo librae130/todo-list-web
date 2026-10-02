@@ -47,6 +47,11 @@ textarea {
   font-size: 16px;
 }
 
+input[type="password"] {
+  font-family: Arial, sans-serif;
+  letter-spacing: 0;
+}
+
 button:disabled {
   background-color: var(--color-grey);
   border-color: var(--color-border);

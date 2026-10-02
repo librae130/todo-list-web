@@ -25,6 +25,9 @@
   padding: 0 14px 4px 10px;
   border-radius: var(--radius-surface);
   box-shadow: var(--shadow-offset) var(--shadow-offset) var(--color-black);
+  align-items: center;
+  flex-direction: column;
+  display: flex;
 }
 
 .status-message--error {

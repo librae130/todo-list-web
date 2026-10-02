@@ -16,8 +16,6 @@
 .form-login__submit-button,
 .form-register__submit-button {
   border: var(--border-width) solid var(--color-black);
-  background-color: var(--color-black);
-  color: var(--color-white);
   padding: var(--space-control);
 }
 
@@ -34,6 +32,8 @@
   gap: var(--space-1);
   padding: var(--space-3);
   border: 3px solid var(--color-border);
+  border-radius: var(--radius-surface);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) var(--color-black);
 }
 
 .form-login h1,
