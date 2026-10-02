@@ -4,6 +4,7 @@ import type { TodoDraft, TodoDraftChanges } from "../../types/TodoDraft.tsx";
 import { TodoTableDraftRow } from "./TodoTableDraftRow.tsx";
 
 type TodoTableProps = {
+  isLoading: boolean;
   todos: TodoDto[];
   todoDrafts: TodoDraft[];
   onDraftAdd: (todo: TodoDto | null, action: TodoDraft["action"]) => void;
@@ -12,6 +13,7 @@ type TodoTableProps = {
 };
 
 export const TodoTable = ({
+  isLoading,
   todos,
   todoDrafts,
   onDraftAdd,
@@ -27,6 +29,7 @@ export const TodoTable = ({
           .map((draft) => (
             <TodoTableDraftRow
               key={draft.clientId}
+              isLoading={isLoading}
               draft={draft}
               onDraftUpdate={onDraftUpdate}
               onCancel={onDraftCancel}
@@ -41,6 +44,7 @@ export const TodoTable = ({
             return (
               <TodoTableDraftRow
                 key={draft.clientId}
+                isLoading={isLoading}
                 draft={draft}
                 onDraftUpdate={onDraftUpdate}
                 onCancel={onDraftCancel}
@@ -51,6 +55,7 @@ export const TodoTable = ({
           return (
             <TodoTableRow
               key={todo.id}
+              isLoading={isLoading}
               todo={todo}
               onEdit={() => onDraftAdd(todo, "update")}
               onRemove={() => onDraftAdd(todo, "remove")}

@@ -4,6 +4,7 @@ import type { TodoFilter } from "../../types/TodoFilter.tsx";
 
 type TodoDashboardControlsProps = {
   isEditing: boolean;
+  isLoading: boolean;
   onSave: () => void;
   onCancel: () => void;
   onSearch: (query: string) => void;
@@ -13,6 +14,7 @@ type TodoDashboardControlsProps = {
 
 export const TodoDashboardControls = ({
   isEditing,
+  isLoading,
   onSave,
   onCancel,
   onSearch,
@@ -31,7 +33,12 @@ export const TodoDashboardControls = ({
         <TodoFilterSelect onFilter={onFilter} />
       </div>
       <div className="todo-dashboard-controls__create">
-        <button className="create-button" type="button" onClick={onCreate}>
+        <button
+          className="create-button"
+          type="button"
+          disabled={isLoading}
+          onClick={onCreate}
+        >
           Create New
         </button>
       </div>
@@ -39,7 +46,7 @@ export const TodoDashboardControls = ({
         <button
           className="save-edit-button"
           type="button"
-          disabled={!isEditing}
+          disabled={isLoading || !isEditing}
           onClick={onSave}
         >
           Save
@@ -49,7 +56,7 @@ export const TodoDashboardControls = ({
         <button
           className="cancel-edit-button"
           type="button"
-          disabled={!isEditing}
+          disabled={isLoading || !isEditing}
           onClick={onCancel}
         >
           Cancel

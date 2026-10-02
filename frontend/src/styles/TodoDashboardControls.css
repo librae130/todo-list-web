@@ -20,3 +20,11 @@
 .todo-dashboard-controls__cancel-edit {
   flex: 0 1 auto;
 }
+
+.todo-dashboard-controls__save-edit .save-edit-button:disabled,
+.todo-dashboard-controls__cancel-edit .cancel-edit-button:disabled {
+  background-color: var(--color-grey);
+  border-color: var(--color-border);
+  cursor: default;
+  color: var(--color-black);
+}

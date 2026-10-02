@@ -3,12 +3,18 @@ import type { TodoDraft, TodoDraftChanges } from "../../types/TodoDraft.tsx";
 import { TODO_RESTRAINTS } from "../../constants/todo.tsx";
 
 type TodoTableDraftRowProps = {
+  isLoading: boolean;
   draft: TodoDraft;
   onDraftUpdate: (clientId: string, changes: TodoDraftChanges) => void;
   onCancel: (clientId: string) => void;
 };
 
-export const TodoTableDraftRow = ({ draft, onDraftUpdate, onCancel }: TodoTableDraftRowProps) => {
+export const TodoTableDraftRow = ({
+  isLoading,
+  draft,
+  onDraftUpdate,
+  onCancel,
+}: TodoTableDraftRowProps) => {
   const [name, setName] = useState(draft.name ?? "");
   const [description, setDescription] = useState(draft.description ?? "");
 
@@ -16,15 +22,18 @@ export const TodoTableDraftRow = ({ draft, onDraftUpdate, onCancel }: TodoTableD
   const descriptionInputRef = useRef<HTMLTextAreaElement>(null);
 
   useLayoutEffect(() => {
-    const textareas = [nameInputRef.current, descriptionInputRef.current].filter(
-      (textarea) => textarea !== null,
-    );
+    const textareas = [
+      nameInputRef.current,
+      descriptionInputRef.current,
+    ].filter((textarea) => textarea !== null);
 
     textareas.forEach((textarea) => {
       textarea.style.height = "auto";
     });
 
-    const sharedHeight = Math.max(...textareas.map((textarea) => textarea.scrollHeight));
+    const sharedHeight = Math.max(
+      ...textareas.map((textarea) => textarea.scrollHeight),
+    );
     textareas.forEach((textarea) => {
       textarea.style.height = `${sharedHeight}px`;
     });
@@ -43,14 +52,21 @@ export const TodoTableDraftRow = ({ draft, onDraftUpdate, onCancel }: TodoTableD
   if (draft.action === "remove") {
     return (
       <tr className="todo-table__row todo-table__draft-row todo-table__row--remove">
-        <td className="todo-table__cell todo-table__cell--name">{draft.name}</td>
-        <td className="todo-table__cell todo-table__cell--description">{draft.description}</td>
-        <td className="todo-table__cell todo-table__cell--date">{draft.createdAt}</td>
+        <td className="todo-table__cell todo-table__cell--name">
+          {draft.name}
+        </td>
+        <td className="todo-table__cell todo-table__cell--description">
+          {draft.description}
+        </td>
+        <td className="todo-table__cell todo-table__cell--date">
+          {draft.createdAt}
+        </td>
         <td className="todo-table__cell todo-table__cell--action">
           <div className="todo-table__action">
             <button
               className="todo-table__action-button todo-table__action-button--cancel"
               type="button"
+              disabled={isLoading}
               onClick={() => onCancel(draft.clientId)}
             >
               Cancel
@@ -62,7 +78,9 @@ export const TodoTableDraftRow = ({ draft, onDraftUpdate, onCancel }: TodoTableD
   }
 
   return (
-    <tr className={`todo-table__row todo-table__draft-row todo-table__row--${draft.action}`}>
+    <tr
+      className={`todo-table__row todo-table__draft-row todo-table__row--${draft.action}`}
+    >
       <td className="todo-table__cell todo-table__cell--name">
         <textarea
           className="todo-table__textarea todo-table__textarea--name"
@@ -95,12 +113,15 @@ export const TodoTableDraftRow = ({ draft, onDraftUpdate, onCancel }: TodoTableD
           </p>
         </div>
       </td>
-      <td className="todo-table__cell todo-table__cell--date">{draft.createdAt ?? "-"}</td>
+      <td className="todo-table__cell todo-table__cell--date">
+        {draft.createdAt ?? "-"}
+      </td>
       <td className="todo-table__cell todo-table__cell--action">
         <div className="todo-table__action">
           <button
             className="todo-table__action-button todo-table__action-button--cancel"
             type="button"
+            disabled={isLoading}
             onClick={() => onCancel(draft.clientId)}
           >
             Cancel
