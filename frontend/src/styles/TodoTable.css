@@ -67,7 +67,7 @@
   border-radius: 0 var(--radius-surface) var(--radius-surface) 0;
 }
 
-.todo-table__row--remove {
+.todo-table__row--remove .todo-table__cell {
   background-color: var(--color-light-grey);
 }
 
