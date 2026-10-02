@@ -75,10 +75,10 @@ export const TodoDashboard = () => {
         </div>
       </div>
 
-      {todos.length > 0 ||
-        todoDrafts.length > 0 ||
-        user == null ||
-        isLoading || (
+      {todos.length <= 0 &&
+        todoDrafts.length <= 0 &&
+        user != null &&
+        !isLoading && (
           <span className="status-message status-message--info">
             No to-do items found. Start by creating a new one!
           </span>

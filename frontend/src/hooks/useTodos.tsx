@@ -4,12 +4,12 @@ import { TodoService } from "../services/TodoService.tsx";
 import type { TodoDto } from "../dtos/TodoDto.tsx";
 import type { UserDto } from "../dtos/UserDto.tsx";
 import type { SearchTodoDto } from "../dtos/SearchTodoDto.tsx";
-import type { TodoFilterOption } from "../components/todo-dashboard-controls/TodoFilterSelect.tsx";
+import type { TodoFilter } from "../types/TodoFilter.tsx";
 import { formatDateTime } from "../utils/stringUtils.tsx";
 import { getErrorMessage } from "../utils/errorUtils.tsx";
 import { compareTodo } from "../utils/todoUtils.tsx";
 
-const buildSearchDto = (query: string, filterType: TodoFilterOption): SearchTodoDto => {
+const buildSearchDto = (query: string, filterType: TodoFilter): SearchTodoDto => {
   const dto: SearchTodoDto = { name: "", description: "", createdAt: "" };
 
   switch (filterType) {
@@ -34,7 +34,7 @@ const buildSearchDto = (query: string, filterType: TodoFilterOption): SearchTodo
 export const useTodos = (
   user: UserDto | null,
   searchQuery: string,
-  filterType: TodoFilterOption,
+  filterType: TodoFilter,
 ) => {
   const [todos, setTodos] = useState<TodoDto[]>([]);
   const [isLoading, setIsLoading] = useState(false);
