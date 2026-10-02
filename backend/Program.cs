@@ -38,7 +38,7 @@ builder.Services.AddScoped<TodoService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 
-string allowedOriginsString = builder.Configuration["ALLOWED_ORIGINS"] ?? "http://localhost:3000";
+string allowedOriginsString = builder.Configuration["AllowedHosts"]  = null!;
 string[] origins = allowedOriginsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
 builder.Services.AddCors(options =>
 {

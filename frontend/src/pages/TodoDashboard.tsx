@@ -14,12 +14,7 @@ export const TodoDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<TodoFilter>("all");
 
-  const {
-    user,
-    isLoading: isUserLoading,
-    error: authError,
-    logout,
-  } = useUser();
+  const { user, isLoading: isUserLoading, error: authError, logout } = useUser();
 
   const {
     todos,
@@ -28,14 +23,8 @@ export const TodoDashboard = () => {
     error: todosError,
   } = useTodos(user, searchQuery, filterType);
 
-  const {
-    todoDrafts,
-    isEditing,
-    addDraft,
-    updateDraft,
-    removeDraft,
-    resetDrafts,
-  } = useTodoDrafts();
+  const { todoDrafts, isEditing, addDraft, updateDraft, removeDraft, resetDrafts } =
+    useTodoDrafts();
 
   const {
     save,
@@ -48,11 +37,7 @@ export const TodoDashboard = () => {
 
   return (
     <div className="todo-dashboard">
-      <NavigationBar
-        user={user}
-        onLogin={() => navigate("/login")}
-        onLogout={logout}
-      />
+      <NavigationBar user={user} onLogin={() => navigate("/login")} onLogout={logout} />
       {error && <p className="status-message status-message--error">{error}</p>}
 
       <div className="todo-dashboard__container">
@@ -72,22 +57,19 @@ export const TodoDashboard = () => {
             onDraftUpdate={updateDraft}
             onDraftCancel={removeDraft}
           />
+
+          {todos.length <= 0 && todoDrafts.length <= 0 && user != null && !isLoading && (
+            <span className="status-message status-message--info">
+              No to-do items found. Start by creating a new one!
+            </span>
+          )}
+          {user == null && (
+            <span className="status-message status-message--info">
+              Please log in to manage your to-do list.
+            </span>
+          )}
         </div>
       </div>
-
-      {todos.length <= 0 &&
-        todoDrafts.length <= 0 &&
-        user != null &&
-        !isLoading && (
-          <span className="status-message status-message--info">
-            No to-do items found. Start by creating a new one!
-          </span>
-        )}
-      {user == null && (
-        <p className="status-message status-message--info">
-          Please log in to manage your to-do list.
-        </p>
-      )}
     </div>
   );
 };

@@ -10,18 +10,35 @@ import { getErrorMessage } from "../utils/errorUtils.tsx";
 import { compareTodo } from "../utils/todoUtils.tsx";
 
 const saveAddedTodo = async (draft: TodoDraft) => {
-  if (draft.name.trim().length <= 0) return null;
+  if (draft.name.trim().length <= 0) {
+    return null;
+  }
 
-  const newTodo: AddTodoDto = { name: draft.name, description: draft.description };
+  const newTodo: AddTodoDto = {
+    name: draft.name,
+    description: draft.description,
+  };
   const createdTodo = await TodoService.create(newTodo);
   return { ...createdTodo, createdAt: formatDateTime(createdTodo.createdAt) };
 };
 
-const saveUpdatedTodo = async (draft: TodoDraft) => {
-  if (draft.name.trim().length <= 0) return null;
+const saveUpdatedTodo = async (todos: TodoDto[], draft: TodoDraft) => {
+  if (draft.name.trim().length <= 0) {
+    return null;
+  }
 
   if (!draft.id) {
     throw new Error("Unable to update a to-do item without an ID.");
+  }
+
+  const originalTodo = todos.find((todo) => todo.id === draft.id);
+  
+  if (
+    originalTodo &&
+    originalTodo.name === draft.name &&
+    originalTodo.description === draft.description
+  ) {
+    return null;
   }
 
   const updatedTodo: UpdateTodoDto = {
@@ -29,7 +46,10 @@ const saveUpdatedTodo = async (draft: TodoDraft) => {
     description: draft.description ?? "",
   };
   const updatedTodoResponse = await TodoService.update(draft.id, updatedTodo);
-  return { ...updatedTodoResponse, createdAt: formatDateTime(updatedTodoResponse.createdAt) };
+  return {
+    ...updatedTodoResponse,
+    createdAt: formatDateTime(updatedTodoResponse.createdAt),
+  };
 };
 
 const saveRemovedTodo = async (draft: TodoDraft) => {
@@ -76,7 +96,7 @@ export const useSaveTodoDrafts = ({
             break;
           }
           case "update": {
-            const updatedTodo = await saveUpdatedTodo(draft);
+            const updatedTodo = await saveUpdatedTodo(todos, draft);
 
             if (updatedTodo !== null) {
               updatedTodos = updatedTodos.map((todo) =>
