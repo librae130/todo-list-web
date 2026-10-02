@@ -39,6 +39,7 @@
   table-layout: fixed;
   border-radius: var(--radius-surface);
   width: 100%;
+  animation: todo-row-in 0.3s ease-in-out;
 }
 
 .todo-table__header-row {
@@ -75,7 +76,8 @@
   border-radius: 0 var(--radius-surface) var(--radius-surface) 0;
 }
 
-.todo-table__draft-row .todo-table__cell {
+.todo-table__row--update .todo-table__cell, 
+.todo-table__row--add .todo-table__cell {
   border-color: var(--color-blue);
 }
 
