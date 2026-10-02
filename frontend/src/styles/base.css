@@ -4,7 +4,7 @@
   --color-light-grey: #e3e3e3;
   --color-grey: #bbbbbb;
   --color-muted: var(--color-grey);
-  --color-blue: #4169e1;
+  --color-blue: #2c91d0;
   --color-error: #d32f2f;
   --color-border: var(--color-black);
   --color-surface: var(--color-white);
@@ -47,14 +47,15 @@ button {
   background-color: var(--color-surface);
   height: 42px;
   transition:
-    background-color 0.2s,
-    color 0.2s,
-    border-color 0.2s;
+    background-color 0.1s,
+    color 0.1s,
+    border-color 0.1s,
+    transform 0.1s,
+    box-shadow 0.1s;
   font-size: 14px;
 }
 
-input,
-textarea {
+input {
   width: 100%;
   border: var(--border-width) solid var(--color-border);
   padding: var(--space-control);
@@ -82,8 +83,7 @@ button:disabled {
   color: var(--color-black);
 }
 
-input:focus,
-textarea:focus {
+input:focus {
   border-color: var(--color-blue);
 }
 
@@ -91,15 +91,14 @@ button:not(:disabled):hover,
 select:hover,
 button:focus,
 select:focus {
-  box-shadow: none;
+  box-shadow: 0 0 var(--color-black);
   transform: translate(4px, 4px);
   border-color: var(--color-blue);
 }
 
 button:focus,
 select:focus,
-input:focus,
-textarea:focus {
+input:focus {
   outline: none;
   background: none;
 }
@@ -108,10 +107,4 @@ form {
   display: flex;
   flex-direction: column;
   width: 100%;
-}
-
-textarea {
-  min-height: 100px;
-  resize: vertical;
-  overflow-y: auto;
 }
