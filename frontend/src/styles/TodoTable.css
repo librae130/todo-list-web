@@ -32,7 +32,7 @@
 .todo-table__row {
   border-radius: var(--radius-surface);
   box-shadow: var(--shadow-offset) var(--shadow-offset) var(--color-black);
-  animation: todo-row-in 0.5s ease-out;
+  animation: todo-row-in 0.3s ease;
 }
 
 .todo-table__header-row {
