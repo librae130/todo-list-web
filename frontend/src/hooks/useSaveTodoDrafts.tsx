@@ -28,7 +28,8 @@ const saveUpdatedTodo = async (draft: TodoDraft) => {
     name: draft.name ?? "",
     description: draft.description ?? "",
   };
-  return await TodoService.update(draft.id, updatedTodo);
+  const updatedTodoResponse = await TodoService.update(draft.id, updatedTodo);
+  return { ...updatedTodoResponse, createdAt: formatDateTime(updatedTodoResponse.createdAt) };
 };
 
 const saveRemovedTodo = async (draft: TodoDraft) => {
