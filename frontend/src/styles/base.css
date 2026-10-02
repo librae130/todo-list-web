@@ -2,7 +2,7 @@
   --color-black: #000000;
   --color-white: #ffffff;
   --color-light-grey: #e3e3e3;
-  --color-grey: #888888;
+  --color-grey: #bbbbbb;
   --color-muted: var(--color-grey);
   --color-blue: #4169e1;
   --color-error: #d32f2f;
@@ -14,7 +14,7 @@
   --space-3: 20px;
   --border-width: 2px;
   --radius-control: 10px;
-  --radius-surface: 12px;
+  --radius-surface: 10px;
   --shadow-offset: 4px;
 }
 
@@ -27,13 +27,18 @@ body {
   background-color: var(--color-surface);
   color: var(--color-black);
   font-size: 16px;
-  font-family: "Times New Roman", Times, serif;
+  font-family: Times 'Times New Roman', Times, serif;
 }
 
+button,
 input,
 select,
-button,
 textarea {
+  font-family: inherit;
+}
+
+select,
+button {
   width: 100%;
   border: var(--border-width) solid var(--color-border);
   padding: var(--space-control);
@@ -43,12 +48,30 @@ textarea {
   height: 42px;
   transition:
     background-color 0.2s,
-    color 0.2s;
+    color 0.2s,
+    border-color 0.2s;
+  font-size: 14px;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: var(--border-width) solid var(--color-border);
+  padding: var(--space-control);
+  border-radius: var(--radius-control);
+  background-color: var(--color-surface);
+  height: 42px;
+  transition:
+    border-color 0.2s;
   font-size: 16px;
 }
 
+textarea {
+  border-bottom: var(--border-width) solid var(--color-border);
+
+}
+
 input[type="password"] {
-  font-family: Arial, sans-serif;
   letter-spacing: 0;
 }
 
@@ -56,15 +79,18 @@ button:disabled {
   background-color: var(--color-grey);
   border-color: var(--color-border);
   cursor: default;
-  color: var(--color-white);
+  color: var(--color-black);
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--color-blue);
 }
 
 button:not(:disabled):hover,
 select:hover,
 button:focus,
-select:focus,
-input:focus,
-textarea:focus {
+select:focus {
   box-shadow: none;
   transform: translate(4px, 4px);
   border-color: var(--color-blue);
@@ -84,11 +110,8 @@ form {
   width: 100%;
 }
 
-button[type="submit"] {
-  margin-top: 30px;
-}
-
 textarea {
-  min-height: 200px;
+  min-height: 100px;
   resize: vertical;
+  overflow-y: auto;
 }

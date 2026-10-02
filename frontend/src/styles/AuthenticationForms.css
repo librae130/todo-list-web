@@ -16,7 +16,6 @@
 .form-login__submit-button,
 .form-register__submit-button {
   border: var(--border-width) solid var(--color-black);
-  padding: var(--space-control);
 }
 
 .form-login__submit-button:hover,
