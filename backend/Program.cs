@@ -38,16 +38,16 @@ builder.Services.AddScoped<TodoService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 
-string allowedOriginsString = builder.Configuration["AllowedHosts"]  = null!;
-string[] origins = allowedOriginsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
+string[] corsOrigins = builder.Configuration
+  .GetSection("Cors:AllowedOrigins")
+  .Get<string[]>() ?? Array.Empty<string>();
 builder.Services.AddCors(options =>
 {
   options.AddDefaultPolicy(policy =>
   {
-    policy.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+    policy.WithOrigins(corsOrigins).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
   });
 });
-
 
 builder
     .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
