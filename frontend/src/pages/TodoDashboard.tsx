@@ -26,7 +26,7 @@ export const TodoDashboard = () => {
     setTodos,
     isLoading: isTodosLoading,
     error: todosError,
-  } = useTodos(user, searchQuery, filterType);
+  } = useTodos({ user, searchQuery, filterType });
 
   const {
     todoDrafts,
@@ -41,7 +41,12 @@ export const TodoDashboard = () => {
     save,
     isSaving,
     error: saveError,
-  } = useSaveTodoDrafts({ todos, setTodos, todoDrafts, onSaved: resetDrafts });
+  } = useSaveTodoDrafts({
+    todos,
+    setTodos,
+    todoDrafts,
+    onDraftSaved: removeDraft,
+  });
 
   const isLoading = isUserLoading || isTodosLoading || isSaving;
   const error = saveError || todosError || authError;
