@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect } from "react";
+import { useRef, useLayoutEffect } from "react";
 import type { TodoDraft, TodoDraftChanges } from "../../types/TodoDraft.tsx";
 import { TODO_RESTRAINTS } from "../../constants/todo.tsx";
 
@@ -15,9 +15,6 @@ export const TodoTableDraftRow = ({
   onDraftUpdate,
   onCancel,
 }: TodoTableDraftRowProps) => {
-  const [name, setName] = useState(draft.name ?? "");
-  const [description, setDescription] = useState(draft.description ?? "");
-
   const nameInputRef = useRef<HTMLTextAreaElement>(null);
   const descriptionInputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -37,17 +34,7 @@ export const TodoTableDraftRow = ({
     textareas.forEach((textarea) => {
       textarea.style.height = `${sharedHeight}px`;
     });
-  }, [name, description]);
-
-  const handleNameChange = (value: string) => {
-    setName(value);
-    onDraftUpdate(draft.clientId, { name: value });
-  };
-
-  const handleDescriptionChange = (value: string) => {
-    setDescription(value);
-    onDraftUpdate(draft.clientId, { description: value });
-  };
+  }, [draft.name, draft.description]);
 
   if (draft.action === "remove") {
     return (
@@ -84,32 +71,36 @@ export const TodoTableDraftRow = ({
       <td className="todo-table__cell todo-table__cell--name">
         <textarea
           className="todo-table__textarea todo-table__textarea--name"
-          value={name}
+          value={draft.name}
           name="name"
           placeholder="Required"
           maxLength={TODO_RESTRAINTS.NAME_MAX_LENGTH}
-          onChange={(event) => handleNameChange(event.target.value)}
+          onChange={(event) =>
+            onDraftUpdate(draft.clientId, { name: event.target.value })
+          }
           ref={nameInputRef}
         />
         <div className="todo-table__footer">
           <p className="todo-table__footer-char-counter">
-            {name.length}/{TODO_RESTRAINTS.NAME_MAX_LENGTH}
+            {draft.name.length}/{TODO_RESTRAINTS.NAME_MAX_LENGTH}
           </p>
         </div>
       </td>
       <td className="todo-table__cell todo-table__cell--description">
         <textarea
           className="todo-table__textarea todo-table__textarea--description"
-          value={description}
+          value={draft.description}
           name="description"
           placeholder="Optional"
           maxLength={TODO_RESTRAINTS.DESCRIPTION_MAX_LENGTH}
-          onChange={(event) => handleDescriptionChange(event.target.value)}
+          onChange={(event) =>
+            onDraftUpdate(draft.clientId, { description: event.target.value })
+          }
           ref={descriptionInputRef}
         />
         <div className="todo-table__footer">
           <p className="todo-table__footer-char-counter">
-            {description.length}/{TODO_RESTRAINTS.DESCRIPTION_MAX_LENGTH}
+            {draft.description.length}/{TODO_RESTRAINTS.DESCRIPTION_MAX_LENGTH}
           </p>
         </div>
       </td>

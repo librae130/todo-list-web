@@ -20,25 +20,34 @@ export const TodoTable = ({
   onDraftUpdate,
   onDraftCancel,
 }: TodoTableProps) => {
+  const addDrafts: TodoDraft[] = [];
+  const draftsByTodoId = new Map<string, TodoDraft>();
+
+  for (const draft of todoDrafts) {
+    if (draft.action === "add") {
+      addDrafts.push(draft);
+    } else if (draft.id !== undefined && !draftsByTodoId.has(draft.id)) {
+      draftsByTodoId.set(draft.id, draft);
+    }
+  }
+
   return (
     <table className="todo-table">
       <tbody className="todo-table__body">
         {/* Render drafts for adding todos*/}
-        {todoDrafts
-          .filter((draft) => draft.action === "add")
-          .map((draft) => (
-            <TodoTableDraftRow
-              key={draft.clientId}
-              isLoading={isLoading}
-              draft={draft}
-              onDraftUpdate={onDraftUpdate}
-              onCancel={onDraftCancel}
-            />
-          ))}
+        {addDrafts.map((draft) => (
+          <TodoTableDraftRow
+            key={draft.clientId}
+            isLoading={isLoading}
+            draft={draft}
+            onDraftUpdate={onDraftUpdate}
+            onCancel={onDraftCancel}
+          />
+        ))}
 
         {/* Render drafts for updating/removing todos*/}
         {todos.map((todo: TodoDto) => {
-          const draft = todoDrafts.find((draft) => draft.id === todo.id);
+          const draft = draftsByTodoId.get(todo.id);
 
           if (draft) {
             return (
