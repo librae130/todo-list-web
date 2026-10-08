@@ -3,11 +3,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { TodoDashboard } from "./pages/TodoDashboard";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
-import { LoadingProvider } from "./hooks/useLoading";
 
 function App() {
   return (
-    <LoadingProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<TodoDashboard />} />
@@ -15,7 +13,6 @@ function App() {
           <Route path="/register" element={<Register />} />
         </Routes>
       </BrowserRouter>
-    </LoadingProvider>
   );
 }
 
