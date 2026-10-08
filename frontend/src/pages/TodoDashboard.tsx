@@ -48,6 +48,14 @@ export const TodoDashboard = () => {
     onDraftSaved: removeDraft,
   });
 
+  const handleCreateDraft = () => {
+    if (user == null) {
+      return;
+    }
+
+    addDraft(null, "add");
+  };
+
   const isLoading = isUserLoading || isTodosLoading || isSaving;
   const error = saveError || todosError || authError;
 
@@ -68,7 +76,7 @@ export const TodoDashboard = () => {
           onCancel={resetDrafts}
           onSearch={setSearchQuery}
           onFilter={setFilterType}
-          onCreate={() => addDraft(null, "add")}
+          onCreate={handleCreateDraft}
         />
         <div className="todo-table__container">
           <TodoTable
