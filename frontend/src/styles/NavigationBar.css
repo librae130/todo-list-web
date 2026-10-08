@@ -1,0 +1,24 @@
+.navigation-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-3);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.navigation-bar__brand {
+  font-size: x-large;
+  font-weight: bold;
+}
+
+.navigation-bar__actions {
+  display: flex;
+  align-items: center;
+}
+
+.login-button,
+.logout-button {
+  min-width: 70px;
+  height: 42px;
+}

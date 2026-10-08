@@ -1,11 +1,10 @@
+using System.Linq.Expressions;
 using AutoMapper;
 using backend.Data;
 using backend.Dtos;
 using backend.Entities;
 using backend.Helpers;
 using backend.Repositories;
-using Microsoft.Extensions.Logging;
-using System.Linq.Expressions;
 
 namespace backend.Services;
 
@@ -29,42 +28,49 @@ public class TodoService
   }
 
   public async Task<List<TodoDto>> SearchTodosAsync(
-        Guid userId,
-        SearchTodoDto searchTodoDto,
-        CancellationToken cancellationToken = default
-    )
+      Guid userId,
+      SearchTodoDto searchTodoDto,
+      CancellationToken cancellationToken = default
+  )
   {
     Expression<Func<Todo, bool>> filter = x => x.UserId == userId;
+    Expression<Func<Todo, bool>> filterBuilder = x => false;
+    bool useFilterBuilder = false;
 
     if (!string.IsNullOrWhiteSpace(searchTodoDto.Name))
     {
       string name = searchTodoDto.Name.Trim().ToLower();
-      filter = filter.AndAlso(x => x.Name.ToLower().Contains(name));
+      filterBuilder = filterBuilder.Or(x => x.Name.ToLower().Contains(name));
+      useFilterBuilder = true;
     }
 
     if (!string.IsNullOrWhiteSpace(searchTodoDto.Description))
     {
       string description = searchTodoDto.Description.Trim().ToLower();
-      filter = filter.AndAlso(x => x.Description.ToLower().Contains(description));
+      filterBuilder = filterBuilder.Or(x => x.Description.ToLower().Contains(description));
+      useFilterBuilder = true;
     }
 
     if (DateTime.TryParse(searchTodoDto.CreatedAt, out DateTime parsedDate))
     {
       DateTime startDate = parsedDate.Date;
       DateTime endDate = startDate.AddDays(1);
-      filter = filter.AndAlso(x => x.CreatedAt >= startDate && x.CreatedAt < endDate);
+      filterBuilder = filterBuilder.Or(x => x.CreatedAt >= startDate && x.CreatedAt < endDate);
+      useFilterBuilder = true;
+    }
+
+    if (useFilterBuilder)
+    {
+      filter = filter.And(filterBuilder);
     }
 
     List<Todo> searchedTodos = await _todoRepo.FindAsync(filter, cancellationToken);
     return searchedTodos.ConvertAll(x => _mapper.Map<TodoDto>(x));
   }
 
-  public async Task<TodoDto?> GetTodoByIdAsync(Guid userId, Guid id, CancellationToken ct = default)
+  public async Task<TodoDto?> GetTodoByIdAsync(Guid id, CancellationToken ct = default)
   {
-    Todo? foundTodo = await _todoRepo.FirstOrDefaultAsync(
-        x => x.Id == id && x.UserId == userId,
-        ct
-    );
+    Todo? foundTodo = await _todoRepo.GetByIdAsync(id, ct);
     return _mapper.Map<TodoDto>(foundTodo);
   }
 
@@ -73,7 +79,6 @@ public class TodoService
       AddTodoDto addTodoDto,
       CancellationToken ct = default
   )
-
   {
     Todo todo = _mapper.Map<Todo>(addTodoDto);
     todo.CreatedAt = DateTime.UtcNow;
@@ -88,39 +93,31 @@ public class TodoService
   }
 
   public async Task<TodoDto?> UpdateTodoAsync(
-      Guid userId,
       Guid id,
       UpdateTodoDto updateTodoDto,
       CancellationToken ct = default
   )
   {
-    Todo? foundTodo = await _todoRepo.FirstOrDefaultAsync(
-        x => x.Id == id && x.UserId == userId,
-        ct
-    );
+    Todo? foundTodo = await _todoRepo.GetByIdAsync(id, ct);
 
     if (foundTodo == null)
     {
       return null;
     }
 
-    foundTodo.Name = updateTodoDto.Name;
-    foundTodo.Description = updateTodoDto.Description;
+    _mapper.Map(updateTodoDto, foundTodo);
 
     _todoRepo.Update(foundTodo);
     await _todoRepo.SaveAsync(ct);
 
-    _logger.LogInformation("Todo updated: {TodoId} for user {UserId}", id, userId);
+    _logger.LogInformation("Todo updated: {TodoId}", id);
 
     return _mapper.Map<TodoDto>(foundTodo);
   }
 
-  public async Task<bool> RemoveTodoAsync(Guid userId, Guid id, CancellationToken ct = default)
+  public async Task<bool> RemoveTodoAsync(Guid id, CancellationToken ct = default)
   {
-    Todo? foundTodo = await _todoRepo.FirstOrDefaultAsync(
-        x => x.Id == id && x.UserId == userId,
-        ct
-    );
+    Todo? foundTodo = await _todoRepo.GetByIdAsync(id, ct);
 
     if (foundTodo == null)
     {
@@ -130,7 +127,7 @@ public class TodoService
     _todoRepo.Remove(foundTodo);
     await _todoRepo.SaveAsync(ct);
 
-    _logger.LogInformation("Todo deleted: {TodoId} for user {UserId}", id, userId);
+    _logger.LogInformation("Todo deleted: {TodoId}", id);
 
     return true;
   }

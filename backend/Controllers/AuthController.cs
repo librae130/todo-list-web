@@ -83,6 +83,6 @@ public class AuthController : ControllerBase
 
         CookieHelper.AppendAuthCookies(Response, authResult, _jwtOptions);
 
-        return Ok(authResult);
+        return Ok();
     }
 }

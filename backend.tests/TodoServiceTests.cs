@@ -67,7 +67,7 @@ public class TodoServiceTests
     var service = CreateService(context);
 
     // Act
-    var result = await service.GetTodoByIdAsync(ownerUserId, todoId);
+    var result = await service.GetTodoByIdAsync(todoId);
 
     // Assert
     Assert.NotNull(result);
@@ -105,7 +105,7 @@ public class TodoServiceTests
     var service = CreateService(context);
 
     // Act
-    var result = await service.GetTodoByIdAsync(ownerUserId, todoId);
+    var result = await service.GetTodoByIdAsync(todoId);
 
     // Assert
     Assert.Null(result);

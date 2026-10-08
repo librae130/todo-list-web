@@ -4,7 +4,6 @@ using backend.Dtos;
 using backend.Entities;
 using backend.Options;
 using backend.Repositories;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace backend.Services;

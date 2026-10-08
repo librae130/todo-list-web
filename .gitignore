@@ -27,3 +27,18 @@ dist-ssr
 /backend/obj/
 /backend.tests/obj/
 /backend.tests/bin/
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+*_override.tf
+*_override.tf.json
+override.tf
+override.tf.json
+.terraformrc
+terraform.rc

@@ -1,28 +1,13 @@
-import { useState } from "react";
 import { LoginForm } from "../components/authentication-forms/LoginForm";
-import { useNavigate } from "react-router-dom";
-import { AuthService } from "../services/AuthService";
-import { getErrorMessage } from "../utils/errorUtils";
+import { useUser } from "../hooks/useUser";
 
 export const Login = () => {
-  const navigate = useNavigate();
-
-  const [error, setError] = useState<string>("");
-
-  const loginUserAsync = async (username: string, password: string) => {
-    try {
-      await AuthService.login(username, password);
-
-      navigate("/");
-    } catch (error: any) {
-      setError(getErrorMessage(error));
-    }
-  };
+  const { error, login } = useUser();
 
   return (
     <div className="login-page">
       <div className="login-form">
-        <LoginForm onClickLoginAsync={loginUserAsync} errorMessage={error} />
+        <LoginForm onLogin={login} errorMessage={error} />
       </div>
     </div>
   );

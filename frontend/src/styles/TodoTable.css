@@ -1,0 +1,128 @@
+.todo-table__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: absolute;
+  right: 16px;
+  bottom: 10px;
+  left: 16px;
+  pointer-events: none;
+}
+
+.todo-table__footer-error-message {
+  color: var(--color-error);
+  font-size: 15px;
+}
+
+.todo-table__footer-char-counter {
+  flex: 1;
+  color: var(--color-muted);
+  font-size: 15px;
+  text-align: right;
+}
+
+.todo-table {
+  width: 100%;
+  border-spacing: 0;
+}
+
+.todo-table__body {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  gap: 20px;
+}
+
+.todo-table__row {
+  display: table;
+  table-layout: fixed;
+  border-radius: var(--radius-surface);
+  width: 100%;
+  animation: todo-row-in 0.3s ease-in-out;
+}
+
+.todo-table__header-row {
+  display: none;
+}
+
+.todo-table__cell {
+  border: var(--border-width) solid var(--color-border);
+  border-right: 0;
+  padding: 10px 8px;
+  word-break: break-word;
+  vertical-align: top;
+  white-space: pre-wrap;
+  font-size: 16px;
+}
+
+.todo-table__cell--name {
+  width: 28.57%;
+  border-radius: var(--radius-surface) 0 0 var(--radius-surface);
+  position: relative;
+}
+
+.todo-table__cell--description {
+  width: 42.85%;
+  position: relative;
+}
+
+.todo-table__cell--date {
+  width: 14.28%;
+}
+
+.todo-table__cell--action {
+  border-right: var(--border-width) solid var(--color-border);
+  border-radius: 0 var(--radius-surface) var(--radius-surface) 0;
+}
+
+.todo-table__row--update .todo-table__cell, 
+.todo-table__row--add .todo-table__cell {
+  border-color: var(--color-blue);
+}
+
+.todo-table__row--remove .todo-table__cell {
+  background-color: var(--color-light-grey);
+}
+
+.todo-table__row--remove .todo-table__cell--name,
+.todo-table__row--remove .todo-table__cell--description,
+.todo-table__row--remove .todo-table__cell--date {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
+.todo-table__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 4px 0 0;
+}
+
+.todo-table__action-button {
+  width: 50%;
+  padding: 10px 0;
+}
+
+.todo-table__textarea {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+  overflow-y: hidden;
+  resize: none;
+  padding: 0 0 30px 0;
+  border-radius: none;
+}
+
+@keyframes todo-row-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

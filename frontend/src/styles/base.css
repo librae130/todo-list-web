@@ -1,49 +1,91 @@
+:root {
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-light-grey: #e3e3e3;
+  --color-grey: #bbbbbb;
+  --color-muted: var(--color-grey);
+  --color-blue: #2c91d0;
+  --color-error: #d32f2f;
+  --color-border: var(--color-black);
+  --color-surface: var(--color-white);
+  --space-control: 10px 12px;
+  --space-1: 8px;
+  --space-2: 12px;
+  --space-3: 20px;
+  --border-width: 2px;
+  --radius-control: 10px;
+  --radius-surface: 10px;
+  --shadow-offset: 4px;
+}
+
 * {
-  background-color: white;
-  color: black;
   box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-surface);
+  color: var(--color-black);
   font-size: 16px;
-  font-family: "Times New Roman", Times, serif;
+  font-family: Times 'Times New Roman', Times, serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+select,
+button {
+  width: 100%;
+  border: var(--border-width) solid var(--color-border);
+  padding: var(--space-control);
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) var(--color-black);
+  background-color: var(--color-surface);
+  height: 42px;
+  transition:
+    background-color 0.1s,
+    color 0.1s,
+    border-color 0.1s,
+    transform 0.1s,
+    box-shadow 0.1s;
+  font-size: 14px;
 }
 
 input {
-  border: solid 2px black;
-  padding: 10px 8px;
   width: 100%;
+  border: var(--border-width) solid var(--color-border);
+  padding: var(--space-control);
+  border-radius: var(--radius-control);
+  background-color: var(--color-surface);
+  height: 42px;
+  transition:
+    border-color 0.2s;
+  font-size: 16px;
 }
 
-button {
-  border: solid 2px black;
-  background-color: black;
-  color: white;
-  padding: 10px 8px;
+input[type="password"] {
+  letter-spacing: 0;
 }
 
-button:hover {
-  border: solid 2px black;
-  background-color: white;
-  color: black;
+input:focus {
+  border-color: var(--color-blue);
 }
 
-select {
-  height: 46px;
-  font-weight: bold;
+button:not(:disabled):hover,
+select:hover,
+button:focus,
+select:focus {
+  box-shadow: 0 0 var(--color-black);
+  transform: translate(4px, 4px);
+  border-color: var(--color-blue);
 }
 
 form {
   display: flex;
   flex-direction: column;
-  width: 100%;
-}
-
-button[type="submit"] {
-  margin-top: 30px;
-}
-
-textarea {
-  border: solid 2px black;
-  padding: 10px 8px;
-  min-height: 200px;
-  resize: vertical;
   width: 100%;
 }
