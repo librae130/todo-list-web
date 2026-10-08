@@ -9,7 +9,10 @@ import { formatDateTime } from "../utils/stringUtils.tsx";
 import { getErrorMessage } from "../utils/errorUtils.tsx";
 import { compareTodo } from "../utils/todoUtils.tsx";
 
-const buildSearchDto = (query: string, filterType: TodoFilter): SearchTodoDto => {
+const buildSearchDto = (
+  query: string,
+  filterType: TodoFilter,
+): SearchTodoDto => {
   const dto: SearchTodoDto = { name: "", description: "", createdAt: "" };
 
   switch (filterType) {
@@ -31,11 +34,17 @@ const buildSearchDto = (query: string, filterType: TodoFilter): SearchTodoDto =>
   return dto;
 };
 
-export const useTodos = (
-  user: UserDto | null,
-  searchQuery: string,
-  filterType: TodoFilter,
-) => {
+interface UseTodosOptions {
+  user: UserDto | null;
+  searchQuery: string;
+  filterType: TodoFilter;
+}
+
+export const useTodos = ({
+  user,
+  searchQuery,
+  filterType,
+}: UseTodosOptions) => {
   const [todos, setTodos] = useState<TodoDto[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");

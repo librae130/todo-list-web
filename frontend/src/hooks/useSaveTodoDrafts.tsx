@@ -32,7 +32,7 @@ const saveUpdatedTodo = async (todos: TodoDto[], draft: TodoDraft) => {
   }
 
   const originalTodo = todos.find((todo) => todo.id === draft.id);
-  
+
   if (
     originalTodo &&
     originalTodo.name === draft.name &&
@@ -65,14 +65,14 @@ interface UseSaveTodoDraftsOptions {
   todos: TodoDto[];
   setTodos: Dispatch<SetStateAction<TodoDto[]>>;
   todoDrafts: TodoDraft[];
-  onSaved: () => void;
+  onDraftSaved: (clientId: string) => void;
 }
 
 export const useSaveTodoDrafts = ({
   todos,
   setTodos,
   todoDrafts,
-  onSaved,
+  onDraftSaved,
 }: UseSaveTodoDraftsOptions) => {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
@@ -82,7 +82,14 @@ export const useSaveTodoDrafts = ({
     setError("");
 
     try {
-      let updatedTodos = [...todos];
+      const invalidDraft = todoDrafts.find(
+        (draft) => draft.action !== "remove" && draft.name.trim().length <= 0,
+      );
+
+      if (invalidDraft) {
+        setError("A to-do name is required.");
+        return;
+      }
 
       for (const draft of todoDrafts) {
         switch (draft.action) {
@@ -90,7 +97,9 @@ export const useSaveTodoDrafts = ({
             const createdTodo = await saveAddedTodo(draft);
 
             if (createdTodo !== null) {
-              updatedTodos = [createdTodo, ...updatedTodos];
+              setTodos((currentTodos) =>
+                [createdTodo, ...currentTodos].toSorted(compareTodo),
+              );
             }
 
             break;
@@ -99,8 +108,12 @@ export const useSaveTodoDrafts = ({
             const updatedTodo = await saveUpdatedTodo(todos, draft);
 
             if (updatedTodo !== null) {
-              updatedTodos = updatedTodos.map((todo) =>
-                todo.id === draft.id ? { ...todo, ...updatedTodo } : todo,
+              setTodos((currentTodos) =>
+                currentTodos
+                  .map((todo) =>
+                    todo.id === draft.id ? { ...todo, ...updatedTodo } : todo,
+                  )
+                  .toSorted(compareTodo),
               );
             }
 
@@ -108,20 +121,23 @@ export const useSaveTodoDrafts = ({
           }
           case "remove": {
             const removedId = await saveRemovedTodo(draft);
-            updatedTodos = updatedTodos.filter((todo) => todo.id !== removedId);
+            setTodos((currentTodos) =>
+              currentTodos
+                .filter((todo) => todo.id !== removedId)
+                .toSorted(compareTodo),
+            );
             break;
           }
         }
-      }
 
-      setTodos(updatedTodos.toSorted(compareTodo));
-      onSaved();
+        onDraftSaved(draft.clientId);
+      }
     } catch (error: unknown) {
       setError(getErrorMessage(error));
     } finally {
       setIsSaving(false);
     }
-  }, [todos, setTodos, todoDrafts, onSaved]);
+  }, [todos, setTodos, todoDrafts, onDraftSaved]);
 
   return { save, isSaving, error };
 };
