@@ -22,17 +22,19 @@ provider "azurerm" {
 variable "subscription_id" {
   description = "Azure subscription ID to deploy into."
   type        = string
+  default     = "a01720be-88e9-47ee-88f0-a408dfd0b016"
 }
 
 variable "location" {
   description = "Azure region for the resources."
   type        = string
-  default     = "eastus"
+  default     = "southeastasia"
 }
 
 variable "ssh_source_cidr" {
   description = "Your public IPv4 address in CIDR form."
   type        = string
+  default     = "112.109.90.2/32"
 
   validation {
     condition     = can(cidrnetmask(var.ssh_source_cidr))
@@ -43,6 +45,7 @@ variable "ssh_source_cidr" {
 variable "ssh_public_key_path" {
   description = "Path to your SSH public key, such as ~/.ssh/id_ed25519.pub."
   type        = string
+  default     = "~/.ssh/todo-app-azure.pub"
 }
 
 variable "db_admin_username" {
@@ -201,7 +204,10 @@ resource "azurerm_linux_virtual_machine" "app" {
   computer_name                   = "todo-app-vm"
   resource_group_name             = azurerm_resource_group.app.name
   location                        = azurerm_resource_group.app.location
-  size                            = "Standard_B1s"
+  size                            = "Standard_D2s_v3"
+  priority                        = "Spot"
+  eviction_policy                 = "Deallocate"
+  max_bid_price                   = -1
   admin_username                  = "azureuser"
   disable_password_authentication = true
   network_interface_ids           = [azurerm_network_interface.app.id]
@@ -225,7 +231,7 @@ resource "azurerm_linux_virtual_machine" "app" {
 }
 
 resource "azurerm_storage_account" "frontend" {
-  name                            = "todo-app-${random_string.suffix.result}"
+  name                            = "todoapp${random_string.suffix.result}"
   resource_group_name             = azurerm_resource_group.app.name
   location                        = azurerm_resource_group.app.location
   account_tier                    = "Standard"
