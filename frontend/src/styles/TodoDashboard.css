@@ -39,24 +39,26 @@
   background-color: var(--color-surface);
   border: var(--border-width) solid var(--color-error);
   border-radius: var(--radius-surface);
-  box-shadow: var(--shadow-offset) var(--shadow-offset) var(--color-black);
-  display: flex;
+  box-shadow: var(--shadow-offset) var(--shadow-offset) var(--color-error);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-3);
-  max-width: min(32rem, calc(100vw - 2 * var(--space-3)));
+  width: min(32rem, calc(100vw - 2 * var(--space-3)));
   padding: var(--space-3);
 }
 
 .todo-dashboard__error-toast p {
+  min-width: 0;
   margin: 0;
   overflow-wrap: anywhere;
 }
 
 .todo-dashboard__error-toast button {
-  flex: 0 0 auto;
-  color: inherit;
+  width: auto;
+  height: auto;
+  white-space: nowrap;
   background: transparent;
-  border: 0;
   cursor: pointer;
 }
 
