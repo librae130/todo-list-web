@@ -1,5 +1,9 @@
 import { apiClient } from "../utils/apiClient";
 import type { AddTodoDto } from "../dtos/AddTodoDto";
+import type {
+  TodoBatchOperationResultDto,
+  TodoBatchRequestDto,
+} from "../dtos/TodoBatchDto";
 import type { TodoDto } from "../dtos/TodoDto";
 import type { SearchTodoDto } from "../dtos/SearchTodoDto";
 import type { UpdateTodoDto } from "../dtos/UpdateTodoDto";
@@ -9,9 +13,13 @@ export class TodoService {
     searchTodoDto: SearchTodoDto,
     signal?: AbortSignal,
   ): Promise<TodoDto[]> {
-    const response = await apiClient.post<TodoDto[]>("/api/todos/search", searchTodoDto, {
-      signal,
-    });
+    const response = await apiClient.post<TodoDto[]>(
+      "/api/todos/search",
+      searchTodoDto,
+      {
+        signal,
+      },
+    );
     return response.data;
   }
 
@@ -20,12 +28,25 @@ export class TodoService {
     return response.data;
   }
 
-  public static async update(id: string, todo: UpdateTodoDto): Promise<TodoDto> {
+  public static async update(
+    id: string,
+    todo: UpdateTodoDto,
+  ): Promise<TodoDto> {
     const response = await apiClient.put<TodoDto>(`/api/todos/${id}`, todo);
     return response.data;
   }
 
   public static async remove(id: string): Promise<void> {
     await apiClient.delete(`/api/todos/${id}`);
+  }
+
+  public static async applyBatch(
+    request: TodoBatchRequestDto,
+  ): Promise<TodoBatchOperationResultDto[]> {
+    const response = await apiClient.post<TodoBatchOperationResultDto[]>(
+      "/api/todos/batch",
+      request,
+    );
+    return response.data;
   }
 }

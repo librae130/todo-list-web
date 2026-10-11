@@ -1,62 +1,86 @@
 import type { TodoDto } from "../../dtos/TodoDto.tsx";
 import { TodoTableRow } from "./TodoTableRow.tsx";
-import type { TodoDraft, TodoDraftChanges } from "../../types/TodoDraft.tsx";
-import { TodoTableDraftRow } from "./TodoTableDraftRow.tsx";
+import type { TodoBatchOperationDraftDto } from "../../dtos/TodoBatchDto.tsx";
+import type { TodoBatchAction } from "../../types/TodoBatchAction.tsx";
+import type { TodoBatchOperationChanges } from "../../types/TodoBatchOperationChanges.tsx";
+import { TodoTableBatchOperationRow } from "./TodoTableBatchOperationRow.tsx";
 
 type TodoTableProps = {
   isLoading: boolean;
   todos: TodoDto[];
-  todoDrafts: TodoDraft[];
-  onDraftAdd: (todo: TodoDto | null, action: TodoDraft["action"]) => void;
-  onDraftUpdate: (clientId: string, changes: TodoDraftChanges) => void;
-  onDraftCancel: (clientId: string) => void;
+  batchOperations: TodoBatchOperationDraftDto[];
+  onBatchOperationAdd: (todo: TodoDto | null, action: TodoBatchAction) => void;
+  onBatchOperationUpdate: (
+    clientId: string,
+    changes: TodoBatchOperationChanges,
+  ) => void;
+  onBatchOperationCancel: (clientId: string) => void;
 };
 
 export const TodoTable = ({
   isLoading,
   todos,
-  todoDrafts,
-  onDraftAdd,
-  onDraftUpdate,
-  onDraftCancel,
+  batchOperations,
+  onBatchOperationAdd,
+  onBatchOperationUpdate,
+  onBatchOperationCancel,
 }: TodoTableProps) => {
-  const addDrafts: TodoDraft[] = [];
-  const draftsByTodoId = new Map<string, TodoDraft>();
+  const operationsByTodoId = new Map<string, TodoBatchOperationDraftDto>();
 
-  for (const draft of todoDrafts) {
-    if (draft.action === "add") {
-      addDrafts.push(draft);
-    } else if (draft.id !== undefined && !draftsByTodoId.has(draft.id)) {
-      draftsByTodoId.set(draft.id, draft);
+  for (const operation of batchOperations) {
+    if (
+      operation.action !== "add" &&
+      operation.todoId !== undefined &&
+      !operationsByTodoId.has(operation.todoId)
+    ) {
+      operationsByTodoId.set(operation.todoId, operation);
     }
   }
+
+  const newOperations = batchOperations.filter(
+    (operation) => operation.action === "add",
+  );
+
+  const renderedOperationIds = new Set<string>();
+  for (const todo of todos) {
+    const operation = operationsByTodoId.get(todo.id);
+    if (operation) {
+      renderedOperationIds.add(operation.clientId);
+    }
+  }
+
+  const remainingOperations = batchOperations.filter(
+    (operation) =>
+      operation.action !== "add" &&
+      !renderedOperationIds.has(operation.clientId),
+  );
 
   return (
     <table className="todo-table">
       <tbody className="todo-table__body">
-        {/* Render drafts for adding todos*/}
-        {addDrafts.map((draft) => (
-          <TodoTableDraftRow
-            key={draft.clientId}
+        {/* Keep new rows at the top of the table. */}
+        {newOperations.map((operation) => (
+          <TodoTableBatchOperationRow
+            key={operation.clientId}
             isLoading={isLoading}
-            draft={draft}
-            onDraftUpdate={onDraftUpdate}
-            onCancel={onDraftCancel}
+            operation={operation}
+            onOperationUpdate={onBatchOperationUpdate}
+            onCancel={onBatchOperationCancel}
           />
         ))}
 
-        {/* Render drafts for updating/removing todos*/}
+        {/* Replace matching todos with their pending operation. */}
         {todos.map((todo: TodoDto) => {
-          const draft = draftsByTodoId.get(todo.id);
+          const operation = operationsByTodoId.get(todo.id);
 
-          if (draft) {
+          if (operation) {
             return (
-              <TodoTableDraftRow
-                key={draft.clientId}
+              <TodoTableBatchOperationRow
+                key={operation.clientId}
                 isLoading={isLoading}
-                draft={draft}
-                onDraftUpdate={onDraftUpdate}
-                onCancel={onDraftCancel}
+                operation={operation}
+                onOperationUpdate={onBatchOperationUpdate}
+                onCancel={onBatchOperationCancel}
               />
             );
           }
@@ -66,11 +90,22 @@ export const TodoTable = ({
               key={todo.id}
               isLoading={isLoading}
               todo={todo}
-              onEdit={() => onDraftAdd(todo, "update")}
-              onRemove={() => onDraftAdd(todo, "remove")}
+              onEdit={() => onBatchOperationAdd(todo, "update")}
+              onRemove={() => onBatchOperationAdd(todo, "remove")}
             />
           );
         })}
+
+        {/* Render update/removal operations hidden by the active filter. */}
+        {remainingOperations.map((operation) => (
+          <TodoTableBatchOperationRow
+            key={operation.clientId}
+            isLoading={isLoading}
+            operation={operation}
+            onOperationUpdate={onBatchOperationUpdate}
+            onCancel={onBatchOperationCancel}
+          />
+        ))}
       </tbody>
     </table>
   );

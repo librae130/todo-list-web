@@ -1,6 +1,6 @@
 import { SearchBar } from "./SearchBar.tsx";
 import { TodoFilterSelect } from "./TodoFilterSelect.tsx";
-import type { TodoFilter } from "../../types/TodoFilter.tsx";
+import type { TodoFilterOption } from "../../types/TodoFilterOption.tsx";
 
 type TodoDashboardControlsProps = {
   isEditing: boolean;
@@ -8,7 +8,7 @@ type TodoDashboardControlsProps = {
   onSave: () => void;
   onCancel: () => void;
   onSearch: (query: string) => void;
-  onFilter: (filter: TodoFilter) => void;
+  onFilter: (filter: TodoFilterOption) => void;
   onCreate: () => void;
 };
 

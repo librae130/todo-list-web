@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { TodoService } from "../services/TodoService.tsx";
 import type { TodoDto } from "../dtos/TodoDto.tsx";
 import type { UserDto } from "../dtos/UserDto.tsx";
 import type { SearchTodoDto } from "../dtos/SearchTodoDto.tsx";
-import type { TodoFilter } from "../types/TodoFilter.tsx";
+import type { TodoFilterOption } from "../types/TodoFilterOption.tsx";
 import { formatDateTime } from "../utils/stringUtils.tsx";
 import { getErrorMessage } from "../utils/errorUtils.tsx";
 import { compareTodo } from "../utils/todoUtils.tsx";
 
 const buildSearchDto = (
   query: string,
-  filterType: TodoFilter,
+  filterType: TodoFilterOption,
 ): SearchTodoDto => {
   const dto: SearchTodoDto = { name: "", description: "", createdAt: "" };
 
@@ -37,7 +37,7 @@ const buildSearchDto = (
 interface UseTodosOptions {
   user: UserDto | null;
   searchQuery: string;
-  filterType: TodoFilter;
+  filterType: TodoFilterOption;
 }
 
 export const useTodos = ({
@@ -48,11 +48,16 @@ export const useTodos = ({
   const [todos, setTodos] = useState<TodoDto[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [refreshCount, setRefreshCount] = useState(0);
+  const refresh = useCallback(() => {
+    setRefreshCount((count) => count + 1);
+  }, []);
 
   useEffect(() => {
     if (user == null) {
       setTodos([]);
       setError("");
+      setIsLoading(false);
       return;
     }
 
@@ -86,7 +91,7 @@ export const useTodos = ({
     fetchTodos();
 
     return () => abortController.abort();
-  }, [user, searchQuery, filterType]);
+  }, [user, searchQuery, filterType, refreshCount]);
 
-  return { todos, setTodos, isLoading, error };
+  return { todos, isLoading, error, refresh };
 };

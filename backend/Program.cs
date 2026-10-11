@@ -35,6 +35,7 @@ builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptio
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork<ApplicationDBContext>>();
 builder.Services.AddSingleton<TokenService>();
 builder.Services.AddScoped<TodoService>();
+builder.Services.AddScoped<TodoBatchService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 

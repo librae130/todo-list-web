@@ -2,3 +2,5 @@ export const TODO_RESTRAINTS = {
   NAME_MAX_LENGTH: 100,
   DESCRIPTION_MAX_LENGTH: 500,
 } as const;
+
+export const TODO_BATCH_MAX_OPERATIONS = 100;
