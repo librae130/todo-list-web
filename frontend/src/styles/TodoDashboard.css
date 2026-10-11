@@ -30,11 +30,34 @@
   display: flex;
 }
 
-.status-message--error {
+.todo-dashboard__error-toast {
   position: fixed;
-  top: 0;
+  top: var(--space-3);
+  right: var(--space-3);
   z-index: 1001;
   color: var(--color-error);
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-error);
+  border-radius: var(--radius-surface);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) var(--color-black);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: min(32rem, calc(100vw - 2 * var(--space-3)));
+  padding: var(--space-3);
+}
+
+.todo-dashboard__error-toast p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.todo-dashboard__error-toast button {
+  flex: 0 0 auto;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
 }
 
 .status-message--info {

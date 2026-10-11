@@ -1,1 +1,2 @@
 export const SEARCH_DELAY = 500;
+export const TODO_DASHBOARD_TOAST_TIMEOUT = 5000;

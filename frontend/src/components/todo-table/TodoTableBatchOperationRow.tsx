@@ -1,20 +1,24 @@
 import { useRef, useLayoutEffect } from "react";
-import type { TodoDraft, TodoDraftChanges } from "../../types/TodoDraft.tsx";
+import type { TodoBatchOperationDraftDto } from "../../dtos/TodoBatchDto.tsx";
+import type { TodoBatchOperationChanges } from "../../types/TodoBatchOperationChanges.tsx";
 import { TODO_RESTRAINTS } from "../../constants/todo.tsx";
 
-type TodoTableDraftRowProps = {
+type TodoTableBatchOperationRowProps = {
   isLoading: boolean;
-  draft: TodoDraft;
-  onDraftUpdate: (clientId: string, changes: TodoDraftChanges) => void;
+  operation: TodoBatchOperationDraftDto;
+  onOperationUpdate: (
+    clientId: string,
+    changes: TodoBatchOperationChanges,
+  ) => void;
   onCancel: (clientId: string) => void;
 };
 
-export const TodoTableDraftRow = ({
+export const TodoTableBatchOperationRow = ({
   isLoading,
-  draft,
-  onDraftUpdate,
+  operation,
+  onOperationUpdate,
   onCancel,
-}: TodoTableDraftRowProps) => {
+}: TodoTableBatchOperationRowProps) => {
   const nameInputRef = useRef<HTMLTextAreaElement>(null);
   const descriptionInputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -34,19 +38,19 @@ export const TodoTableDraftRow = ({
     textareas.forEach((textarea) => {
       textarea.style.height = `${sharedHeight}px`;
     });
-  }, [draft.name, draft.description]);
+  }, [operation.name, operation.description]);
 
-  if (draft.action === "remove") {
+  if (operation.action === "remove") {
     return (
-      <tr className="todo-table__row todo-table__draft-row todo-table__row--remove">
+      <tr className="todo-table__row todo-table__batch-operation-row todo-table__row--remove">
         <td className="todo-table__cell todo-table__cell--name">
-          {draft.name}
+          {operation.name}
         </td>
         <td className="todo-table__cell todo-table__cell--description">
-          {draft.description}
+          {operation.description}
         </td>
         <td className="todo-table__cell todo-table__cell--date">
-          {draft.createdAt}
+          {operation.createdAt ?? "-"}
         </td>
         <td className="todo-table__cell todo-table__cell--action">
           <div className="todo-table__action">
@@ -54,7 +58,7 @@ export const TodoTableDraftRow = ({
               className="todo-table__action-button todo-table__action-button--cancel"
               type="button"
               disabled={isLoading}
-              onClick={() => onCancel(draft.clientId)}
+              onClick={() => onCancel(operation.clientId)}
             >
               Cancel
             </button>
@@ -66,46 +70,51 @@ export const TodoTableDraftRow = ({
 
   return (
     <tr
-      className={`todo-table__row todo-table__draft-row todo-table__row--${draft.action}`}
+      className={`todo-table__row todo-table__batch-operation-row todo-table__row--${operation.action}`}
     >
       <td className="todo-table__cell todo-table__cell--name">
         <textarea
           className="todo-table__textarea todo-table__textarea--name"
-          value={draft.name}
+          value={operation.name}
           name="name"
           placeholder="Required"
           maxLength={TODO_RESTRAINTS.NAME_MAX_LENGTH}
+          disabled={isLoading}
           onChange={(event) =>
-            onDraftUpdate(draft.clientId, { name: event.target.value })
+            onOperationUpdate(operation.clientId, { name: event.target.value })
           }
           ref={nameInputRef}
         />
         <div className="todo-table__footer">
           <p className="todo-table__footer-char-counter">
-            {draft.name.length}/{TODO_RESTRAINTS.NAME_MAX_LENGTH}
+            {operation.name.length}/{TODO_RESTRAINTS.NAME_MAX_LENGTH}
           </p>
         </div>
       </td>
       <td className="todo-table__cell todo-table__cell--description">
         <textarea
           className="todo-table__textarea todo-table__textarea--description"
-          value={draft.description}
+          value={operation.description}
           name="description"
           placeholder="Optional"
           maxLength={TODO_RESTRAINTS.DESCRIPTION_MAX_LENGTH}
+          disabled={isLoading}
           onChange={(event) =>
-            onDraftUpdate(draft.clientId, { description: event.target.value })
+            onOperationUpdate(operation.clientId, {
+              description: event.target.value,
+            })
           }
           ref={descriptionInputRef}
         />
         <div className="todo-table__footer">
           <p className="todo-table__footer-char-counter">
-            {draft.description.length}/{TODO_RESTRAINTS.DESCRIPTION_MAX_LENGTH}
+            {operation.description.length}/
+            {TODO_RESTRAINTS.DESCRIPTION_MAX_LENGTH}
           </p>
         </div>
       </td>
       <td className="todo-table__cell todo-table__cell--date">
-        {draft.createdAt ?? "-"}
+        {operation.createdAt ?? "-"}
       </td>
       <td className="todo-table__cell todo-table__cell--action">
         <div className="todo-table__action">
@@ -113,7 +122,7 @@ export const TodoTableDraftRow = ({
             className="todo-table__action-button todo-table__action-button--cancel"
             type="button"
             disabled={isLoading}
-            onClick={() => onCancel(draft.clientId)}
+            onClick={() => onCancel(operation.clientId)}
           >
             Cancel
           </button>
