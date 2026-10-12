@@ -45,7 +45,7 @@ jobs:
           dotnet ef migrations bundle \
             --project backend/backend.csproj \
             --self-contained -r linux-x64 \
-            --outputbackend/publish/efbundle \
+            --output backend/publish/efbundle \
             --force
 
       # ---------- Deploy ----------
