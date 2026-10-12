@@ -155,13 +155,7 @@ public class TodoBatchService
       CancellationToken ct
   )
   {
-    Todo todo = _mapper.Map<Todo>(
-        new AddTodoDto
-        {
-          Name = operation.Name ?? string.Empty,
-          Description = operation.Description ?? string.Empty,
-        }
-    );
+    Todo todo = _mapper.Map<Todo>(operation);
     todo.UserId = userId;
     todo.CreatedAt = DateTime.UtcNow;
 
@@ -184,8 +178,7 @@ public class TodoBatchService
       return false;
     }
 
-    UpdateTodoDto updateTodo = _mapper.Map<UpdateTodoDto>(operation);
-    _mapper.Map(updateTodo, todo);
+    _mapper.Map(operation, todo);
     _todoRepo.Update(todo);
     result.Todo = _mapper.Map<TodoDto>(todo);
     return true;
