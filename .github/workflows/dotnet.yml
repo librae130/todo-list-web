@@ -22,8 +22,6 @@ jobs:
         dotnet-version: 8.0.x
     - name: Navigate to backend.tests directory
       run: cd backend.tests
-    - name: Restore dependencies
-      run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
     - name: Test
