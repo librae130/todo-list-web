@@ -1,0 +1,91 @@
+name: Deploy
+on:
+  push:
+    branches: [test]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # ---------- Frontend ----------
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build frontend
+        working-directory: frontend
+        env:
+          VITE_API_BASE_URL: ${{ vars.API_BASE_URL }}
+        run: |
+          npm ci
+          npm run build
+
+      # ---------- Backend ----------
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Publish backend
+        run: dotnet publish backend/backend.csproj -c Release -o backend/publish
+      - name: Write appsettings for Production
+        env:
+          SQL_PASSWORD: ${{ secrets.SQL_ADMIN_PASSWORD }}
+          DB_SERVER: ${{ vars.DB_SERVER_FQDN }}
+          FRONTEND_URL: ${{ vars.FRONTEND_URL }}
+        run: |
+          jq -n \
+            --arg conn "Server=tcp:${DB_SERVER},1433;Database=TodoApp;User Id=dbadmin;Password=${SQL_PASSWORD};Encrypt=True;TrustServerCertificate=False;" \
+            --arg origin "${FRONTEND_URL%/}" \
+            '{ConnectionStrings:{DatabaseConnection:$conn}, Cors:{AllowedOrigins:[$origin]}}' \
+            > backend/publish/appsettings.Development.json
+      - name: Build EF migration bundle
+        run: |
+          dotnet tool install --global dotnet-ef
+          dotnet ef migrations bundle \
+            --project backend/backend.csproj \
+            --self-contained -r linux-x64 \
+            --outputbackend/publish/efbundle \
+            --force
+
+      # ---------- Deploy ----------
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Upload frontend to storage account
+        run: |
+          az storage blob upload-batch \
+            --account-name "${{ vars.STORAGE_ACCOUNT_NAME }}" \
+            --destination '$web' \
+            --source frontend/dist \
+            --auth-mode key \
+            --overwrite
+
+      - name: Open SSH for this runner
+        run: |
+          RUNNER_IP=$(curl -fsS https://api.ipify.org)
+          az network nsg rule create -g todo-app-rg --nsg-name todo-app-nsg \
+            -n Allow-SSH-Runner --priority 105 --access Allow --protocol Tcp \
+            --direction Inbound --source-address-prefixes "$RUNNER_IP/32" \
+            --destination-port-ranges 22 --only-show-errors -o none
+          sleep 20
+
+      - name: Deploy backend over SSH
+        env:
+          SSH_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          VM_IP: ${{ vars.VM_IP }}
+        run: |
+          install -m 600 /dev/null key
+          echo "$SSH_KEY" > key
+          OPTS="-i key -o StrictHostKeyChecking=accept-new"
+          (cd backend/publish && zip -qr ../../api.zip .)
+          scp $OPTS api.zip azureuser@$VM_IP:/tmp/api.zip
+          scp $OPTS infra/azure/scripts/deploy-api-vm.sh azureuser@$VM_IP:/tmp/deploy-api-vm.sh
+          ssh $OPTS azureuser@$VM_IP "sudo bash /tmp/deploy-api-vm.sh /tmp/api.zip"
+
+      - name: Close SSH
+        if: always()
+        run: |
+          az network nsg rule delete -g todo-app-rg --nsg-name todo-app-nsg \
+            -n Allow-SSH-Runner --only-show-errors || true
