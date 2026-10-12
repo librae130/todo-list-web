@@ -3,6 +3,7 @@ import { TodoService } from "../services/TodoService.tsx";
 import type { TodoDto } from "../dtos/TodoDto.tsx";
 import type {
   TodoBatchOperationDraftDto,
+  TodoBatchOperationRequestDto,
   TodoBatchRequestDto,
   TodoBatchOperationResultDto,
 } from "../dtos/TodoBatchDto.tsx";
@@ -40,9 +41,11 @@ const hasExpectedResult = (
     return false;
   }
 
-  return operation.action === "remove"
-    ? result.todoId != null
-    : result.todo != null;
+  if (operation.action === "remove") {
+    return result.todoId != null;
+  }
+
+  return result.todo != null;
 };
 
 const createFailureMessage = (
@@ -59,10 +62,57 @@ const createFailureMessage = (
   }
 
   const count = failedOperations.length;
-  const summary = `${count} change${count === 1 ? "" : "s"} could not be saved.`;
-  return messages.size > 0
-    ? `${summary} ${[...messages].join(" ")}`
-    : `${summary} Review the remaining changes and try again.`;
+  let summary = `${count} changes could not be saved.`;
+  if (count === 1) {
+    summary = "1 change could not be saved.";
+  }
+
+  if (messages.size > 0) {
+    return `${summary} ${[...messages].join(" ")}`;
+  }
+
+  return `${summary} Review the remaining changes and try again.`;
+};
+
+const buildTodoBatchRequest = (
+  operations: TodoBatchOperationDraftDto[],
+): TodoBatchRequestDto => {
+  const requestOperations: TodoBatchOperationRequestDto[] = [];
+
+  for (const operation of operations) {
+    if (operation.action === "add") {
+      requestOperations.push({
+        clientId: operation.clientId,
+        action: operation.action,
+        name: operation.name,
+        description: operation.description,
+      });
+      continue;
+    }
+
+    if (!operation.todoId) {
+      throw new Error("A to-do ID is required.");
+    }
+
+    if (operation.action === "remove") {
+      requestOperations.push({
+        clientId: operation.clientId,
+        action: operation.action,
+        todoId: operation.todoId,
+      });
+      continue;
+    }
+
+    requestOperations.push({
+      clientId: operation.clientId,
+      action: operation.action,
+      todoId: operation.todoId,
+      name: operation.name,
+      description: operation.description,
+    });
+  }
+
+  return { operations: requestOperations };
 };
 
 export const useSaveTodoBatchOperations = ({
@@ -89,6 +139,7 @@ export const useSaveTodoBatchOperations = ({
         return;
       }
 
+      // Complete unchanged edits locally instead of sending them to the API
       const unchangedOperations = findUnchangedOperations(
         todos,
         batchOperations,
@@ -108,38 +159,7 @@ export const useSaveTodoBatchOperations = ({
         return;
       }
 
-      const request: TodoBatchRequestDto = {
-        operations: operationsToSave.map((operation) => {
-          if (operation.action === "add") {
-            return {
-              clientId: operation.clientId,
-              action: operation.action,
-              name: operation.name,
-              description: operation.description,
-            };
-          }
-
-          if (!operation.todoId) {
-            throw new Error("A to-do ID is required.");
-          }
-
-          if (operation.action === "remove") {
-            return {
-              clientId: operation.clientId,
-              action: operation.action,
-              todoId: operation.todoId,
-            };
-          }
-
-          return {
-            clientId: operation.clientId,
-            action: operation.action,
-            todoId: operation.todoId,
-            name: operation.name,
-            description: operation.description,
-          };
-        }),
-      };
+      const request = buildTodoBatchRequest(operationsToSave);
 
       const results = await TodoService.applyBatch(request);
       const resultsByClientId = new Map(
@@ -148,6 +168,7 @@ export const useSaveTodoBatchOperations = ({
       const successfulResults: TodoBatchOperationResultDto[] = [];
       const failedOperations: TodoBatchOperationDraftDto[] = [];
 
+      // Batch operations can succeed or fail independently
       for (const operation of operationsToSave) {
         const result = resultsByClientId.get(operation.clientId);
         if (hasExpectedResult(operation, result) && result) {

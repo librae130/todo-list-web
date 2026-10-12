@@ -10,10 +10,7 @@ type TodoTableProps = {
   todos: TodoDto[];
   batchOperations: TodoBatchOperationDraftDto[];
   onBatchOperationAdd: (todo: TodoDto | null, action: TodoBatchAction) => void;
-  onBatchOperationUpdate: (
-    clientId: string,
-    changes: TodoBatchOperationChanges,
-  ) => void;
+  onBatchOperationUpdate: (clientId: string, changes: TodoBatchOperationChanges) => void;
   onBatchOperationCancel: (clientId: string) => void;
 };
 
@@ -37,9 +34,7 @@ export const TodoTable = ({
     }
   }
 
-  const newOperations = batchOperations.filter(
-    (operation) => operation.action === "add",
-  );
+  const additionalOperations = batchOperations.filter((operation) => operation.action === "add");
 
   const renderedOperationIds = new Set<string>();
   for (const todo of todos) {
@@ -50,16 +45,14 @@ export const TodoTable = ({
   }
 
   const remainingOperations = batchOperations.filter(
-    (operation) =>
-      operation.action !== "add" &&
-      !renderedOperationIds.has(operation.clientId),
+    (operation) => operation.action !== "add" && !renderedOperationIds.has(operation.clientId),
   );
 
   return (
     <table className="todo-table">
       <tbody className="todo-table__body">
         {/* Keep new rows at the top of the table. */}
-        {newOperations.map((operation) => (
+        {additionalOperations.map((operation) => (
           <TodoTableBatchOperationRow
             key={operation.clientId}
             isLoading={isLoading}
