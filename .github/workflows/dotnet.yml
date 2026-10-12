@@ -20,7 +20,5 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-    - name: Navigate to backend.tests directory
-      run: cd backend.tests
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: cd backend.tests && dotnet test --no-build --verbosity normal
