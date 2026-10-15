@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\backend\backend.csproj" />
+    <ProjectReference Include="..\.github\workflows\backend\backend.csproj" />
   </ItemGroup>
 
 </Project>

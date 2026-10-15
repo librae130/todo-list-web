@@ -7,7 +7,19 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write # lets the job request a GitHub OIDC token for Azure login
+      contents: read
+    env:
+      APP_ENV: ${{ vars.APP_ENVIRONMENT }}
     steps:
+      - name: Check APP_ENVIRONMENT
+        run: |
+          case "$APP_ENV" in
+            Development|Production) echo "Deploying as $APP_ENV" ;;
+            *) echo "::error::Set the APP_ENVIRONMENT variable to Development or Production"; exit 1 ;;
+          esac
+
       - uses: actions/checkout@v4
 
       # ---------- Frontend ----------
@@ -28,7 +40,7 @@ jobs:
           dotnet-version: 10.0.x
       - name: Publish backend
         run: dotnet publish backend/backend.csproj -c Release -o backend/publish
-      - name: Write appsettings for Production
+      - name: Write appsettings
         env:
           SQL_PASSWORD: ${{ secrets.SQL_ADMIN_PASSWORD }}
           DB_SERVER: ${{ vars.DB_SERVER_FQDN }}
@@ -37,21 +49,40 @@ jobs:
           jq -n \
             --arg conn "Server=tcp:${DB_SERVER},1433;Database=TodoApp;User Id=dbadmin;Password=${SQL_PASSWORD};Encrypt=True;TrustServerCertificate=False;" \
             --arg origin "${FRONTEND_URL%/}" \
-            '{ConnectionStrings:{DatabaseConnection:$conn}, Cors:{AllowedOrigins:[$origin]}}' \
-            > backend/publish/appsettings.Development.json
+            --arg jwtkey "$JWT_KEY" \
+            '{
+              ConnectionStrings: {DatabaseConnection: $conn},
+              Cors: {AllowedOrigins: [$origin, $origin]},
+              Jwt: {
+                Key: $jwtkey,
+                Issuer: "TodoAppBackend",
+                Audience: "TodoAppFrontend",
+                AccessTokenDurationInMinute: 15,
+                RefreshTokenDurationInDay: 7
+              }
+            }' > "backend/publish/appsettings.${APP_ENV}.json"
+          ls -lh "backend/publish/appsettings.${APP_ENV}.json"
       - name: Build EF migration bundle
+        working-directory: backend
+        env:
+          ASPNETCORE_ENVIRONMENT: ${{ vars.APP_ENVIRONMENT }}
+          ConnectionStrings__DatabaseConnection: >-
+            Server=tcp:${{ vars.DB_SERVER_FQDN }},1433;Database=TodoApp;User Id=dbadmin;Password=${{ secrets.SQL_ADMIN_PASSWORD }};Encrypt=True;TrustServerCertificate=False;
         run: |
-          dotnet tool install --global dotnet-ef
+          dotnet tool restore
           dotnet ef migrations bundle \
-            --project backend/backend.csproj \
+            --project backend.csproj \
             --self-contained -r linux-x64 \
             --output backend/publish/efbundle \
             --force
+          ls -lh publish/efbundle
 
       # ---------- Deploy ----------
       - uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       - name: Upload frontend to storage account
         run: |
@@ -79,13 +110,27 @@ jobs:
           install -m 600 /dev/null key
           echo "$SSH_KEY" > key
           OPTS="-i key -o StrictHostKeyChecking=accept-new"
-          (cd backend/publish && zip -qr ../../api.zip .)
-          scp $OPTS api.zip azureuser@$VM_IP:/tmp/api.zip
-          scp $OPTS infra/azure/scripts/deploy-api-vm.sh azureuser@$VM_IP:/tmp/deploy-api-vm.sh
-          ssh $OPTS azureuser@$VM_IP "sudo bash /tmp/deploy-api-vm.sh /tmp/api.zip"
+
+          echo "::group::Copy files to the VM"
+          rsync -az --delete -e "ssh $OPTS" backend/publish/ "azureuser@$VM_IP:/tmp/api-publish/"
+          scp $OPTS infra/azure/scripts/deploy-api-vm.sh "azureuser@$VM_IP:/tmp/deploy-api-vm.sh"
+          echo "::endgroup::"
+
+          echo "::group::Run deployment script on the VM"
+          API_DOMAIN="${API_BASE_URL#https://}"
+          ssh $OPTS "azureuser@$VM_IP" "sudo bash /tmp/deploy-api-vm.sh /tmp/api-publish $API_DOMAIN $APP_ENV"
+          echo "::endgroup::"
 
       - name: Close SSH
         if: always()
         run: |
           az network nsg rule delete -g todo-app-rg --nsg-name todo-app-nsg \
             -n Allow-SSH-Runner --only-show-errors || true
+
+      - name: Smoke test
+        env:
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
+        run: |
+          # No --fail: a 404 on "/" still proves Caddy, TLS and the API are up.
+          curl -sS -o /dev/null -w "API responded with HTTP %{http_code}\n" \
+            --retry 10 --retry-delay 6 --retry-all-errors "${API_BASE_URL}/"

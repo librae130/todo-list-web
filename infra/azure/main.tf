@@ -176,7 +176,6 @@ resource "azurerm_subnet_network_security_group_association" "db" {
   network_security_group_id = azurerm_network_security_group.db.id
 }
 
-// nic doesn't get assigned public ip automatically in azure
 resource "azurerm_public_ip" "app" {
   name                = "todo-app-ip"
   location            = azurerm_resource_group.app.location
@@ -186,6 +185,7 @@ resource "azurerm_public_ip" "app" {
   domain_name_label   = "todo-api-${random_string.suffix.result}"
 }
 
+// nic doesn't get assigned public ip automatically in azure
 resource "azurerm_network_interface" "app" {
   name                = "todo-app-nic"
   location            = azurerm_resource_group.app.location
