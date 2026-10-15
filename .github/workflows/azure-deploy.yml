@@ -75,7 +75,7 @@ jobs:
             --self-contained -r linux-x64 \
             --output backend/publish/efbundle \
             --force
-          ls -lh publish/efbundle
+          ls -lh backend/publish/efbundle
 
       # ---------- Deploy ----------
       - uses: azure/login@v2
