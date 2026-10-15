@@ -7,7 +7,10 @@ type RegisterFormProps = {
   errorMessage?: string;
 };
 
-export const RegisterForm = ({ onRegister, errorMessage }: RegisterFormProps) => {
+export const RegisterForm = ({
+  onRegister,
+  errorMessage,
+}: RegisterFormProps) => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isRegistering, setIsRegistering] = useState<boolean>(false);
@@ -17,6 +20,7 @@ export const RegisterForm = ({ onRegister, errorMessage }: RegisterFormProps) =>
     e.preventDefault();
 
     setValidationError("");
+    errorMessage = "";
 
     var newError: string = "";
 
@@ -63,10 +67,16 @@ export const RegisterForm = ({ onRegister, errorMessage }: RegisterFormProps) =>
       />
       <div className="form-register__input-footer">
         {(validationError || errorMessage) && (
-          <p className="form-register__error-message">{validationError || errorMessage}</p>
+          <p className="form-register__error-message">
+            {validationError || errorMessage}
+          </p>
         )}
       </div>
-      <button className="form-register__submit-button" type="submit" disabled={isRegistering}>
+      <button
+        className="form-register__submit-button"
+        type="submit"
+        disabled={isRegistering}
+      >
         {isRegistering ? "Registering..." : "Confirm"}
       </button>
       <p className="form-register__register-link">

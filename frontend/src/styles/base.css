@@ -53,6 +53,9 @@ button {
     transform 0.1s,
     box-shadow 0.1s;
   font-size: 14px;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none;
 }
 
 input {

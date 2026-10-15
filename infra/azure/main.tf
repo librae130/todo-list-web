@@ -176,15 +176,16 @@ resource "azurerm_subnet_network_security_group_association" "db" {
   network_security_group_id = azurerm_network_security_group.db.id
 }
 
-// nic doesn't get assigned public ip automatically in azure
 resource "azurerm_public_ip" "app" {
   name                = "todo-app-ip"
   location            = azurerm_resource_group.app.location
   resource_group_name = azurerm_resource_group.app.name
   allocation_method   = "Static"
   sku                 = "Standard"
+  domain_name_label   = "todo-api-${random_string.suffix.result}"
 }
 
+// nic doesn't get assigned public ip automatically in azure
 resource "azurerm_network_interface" "app" {
   name                = "todo-app-nic"
   location            = azurerm_resource_group.app.location
@@ -299,6 +300,10 @@ resource "azurerm_private_endpoint" "db" {
   }
 
   depends_on = [azurerm_private_dns_zone_virtual_network_link.db]
+}
+
+output "api_fqdn" {
+  value = azurerm_public_ip.app.fqdn
 }
 
 output "frontend_url" {
