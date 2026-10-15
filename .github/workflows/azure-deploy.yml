@@ -8,7 +8,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write # lets the job request a GitHub OIDC token for Azure login
+      id-token: write   # lets the job request a GitHub OIDC token for Azure login
       contents: read
     env:
       APP_ENV: ${{ vars.APP_ENVIRONMENT }}
@@ -45,6 +45,7 @@ jobs:
           SQL_PASSWORD: ${{ secrets.SQL_ADMIN_PASSWORD }}
           DB_SERVER: ${{ vars.DB_SERVER_FQDN }}
           FRONTEND_URL: ${{ vars.FRONTEND_URL }}
+          JWT_KEY: ${{ secrets.JWT_SIGNING_KEY }}
         run: |
           jq -n \
             --arg conn "Server=tcp:${DB_SERVER},1433;Database=TodoApp;User Id=dbadmin;Password=${SQL_PASSWORD};Encrypt=True;TrustServerCertificate=False;" \
@@ -73,9 +74,9 @@ jobs:
           dotnet ef migrations bundle \
             --project backend.csproj \
             --self-contained -r linux-x64 \
-            --output backend/publish/efbundle \
+            --output publish/efbundle \
             --force
-          ls -lh backend/publish/efbundle
+          ls -lh publish/efbundle
 
       # ---------- Deploy ----------
       - uses: azure/login@v2
@@ -106,6 +107,7 @@ jobs:
         env:
           SSH_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           VM_IP: ${{ vars.VM_IP }}
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
         run: |
           install -m 600 /dev/null key
           echo "$SSH_KEY" > key
