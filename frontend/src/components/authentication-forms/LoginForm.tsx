@@ -17,6 +17,7 @@ export const LoginForm = ({ onLogin, errorMessage }: LoginFormProps) => {
     e.preventDefault();
 
     setValidationError("");
+    errorMessage = "";
 
     var newError: string = "";
 
@@ -47,7 +48,6 @@ export const LoginForm = ({ onLogin, errorMessage }: LoginFormProps) => {
         placeholder="Required"
         value={username}
         maxLength={USER_RESTRAINTS.NAME_MAX_LENGTH}
-
         onChange={(e) => setUsername(e.target.value)}
       />
       <label className="form-login__label">Password:</label>
@@ -62,10 +62,16 @@ export const LoginForm = ({ onLogin, errorMessage }: LoginFormProps) => {
       />
       <div className="form-login__input-footer">
         {(validationError || errorMessage) && (
-          <p className="form-login__error-message">{validationError || errorMessage}</p>
+          <p className="form-login__error-message">
+            {validationError || errorMessage}
+          </p>
         )}
       </div>
-      <button className="form-login__submit-button" type="submit" disabled={isLoggingIn}>
+      <button
+        className="form-login__submit-button"
+        type="submit"
+        disabled={isLoggingIn}
+      >
         {isLoggingIn ? "Logging In..." : "Confirm"}
       </button>
       <p className="form-login__register-link">
