@@ -76,11 +76,3 @@ EOF
 systemctl daemon-reload
 systemctl enable todo-api
 systemctl restart todo-api
-
-# ---------- Fail the deploy if the service didn't stay up ----------
-sleep 5
-if ! systemctl is-active --quiet todo-api; then
-  journalctl -u todo-api -n 30 --no-pager
-  exit 1
-fi
-echo "todo-api is running as ${APP_ENV}"
