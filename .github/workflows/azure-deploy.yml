@@ -1,7 +1,7 @@
 name: Deploy
 on:
   push:
-    branches: [test]
+    branches: [test-cicd]
   workflow_dispatch:
 
 jobs:
